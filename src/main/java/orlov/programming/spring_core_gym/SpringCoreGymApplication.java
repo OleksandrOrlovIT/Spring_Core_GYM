@@ -1,13 +1,12 @@
 package orlov.programming.spring_core_gym;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import orlov.programming.spring_core_gym.configuration.AppConfig;
 
-@SpringBootApplication
 public class SpringCoreGymApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringCoreGymApplication.class, args);
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
     }
-
 }
