@@ -1,5 +1,6 @@
 package orlov.programming.spring_core_gym.dao.impl.training;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
@@ -9,6 +10,7 @@ import orlov.programming.spring_core_gym.storage.Storage;
 import java.util.List;
 import java.util.Map;
 
+@Log4j2
 @Repository
 public class TrainingDAO implements DAO<Training> {
     private static final String NOT_FOUND_ERROR_MESSAGE = "Training is not found for ";
@@ -18,24 +20,35 @@ public class TrainingDAO implements DAO<Training> {
 
     @Autowired
     public TrainingDAO(Storage<Long, Training> storage) {
+        log.info("Creating TrainingDAO");
         this.trainingHashMap = storage.getStorage();
         nextId = storage.getLastKey();
     }
 
     @Override
     public Training create(Training training) {
-        return trainingHashMap.put(nextId, training);
+        Training savedTraining = trainingHashMap.put(nextId, training);
+
+        log.info("Creating new Training = {}", savedTraining);
+
+        return savedTraining;
     }
 
     @Override
     public Training update(Training training) {
         Long key = getKeyByValue(training);
 
-        return trainingHashMap.put(key, training);
+        Training updatedTraining = trainingHashMap.put(key, training);
+
+        log.info("Updating Training = {}", updatedTraining);
+
+        return updatedTraining;
     }
 
     @Override
     public void delete(Training training) {
+        log.info("Deleting Training = {}", training);
+
         Long key = getKeyByValue(training);
 
         trainingHashMap.remove(key);
@@ -58,6 +71,8 @@ public class TrainingDAO implements DAO<Training> {
             }
         }
 
-        throw new IllegalArgumentException(NOT_FOUND_ERROR_MESSAGE + training);
+        IllegalArgumentException e = new IllegalArgumentException(NOT_FOUND_ERROR_MESSAGE + training);
+        log.error(e);
+        throw e;
     }
 }

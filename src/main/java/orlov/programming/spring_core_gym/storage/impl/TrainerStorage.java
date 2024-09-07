@@ -1,5 +1,6 @@
 package orlov.programming.spring_core_gym.storage.impl;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import orlov.programming.spring_core_gym.model.user.Trainer;
 import orlov.programming.spring_core_gym.storage.Storage;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Log4j2
 @Component
 public class TrainerStorage implements Storage<Long, Trainer> {
 
@@ -21,6 +23,9 @@ public class TrainerStorage implements Storage<Long, Trainer> {
         trainerHashMap = new HashMap<>();
         nextId = 1L;
         filePath = "src/main/resources/trainerInitialize.txt";
+
+        log.info("Initializing TrainerStorage, trainerHashMap: {}, nexId = {}, filePath = {}",
+                trainerHashMap, nextId, filePath);
     }
 
     @Override
@@ -30,6 +35,7 @@ public class TrainerStorage implements Storage<Long, Trainer> {
 
     @Override
     public void populateStorage() {
+        log.info("Populating TrainerStorage");
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -42,8 +48,8 @@ public class TrainerStorage implements Storage<Long, Trainer> {
                 trainerHashMap.put(nextId, constructTrainer(parts));
                 nextId++;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error(e);
         }
     }
 

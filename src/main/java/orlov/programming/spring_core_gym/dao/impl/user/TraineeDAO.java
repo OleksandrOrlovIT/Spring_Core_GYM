@@ -1,5 +1,6 @@
 package orlov.programming.spring_core_gym.dao.impl.user;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
@@ -9,6 +10,7 @@ import orlov.programming.spring_core_gym.storage.Storage;
 import java.util.List;
 import java.util.Map;
 
+@Log4j2
 @Repository
 public class TraineeDAO implements DAO<Trainee> {
 
@@ -17,6 +19,7 @@ public class TraineeDAO implements DAO<Trainee> {
 
     @Autowired
     public TraineeDAO(Storage<Long, Trainee> storage) {
+        log.info("Creating TraineeDAO");
         this.traineeHashMap = storage.getStorage();
         nextId = storage.getLastKey();
     }
@@ -30,7 +33,10 @@ public class TraineeDAO implements DAO<Trainee> {
         trainee.setUserId(nextId);
         nextId++;
 
-        return traineeHashMap.put(trainee.getUserId(), trainee);
+        Trainee savedTrainee = traineeHashMap.put(trainee.getUserId(), trainee);
+        log.info("Created new Trainee = {}", savedTrainee);
+
+        return savedTrainee;
     }
 
     @Override
@@ -38,14 +44,20 @@ public class TraineeDAO implements DAO<Trainee> {
         checkUserIdEqualsNull(trainee.getUserId());
 
         if(findByObject(trainee) == null){
-            throw new IllegalArgumentException("Trainee does not exist");
+            IllegalArgumentException e = new IllegalArgumentException("Trainee does not exist");
+            log.error(e);
+            throw e;
         }
 
-        return traineeHashMap.put(trainee.getUserId(), trainee);
+        Trainee updatedTrainee = traineeHashMap.put(trainee.getUserId(), trainee);
+        log.info("Updating Trainee = {}", updatedTrainee);
+        return updatedTrainee;
     }
 
     @Override
     public void delete(Trainee trainee) {
+        log.info("Deleting Trainee = {}", trainee);
+
         checkUserIdEqualsNull(trainee.getUserId());
 
         traineeHashMap.remove(trainee.getUserId());
@@ -65,7 +77,9 @@ public class TraineeDAO implements DAO<Trainee> {
 
     private void checkUserIdEqualsNull(Long id){
         if(id == null){
-            throw new IllegalArgumentException("Trainee's id can't be null");
+            IllegalArgumentException e = new IllegalArgumentException("Trainee's id can't be null");
+            log.error(e);
+            throw e;
         }
     }
 }

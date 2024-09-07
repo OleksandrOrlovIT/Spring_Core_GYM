@@ -1,14 +1,17 @@
 package orlov.programming.spring_core_gym.dao.impl.user;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
+import orlov.programming.spring_core_gym.model.user.Trainee;
 import orlov.programming.spring_core_gym.model.user.Trainer;
 import orlov.programming.spring_core_gym.storage.Storage;
 
 import java.util.List;
 import java.util.Map;
 
+@Log4j2
 @Repository
 public class TrainerDAO implements DAO<Trainer> {
     private final Map<Long, Trainer> trainerHashMap;
@@ -16,6 +19,7 @@ public class TrainerDAO implements DAO<Trainer> {
 
     @Autowired
     public TrainerDAO(Storage<Long, Trainer> storage) {
+        log.info("Creating TrainerDAO");
         this.trainerHashMap = storage.getStorage();
         nextId = storage.getLastKey();
     }
@@ -29,7 +33,9 @@ public class TrainerDAO implements DAO<Trainer> {
         trainer.setUserId(nextId);
         nextId++;
 
-        return trainerHashMap.put(trainer.getUserId(), trainer);
+        Trainer savedTrainer = trainerHashMap.put(trainer.getUserId(), trainer);
+        log.info("Created new Trainer = {}", savedTrainer);
+        return savedTrainer;
     }
 
     @Override
@@ -37,14 +43,20 @@ public class TrainerDAO implements DAO<Trainer> {
         checkUserIdEqualsNull(trainer.getUserId());
 
         if(findByObject(trainer) == null){
-            throw new IllegalArgumentException("Trainer does not exist");
+            IllegalArgumentException e = new IllegalArgumentException("Trainer does not exist");
+            log.error(e);
+            throw e;
         }
 
-        return trainerHashMap.put(trainer.getUserId(), trainer);
+        Trainer updatedTrainer = trainerHashMap.put(trainer.getUserId(), trainer);
+        log.info("Updating Trainer = {}", updatedTrainer);
+        return updatedTrainer;
     }
 
     @Override
     public void delete(Trainer trainer) {
+        log.info("Deleting Trainer = {}", trainer);
+
         checkUserIdEqualsNull(trainer.getUserId());
 
         trainerHashMap.remove(trainer.getUserId());
@@ -64,7 +76,9 @@ public class TrainerDAO implements DAO<Trainer> {
 
     private void checkUserIdEqualsNull(Long id){
         if(id == null){
-            throw new IllegalArgumentException("Trainer's id can't be null");
+            IllegalArgumentException e = new IllegalArgumentException("Trainer's id can't be null");
+            log.error(e);
+            throw e;
         }
     }
 }

@@ -1,5 +1,6 @@
 package orlov.programming.spring_core_gym.storage.impl;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import orlov.programming.spring_core_gym.model.training.Training;
@@ -16,6 +17,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Log4j2
 @Component
 public class TrainingStorage implements Storage<Long, Training> {
 
@@ -30,12 +32,17 @@ public class TrainingStorage implements Storage<Long, Training> {
     public TrainingStorage(TraineeStorage traineeStorage, TrainerStorage trainerStorage) {
         traineeHashMap = traineeStorage.getStorage();
         trainerHashMap = trainerStorage.getStorage();
+        log.info("Initializing training storage in constructor, traineeHashMap={}, trainerHashMap={}",
+                traineeHashMap, trainerHashMap);
     }
 
     static {
         trainingHashMap = new HashMap<>();
         nextId = 1L;
         filePath = "src/main/resources/trainingInitialize.txt";
+
+        log.info("Initializing TrainingStorage in static block, trainingHashMap: {}, nexId = {}, filePath = {}",
+                trainingHashMap, nextId, filePath);
     }
 
     @Override
@@ -45,6 +52,7 @@ public class TrainingStorage implements Storage<Long, Training> {
 
     @Override
     public void populateStorage() {
+        log.info("Populating TrainingStorage");
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -58,7 +66,7 @@ public class TrainingStorage implements Storage<Long, Training> {
                 nextId++;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
