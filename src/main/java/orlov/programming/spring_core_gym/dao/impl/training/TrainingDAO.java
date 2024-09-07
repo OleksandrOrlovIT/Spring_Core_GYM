@@ -1,10 +1,11 @@
-package orlov.programming.spring_core_gym.dao.training;
+package orlov.programming.spring_core_gym.dao.impl.training;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
 import orlov.programming.spring_core_gym.model.training.Training;
+import orlov.programming.spring_core_gym.storage.Storage;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,12 +13,13 @@ import java.util.Map;
 public class TrainingDAO implements DAO<Training> {
     private static final String NOT_FOUND_ERROR_MESSAGE = "Training is not found for ";
 
-    private static final HashMap<Long, Training> trainingHashMap;
+    private final Map<Long, Training> trainingHashMap;
     private static long nextId;
 
-    static {
-        trainingHashMap = new HashMap<>();
-        nextId = 1L;
+    @Autowired
+    public TrainingDAO(Storage<Long, Training> storage) {
+        this.trainingHashMap = storage.getStorage();
+        nextId = storage.getLastKey();
     }
 
     @Override
@@ -49,7 +51,7 @@ public class TrainingDAO implements DAO<Training> {
         return trainingHashMap.get(getKeyByValue(training));
     }
 
-    public static Long getKeyByValue(Training training) {
+    public Long getKeyByValue(Training training) {
         for (Map.Entry<Long, Training> entry : trainingHashMap.entrySet()) {
             if (entry.getValue().equals(training)) {
                 return entry.getKey();

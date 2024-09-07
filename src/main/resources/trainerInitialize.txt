@@ -1,0 +1,10 @@
+John, Doe, jdoe, password123, true, Personal Trainer
+Jane, Smith, jsmith, password456, true, Yoga Instructor
+Michael, Johnson, mjohnson, password789, false, Strength Coach
+Emily, Davis, edavis, password012, true, Cardio Specialist
+Chris, Brown, cbrown, password345, true, Nutrition Coach
+Sophia, Wilson, swilson, password678, true, Pilates Instructor
+James, Taylor, jtaylor, password901, false, Athletic Trainer
+Olivia, Anderson, oanderson, password234, true, CrossFit Coach
+David, Thomas, dthomas, password567, true, Rehabilitation Specialist
+Ava, Martinez, amartinez, password890, true, Functional Training Expert

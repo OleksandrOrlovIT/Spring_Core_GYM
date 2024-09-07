@@ -1,20 +1,23 @@
-package orlov.programming.spring_core_gym.dao.user;
+package orlov.programming.spring_core_gym.dao.impl.user;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
 import orlov.programming.spring_core_gym.model.user.Trainer;
+import orlov.programming.spring_core_gym.storage.Storage;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class TrainerDAO implements DAO<Trainer> {
-    private static final HashMap<Long, Trainer> trainerHashMap;
+    private final Map<Long, Trainer> trainerHashMap;
     private static long nextId;
 
-    static {
-        trainerHashMap = new HashMap<>();
-        nextId = 1L;
+    @Autowired
+    public TrainerDAO(Storage<Long, Trainer> storage) {
+        this.trainerHashMap = storage.getStorage();
+        nextId = storage.getLastKey();
     }
 
     @Override

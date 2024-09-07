@@ -11,5 +11,5 @@ import lombok.experimental.SuperBuilder;
 @Setter
 public class Trainer extends User{
     private String specialization;
-    private Long UserId;
+    private Long userId;
 }
