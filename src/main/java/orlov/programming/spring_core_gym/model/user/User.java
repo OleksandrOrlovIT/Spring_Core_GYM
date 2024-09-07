@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class User {
+public abstract class User {
     private String firstName;
     private String lastName;
     private String username;

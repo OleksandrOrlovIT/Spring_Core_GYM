@@ -9,4 +9,5 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class Trainer extends User{
     private String specialization;
+    private Long UserId;
 }
