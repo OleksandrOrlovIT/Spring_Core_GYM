@@ -9,10 +9,13 @@ import orlov.programming.spring_core_gym.storage.Storage;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Log4j2
 @Repository
 public class TraineeDAO implements DAO<Trainee> {
+
+    private static final String TRAINEE_NULL_ERROR = "Trainee can't be null";
 
     private final Map<Long, Trainee> traineeHashMap;
     private static long nextId;
@@ -26,6 +29,7 @@ public class TraineeDAO implements DAO<Trainee> {
 
     @Override
     public Trainee create(Trainee trainee) {
+        Objects.requireNonNull(trainee, TRAINEE_NULL_ERROR);
         if(trainee.getUserId() != null){
             throw new IllegalArgumentException("Trainee's id has to be null");
         }
@@ -41,7 +45,8 @@ public class TraineeDAO implements DAO<Trainee> {
 
     @Override
     public Trainee update(Trainee trainee) {
-        checkUserIdEqualsNull(trainee.getUserId());
+        Objects.requireNonNull(trainee, TRAINEE_NULL_ERROR);
+        isUserIdEqualsNull(trainee.getUserId());
 
         if(findByObject(trainee) == null){
             IllegalArgumentException e = new IllegalArgumentException("Trainee does not exist");
@@ -58,7 +63,7 @@ public class TraineeDAO implements DAO<Trainee> {
     public void delete(Trainee trainee) {
         log.info("Deleting Trainee = {}", trainee);
 
-        checkUserIdEqualsNull(trainee.getUserId());
+        isUserIdEqualsNull(trainee.getUserId());
 
         traineeHashMap.remove(trainee.getUserId());
     }
@@ -70,12 +75,13 @@ public class TraineeDAO implements DAO<Trainee> {
 
     @Override
     public Trainee findByObject(Trainee trainee) {
-        checkUserIdEqualsNull(trainee.getUserId());
+        Objects.requireNonNull(trainee, TRAINEE_NULL_ERROR);
+        isUserIdEqualsNull(trainee.getUserId());
 
         return traineeHashMap.get(trainee.getUserId());
     }
 
-    private void checkUserIdEqualsNull(Long id){
+    private void isUserIdEqualsNull(Long id){
         if(id == null){
             IllegalArgumentException e = new IllegalArgumentException("Trainee's id can't be null");
             log.error(e);

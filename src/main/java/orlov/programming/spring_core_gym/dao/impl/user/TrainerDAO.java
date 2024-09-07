@@ -4,16 +4,19 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
-import orlov.programming.spring_core_gym.model.user.Trainee;
 import orlov.programming.spring_core_gym.model.user.Trainer;
 import orlov.programming.spring_core_gym.storage.Storage;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Log4j2
 @Repository
 public class TrainerDAO implements DAO<Trainer> {
+
+    private static final String TRAINER_NULL_ERROR = "Trainer can't be null";
+
     private final Map<Long, Trainer> trainerHashMap;
     private static long nextId;
 
@@ -26,6 +29,7 @@ public class TrainerDAO implements DAO<Trainer> {
 
     @Override
     public Trainer create(Trainer trainer) {
+        Objects.requireNonNull(trainer, TRAINER_NULL_ERROR);
         if(trainer.getUserId() != null){
             throw new IllegalArgumentException("Trainer's id has to be null");
         }
@@ -40,6 +44,7 @@ public class TrainerDAO implements DAO<Trainer> {
 
     @Override
     public Trainer update(Trainer trainer) {
+        Objects.requireNonNull(trainer, TRAINER_NULL_ERROR);
         checkUserIdEqualsNull(trainer.getUserId());
 
         if(findByObject(trainer) == null){
@@ -69,6 +74,7 @@ public class TrainerDAO implements DAO<Trainer> {
 
     @Override
     public Trainer findByObject(Trainer trainer) {
+        Objects.requireNonNull(trainer, TRAINER_NULL_ERROR);
         checkUserIdEqualsNull(trainer.getUserId());
 
         return trainerHashMap.get(trainer.getUserId());
