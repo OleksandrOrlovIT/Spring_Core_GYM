@@ -7,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
+@Getter
+@Setter
 public class Trainer extends User{
     private String specialization;
     private Long UserId;
