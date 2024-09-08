@@ -36,9 +36,9 @@ public class TrainerDAO implements DAOUsernameFindable<Trainer> {
         trainer.setUserId(nextId);
         nextId++;
 
-        Trainer savedTrainer = trainerHashMap.put(trainer.getUserId(), trainer);
-        log.info("Created new Trainer = {}", savedTrainer);
-        return savedTrainer;
+        trainerHashMap.put(trainer.getUserId(), trainer);
+        log.info("Created new Trainer = {}", trainer);
+        return trainer;
     }
 
     @Override
@@ -52,14 +52,15 @@ public class TrainerDAO implements DAOUsernameFindable<Trainer> {
             throw e;
         }
 
-        Trainer updatedTrainer = trainerHashMap.put(trainer.getUserId(), trainer);
-        log.info("Updating Trainer = {}", updatedTrainer);
-        return updatedTrainer;
+        trainerHashMap.put(trainer.getUserId(), trainer);
+        log.info("Updating Trainer = {}", trainer);
+        return trainer;
     }
 
     @Override
     public void delete(Trainer trainer) {
         log.info("Deleting Trainer = {}", trainer);
+        Objects.requireNonNull(trainer, TRAINER_NULL_ERROR);
 
         checkUserIdEqualsNull(trainer.getUserId());
 
@@ -81,8 +82,9 @@ public class TrainerDAO implements DAOUsernameFindable<Trainer> {
 
     @Override
     public Trainer findByUsername(String username) {
+        Objects.requireNonNull(username, "Trainer's username can't be null");
         for (Trainer trainer : trainerHashMap.values()) {
-            if (trainer.getUsername().equals(username)) {
+            if (username.equals(trainer.getUsername())) {
                 return trainer;
             }
         }

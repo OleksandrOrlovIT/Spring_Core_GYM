@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
+import orlov.programming.spring_core_gym.dao.DAOSelectableCreatable;
 import orlov.programming.spring_core_gym.model.training.Training;
 import orlov.programming.spring_core_gym.model.user.Trainee;
 import orlov.programming.spring_core_gym.model.user.Trainer;
@@ -15,14 +16,14 @@ import java.util.Objects;
 
 @Log4j2
 @Repository
-public class TrainingDAO implements DAO<Training> {
+public class TrainingDAO implements DAOSelectableCreatable<Training> {
     private static final String TRAINING_NULL_ERROR = "Training can't be null";
     private static final String TRAINING_NOT_FOUND_ERROR_MESSAGE = "Training is not found for ";
     private static final String TRAINEE_NOT_FOUND_ERROR_MESSAGE = "Trainee is not found for ";
     private static final String TRAINER_NOT_FOUND_ERROR_MESSAGE = "Trainer is not found for ";
 
     private final Map<Long, Training> trainingHashMap;
-    private static long nextId;
+    private long nextId;
 
     private final DAO<Trainee> traineeDAO;
     private final DAO<Trainer> trainerDAO;
@@ -41,34 +42,12 @@ public class TrainingDAO implements DAO<Training> {
         Objects.requireNonNull(training, TRAINING_NULL_ERROR);
         isTraineeAndTrainerExists(training.getTrainee(), training.getTrainer());
 
-        Training savedTraining = trainingHashMap.put(nextId, training);
+        trainingHashMap.put(nextId, training);
+        nextId++;
 
-        log.info("Creating new Training = {}", savedTraining);
+        log.info("Created new Training = {}", training);
 
-        return savedTraining;
-    }
-
-    @Override
-    public Training update(Training training) {
-        Objects.requireNonNull(training, TRAINING_NULL_ERROR);
-        isTraineeAndTrainerExists(training.getTrainee(), training.getTrainer());
-
-        Long key = getKeyByValue(training);
-
-        Training updatedTraining = trainingHashMap.put(key, training);
-
-        log.info("Updating Training = {}", updatedTraining);
-
-        return updatedTraining;
-    }
-
-    @Override
-    public void delete(Training training) {
-        log.info("Deleting Training = {}", training);
-
-        Long key = getKeyByValue(training);
-
-        trainingHashMap.remove(key);
+        return training;
     }
 
     @Override
@@ -86,7 +65,8 @@ public class TrainingDAO implements DAO<Training> {
         Objects.requireNonNull(training, TRAINING_NULL_ERROR);
 
         for (Map.Entry<Long, Training> entry : trainingHashMap.entrySet()) {
-            if (entry.getValue().equals(training)) {
+            Training curr = entry.getValue();
+            if (training.equals(curr)) {
                 return entry.getKey();
             }
         }

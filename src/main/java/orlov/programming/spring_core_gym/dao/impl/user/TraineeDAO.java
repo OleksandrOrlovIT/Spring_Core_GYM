@@ -17,7 +17,7 @@ public class TraineeDAO implements DAOUsernameFindable<Trainee> {
     private static final String TRAINEE_NULL_ERROR = "Trainee can't be null";
 
     private final Map<Long, Trainee> traineeHashMap;
-    private static long nextId;
+    private long nextId;
 
     @Autowired
     public TraineeDAO(Storage<Long, Trainee> storage) {
@@ -36,10 +36,10 @@ public class TraineeDAO implements DAOUsernameFindable<Trainee> {
         trainee.setUserId(nextId);
         nextId++;
 
-        Trainee savedTrainee = traineeHashMap.put(trainee.getUserId(), trainee);
-        log.info("Created new Trainee = {}", savedTrainee);
+        traineeHashMap.put(trainee.getUserId(), trainee);
+        log.info("Created new Trainee = {}", trainee);
 
-        return savedTrainee;
+        return trainee;
     }
 
     @Override
@@ -53,15 +53,15 @@ public class TraineeDAO implements DAOUsernameFindable<Trainee> {
             throw e;
         }
 
-        Trainee updatedTrainee = traineeHashMap.put(trainee.getUserId(), trainee);
-        log.info("Updating Trainee = {}", updatedTrainee);
-        return updatedTrainee;
+        traineeHashMap.put(trainee.getUserId(), trainee);
+        log.info("Updating Trainee = {}", trainee);
+        return trainee;
     }
 
     @Override
     public void delete(Trainee trainee) {
         log.info("Deleting Trainee = {}", trainee);
-
+        Objects.requireNonNull(trainee, TRAINEE_NULL_ERROR);
         isUserIdEqualsNull(trainee.getUserId());
 
         traineeHashMap.remove(trainee.getUserId());
@@ -82,8 +82,10 @@ public class TraineeDAO implements DAOUsernameFindable<Trainee> {
 
     @Override
     public Trainee findByUsername(String username) {
+        Objects.requireNonNull(username, "Trainee's username can't be null");
+
         for (Trainee trainee : traineeHashMap.values()) {
-            if (trainee.getUsername().equals(username)) {
+            if (username.equals(trainee.getUsername())) {
                 return trainee;
             }
         }
