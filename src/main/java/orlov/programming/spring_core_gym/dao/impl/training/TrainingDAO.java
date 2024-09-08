@@ -4,8 +4,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.spring_core_gym.dao.DAO;
-import orlov.programming.spring_core_gym.dao.impl.user.TraineeDAO;
-import orlov.programming.spring_core_gym.dao.impl.user.TrainerDAO;
 import orlov.programming.spring_core_gym.model.training.Training;
 import orlov.programming.spring_core_gym.model.user.Trainee;
 import orlov.programming.spring_core_gym.model.user.Trainer;
@@ -26,11 +24,11 @@ public class TrainingDAO implements DAO<Training> {
     private final Map<Long, Training> trainingHashMap;
     private static long nextId;
 
-    private final TraineeDAO traineeDAO;
-    private final TrainerDAO trainerDAO;
+    private final DAO<Trainee> traineeDAO;
+    private final DAO<Trainer> trainerDAO;
 
     @Autowired
-    public TrainingDAO(Storage<Long, Training> storage, TraineeDAO traineeDAO, TrainerDAO trainerDAO) {
+    public TrainingDAO(Storage<Long, Training> storage, DAO<Trainee> traineeDAO, DAO<Trainer> trainerDAO) {
         log.info("Creating TrainingDAO");
         this.trainingHashMap = storage.getStorage();
         nextId = storage.getLastKey();
