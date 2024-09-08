@@ -3,7 +3,6 @@ package orlov.programming.spring_core_gym.dao.impl.user;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import orlov.programming.spring_core_gym.dao.DAO;
 import orlov.programming.spring_core_gym.model.user.Trainee;
 import orlov.programming.spring_core_gym.storage.Storage;
 
@@ -13,7 +12,7 @@ import java.util.Objects;
 
 @Log4j2
 @Repository
-public class TraineeDAO implements DAO<Trainee> {
+public class TraineeDAO implements DAOUsernameFindable<Trainee> {
 
     private static final String TRAINEE_NULL_ERROR = "Trainee can't be null";
 
@@ -79,6 +78,17 @@ public class TraineeDAO implements DAO<Trainee> {
         isUserIdEqualsNull(trainee.getUserId());
 
         return traineeHashMap.get(trainee.getUserId());
+    }
+
+    @Override
+    public Trainee findByUsername(String username) {
+        for (Trainee trainee : traineeHashMap.values()) {
+            if (trainee.getUsername().equals(username)) {
+                return trainee;
+            }
+        }
+
+        return null;
     }
 
     private void isUserIdEqualsNull(Long id){
