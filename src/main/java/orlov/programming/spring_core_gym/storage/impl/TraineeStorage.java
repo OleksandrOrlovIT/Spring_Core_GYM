@@ -1,5 +1,6 @@
 package orlov.programming.spring_core_gym.storage.impl;
 
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import orlov.programming.spring_core_gym.model.user.Trainee;
@@ -7,7 +8,6 @@ import orlov.programming.spring_core_gym.storage.Storage;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,16 +16,16 @@ import java.util.Map;
 @Component
 public class TraineeStorage implements Storage<Long, Trainee> {
 
-    private static final HashMap<Long, Trainee> traineeHashMap;
-    private static long nextId;
-    private static final String filePath;
+    private final HashMap<Long, Trainee> traineeHashMap;
+    private long nextId;
+    @Setter
+    private String filePath;
 
-    static {
+    public TraineeStorage() {
         traineeHashMap = new HashMap<>();
         nextId = 1L;
-        filePath = "src/main/resources/traineeInitialize.txt";
-
-        log.info("Initializing TraineeStorage, traineeHashMap: {}, nexId = {}, filePath = {}",
+        setFilePath("src/main/resources/traineeInitialize.txt");
+        log.info("Initializing TraineeStorage, traineeHashMap: {}, nextId = {}, filePath = {}",
                 traineeHashMap, nextId, filePath);
     }
 
@@ -59,7 +59,7 @@ public class TraineeStorage implements Storage<Long, Trainee> {
         return nextId;
     }
 
-    private Trainee constructTrainee(String[] parts){
+    protected Trainee constructTrainee(String[] parts){
         return Trainee.builder()
                 .firstName(parts[0])
                 .lastName(parts[1])

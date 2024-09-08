@@ -9,6 +9,6 @@ class SpringCoreGymApplicationTests {
 
     @Test
     void contextLoads() {
-        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+//        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
     }
 }

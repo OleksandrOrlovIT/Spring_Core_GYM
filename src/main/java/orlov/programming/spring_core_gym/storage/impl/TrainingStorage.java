@@ -1,5 +1,6 @@
 package orlov.programming.spring_core_gym.storage.impl;
 
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,28 +22,24 @@ import java.util.Map;
 @Component
 public class TrainingStorage implements Storage<Long, Training> {
 
-    private static final HashMap<Long, Training> trainingHashMap;
-    private static Long nextId;
+    private final HashMap<Long, Training> trainingHashMap;
+    private Long nextId;
     private final Map<Long, Trainee> traineeHashMap;
     private final Map<Long, Trainer> trainerHashMap;
 
-    private static final String filePath;
+    @Setter
+    private String filePath;
 
     @Autowired
     public TrainingStorage(TraineeStorage traineeStorage, TrainerStorage trainerStorage) {
         traineeHashMap = traineeStorage.getStorage();
         trainerHashMap = trainerStorage.getStorage();
-        log.info("Initializing training storage in constructor, traineeHashMap={}, trainerHashMap={}",
-                traineeHashMap, trainerHashMap);
-    }
-
-    static {
         trainingHashMap = new HashMap<>();
         nextId = 1L;
-        filePath = "src/main/resources/trainingInitialize.txt";
-
-        log.info("Initializing TrainingStorage in static block, trainingHashMap: {}, nexId = {}, filePath = {}",
-                trainingHashMap, nextId, filePath);
+        setFilePath("src/main/resources/trainingInitialize.txt");
+        log.info("Initializing TrainingStorage in constructor, trainingHashMap: {}, nexId = {}," +
+                        " filePath = {}, traineeHashMap={}, trainerHashMap={}",
+                trainingHashMap, nextId, filePath, traineeHashMap, trainerHashMap) ;
     }
 
     @Override
@@ -65,7 +62,7 @@ public class TrainingStorage implements Storage<Long, Training> {
                 trainingHashMap.put(nextId, constructTraining(parts));
                 nextId++;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e);
         }
     }
@@ -75,7 +72,7 @@ public class TrainingStorage implements Storage<Long, Training> {
         return nextId;
     }
 
-    private Training constructTraining(String[] parts){
+    protected Training constructTraining(String[] parts){
         return Training.builder()
                 .trainee(traineeHashMap.get(Long.parseLong(parts[0])))
                 .trainer(trainerHashMap.get(Long.parseLong(parts[1])))
