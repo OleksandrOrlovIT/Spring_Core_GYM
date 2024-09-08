@@ -2,7 +2,7 @@ package orlov.programming.spring_core_gym.service.training;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import orlov.programming.spring_core_gym.dao.DAO;
+import orlov.programming.spring_core_gym.dao.DAOSelectableCreatable;
 import orlov.programming.spring_core_gym.model.training.Training;
 import orlov.programming.spring_core_gym.service.CSService;
 
@@ -10,7 +10,7 @@ import orlov.programming.spring_core_gym.service.CSService;
 public class TrainingService implements CSService<Training> {
 
     @Autowired
-    private DAO<Training> trainingDAO;
+    private DAOSelectableCreatable<Training> trainingDAO;
 
     @Override
     public Training create(Training training) {

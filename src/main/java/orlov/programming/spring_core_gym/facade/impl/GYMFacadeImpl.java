@@ -1,70 +1,70 @@
 package orlov.programming.spring_core_gym.facade.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import orlov.programming.spring_core_gym.dao.DAO;
-import orlov.programming.spring_core_gym.dao.impl.user.DAOUsernameFindable;
 import orlov.programming.spring_core_gym.facade.GYMFacade;
 import orlov.programming.spring_core_gym.model.training.Training;
 import orlov.programming.spring_core_gym.model.user.Trainee;
 import orlov.programming.spring_core_gym.model.user.Trainer;
+import orlov.programming.spring_core_gym.service.CRUDService;
+import orlov.programming.spring_core_gym.service.CSService;
+import orlov.programming.spring_core_gym.service.UpdatableService;
 
 @Component
 public class GYMFacadeImpl implements GYMFacade {
 
-    private final DAOUsernameFindable<Trainee> traineeDAO;
-    private final DAOUsernameFindable<Trainer> trainerDAO;
-    private final DAO<Training> trainingDAO;
+    private final CRUDService<Trainee> traineeCRUDService;
+    private final UpdatableService<Trainer> trainerUpdatableService;
+    private final CSService<Training> trainingCSService;
 
-    @Autowired
-    public GYMFacadeImpl(DAOUsernameFindable<Trainee> traineeDAO, DAOUsernameFindable<Trainer> trainerDAO, DAO<Training> trainingDAO) {
-        this.traineeDAO = traineeDAO;
-        this.trainerDAO = trainerDAO;
-        this.trainingDAO = trainingDAO;
+
+    public GYMFacadeImpl(CRUDService<Trainee> traineeCRUDService, UpdatableService<Trainer> trainerUpdatableService, CSService<Training> trainingCSService) {
+        this.traineeCRUDService = traineeCRUDService;
+        this.trainerUpdatableService = trainerUpdatableService;
+        this.trainingCSService = trainingCSService;
     }
 
     @Override
     public Trainee createTrainee(Trainee trainee) {
-        return traineeDAO.create(trainee);
+        return traineeCRUDService.create(trainee);
     }
 
     @Override
     public Trainee updateTrainee(Trainee trainee) {
-        return traineeDAO.update(trainee);
+        return traineeCRUDService.update(trainee);
     }
 
     @Override
     public void deleteTrainee(Trainee trainee) {
-        traineeDAO.delete(trainee);
+        traineeCRUDService.delete(trainee);
     }
 
     @Override
     public Trainee selectTrainee(Trainee trainee) {
-        return traineeDAO.findByObject(trainee);
+        return traineeCRUDService.select(trainee);
     }
 
     @Override
     public Trainer createTrainer(Trainer trainer) {
-        return trainerDAO.create(trainer);
+        return trainerUpdatableService.create(trainer);
     }
 
     @Override
     public Trainer updateTrainer(Trainer trainer) {
-        return trainerDAO.update(trainer);
+        return trainerUpdatableService.update(trainer);
     }
 
     @Override
     public Trainer selectTrainer(Trainer trainer) {
-        return trainerDAO.findByObject(trainer);
+        return trainerUpdatableService.select(trainer);
     }
 
     @Override
     public Training createTraining(Training training) {
-        return trainingDAO.create(training);
+        return trainingCSService.create(training);
     }
 
     @Override
     public Training selectTraining(Training training) {
-        return trainingDAO.findByObject(training);
+        return trainingCSService.select(training);
     }
 }

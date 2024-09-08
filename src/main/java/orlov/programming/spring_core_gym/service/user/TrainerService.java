@@ -29,16 +29,13 @@ public class TrainerService implements UpdatableService<Trainer> {
     public Trainer update(Trainer trainer) {
         trainer.setUsername(constructTrainerUsername(trainer));
 
-        Trainer foundTrainer;
-
-        if((foundTrainer = select(trainer)) == null){
+        if(select(trainer) == null){
             IllegalArgumentException e = new IllegalArgumentException("Trainer not found for " + trainer);
             log.error(e);
             throw e;
         }
 
-        if(trainer.getPassword() == null || trainer.getPassword().length() != 10
-                || !trainer.getPassword().equals(foundTrainer.getPassword())){
+        if(trainer.getPassword() == null || trainer.getPassword().length() != 10){
             trainer.setPassword(passwordGenerator.generatePassword());
         }
 
@@ -61,7 +58,7 @@ public class TrainerService implements UpdatableService<Trainer> {
     @Override
     public Trainer select(Trainer trainer) {
         Objects.requireNonNull(trainer, "Trainer can't be null");
-        return trainerDAO.findByObject(trainer);
+        return trainerDAO.findByUsername(trainer.getUsername());
     }
 
     private void checkAvailableUserName(Trainer trainer) {

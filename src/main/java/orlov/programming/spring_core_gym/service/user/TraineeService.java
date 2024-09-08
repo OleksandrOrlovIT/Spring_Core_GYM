@@ -34,16 +34,13 @@ public class TraineeService implements CRUDService<Trainee> {
     public Trainee update(Trainee trainee) {
         trainee.setUsername(constructTraineeUsername(trainee));
 
-        Trainee foundTrainee;
-
-        if((foundTrainee = select(trainee)) == null){
+        if(select(trainee) == null){
             IllegalArgumentException e = new IllegalArgumentException("Trainee not found for " + trainee);
             log.error(e);
             throw e;
         }
 
-        if(trainee.getPassword() == null || trainee.getPassword().length() != 10
-                || !trainee.getPassword().equals(foundTrainee.getPassword())){
+        if(trainee.getPassword() == null || trainee.getPassword().length() != 10){
             trainee.setPassword(passwordGenerator.generatePassword());
         }
 
