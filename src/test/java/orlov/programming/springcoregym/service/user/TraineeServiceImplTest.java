@@ -5,8 +5,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import orlov.programming.springcoregym.dao.impl.user.DAOUsernameFindable;
+import orlov.programming.springcoregym.dao.DaoUsernameFindable;
 import orlov.programming.springcoregym.model.user.Trainee;
+import orlov.programming.springcoregym.service.user.trainee.TraineeServiceImpl;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
 import java.util.List;
@@ -18,43 +19,43 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TraineeServiceTest {
+class TraineeServiceImplTest {
 
     private static final String FIRST_NAME = "FIRST";
     private static final String LAST_NAME = "LAST";
     private static final String PASSWORD = "1111111111";
 
     @Mock
-    private DAOUsernameFindable<Trainee> traineeDAO;
+    private DaoUsernameFindable<Trainee> traineeDAO;
 
     @Mock
     private PasswordGenerator passwordGenerator;
 
     @InjectMocks
-    private TraineeService traineeService;
+    private TraineeServiceImpl traineeServiceImpl;
 
     @Test
     void whenDelete_thenSuccess(){
-        assertDoesNotThrow(() -> traineeService.delete(new Trainee()));
+        assertDoesNotThrow(() -> traineeServiceImpl.delete(new Trainee()));
     }
 
     @Test
     void givenNull_whenUpdate_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> traineeService.update(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.update(null));
         assertEquals("Trainee can't be null", e.getMessage());
     }
 
     @Test
     void givenFirstNameNull_whenUpdate_thenException(){
         Trainee trainee = new Trainee();
-        var e = assertThrows(NullPointerException.class, () -> traineeService.update(trainee));
+        var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.update(trainee));
         assertEquals("Trainee's firstName can't be null", e.getMessage());
     }
 
     @Test
     void givenLastNameNull_whenUpdate_thenException(){
         Trainee trainee = Trainee.builder().firstName(FIRST_NAME).build();
-        var e = assertThrows(NullPointerException.class, () -> traineeService.update(trainee));
+        var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.update(trainee));
         assertEquals("Trainee's lastName can't be null", e.getMessage());
     }
 
@@ -64,7 +65,7 @@ class TraineeServiceTest {
 
         when(traineeDAO.findByUsername(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(NoSuchElementException.class, () -> traineeService.update(trainee));
+        var e = assertThrows(NoSuchElementException.class, () -> traineeServiceImpl.update(trainee));
         assertEquals("Trainee not found " + trainee, e.getMessage());
         verify(traineeDAO, times(1)).findByUsername(any());
     }
@@ -78,7 +79,7 @@ class TraineeServiceTest {
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
         when(traineeDAO.update(any())).thenReturn(updatedTrainee);
 
-        Trainee resultTrainee = traineeService.update(trainee);
+        Trainee resultTrainee = traineeServiceImpl.update(trainee);
         assertEquals(PASSWORD, resultTrainee.getPassword());
         assertEquals(FIRST_NAME + "." + LAST_NAME, trainee.getUsername());
 
@@ -96,7 +97,7 @@ class TraineeServiceTest {
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
         when(traineeDAO.update(any())).thenReturn(updatedTrainee);
 
-        Trainee resultTrainee = traineeService.update(trainee);
+        Trainee resultTrainee = traineeServiceImpl.update(trainee);
         assertEquals(PASSWORD, resultTrainee.getPassword());
         assertEquals(FIRST_NAME + "." + LAST_NAME, trainee.getUsername());
 
@@ -114,7 +115,7 @@ class TraineeServiceTest {
         when(traineeDAO.findByUsername(any())).thenReturn(Optional.of(trainee));
         when(traineeDAO.update(any())).thenReturn(updatedTrainee);
 
-        Trainee resultTrainee = traineeService.update(trainee);
+        Trainee resultTrainee = traineeServiceImpl.update(trainee);
         assertEquals(password2, resultTrainee.getPassword());
         assertEquals(FIRST_NAME + "." + LAST_NAME, trainee.getUsername());
         verify(traineeDAO, times(1)).findByUsername(any());
@@ -123,21 +124,21 @@ class TraineeServiceTest {
 
     @Test
     void givenNull_whenCreate_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> traineeService.create(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.create(null));
         assertEquals("Trainee can't be null", e.getMessage());
     }
 
     @Test
     void givenFirstNameNull_whenCreate_thenException(){
         Trainee trainee = new Trainee();
-        var e = assertThrows(NullPointerException.class, () -> traineeService.create(trainee));
+        var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.create(trainee));
         assertEquals("Trainee's firstName can't be null", e.getMessage());
     }
 
     @Test
     void givenLastNameNull_whenCreate_thenException(){
         Trainee trainee = Trainee.builder().firstName(FIRST_NAME).build();
-        var e = assertThrows(NullPointerException.class, () -> traineeService.create(trainee));
+        var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.create(trainee));
         assertEquals("Trainee's lastName can't be null", e.getMessage());
     }
 
@@ -150,7 +151,7 @@ class TraineeServiceTest {
         when(traineeDAO.findAll()).thenReturn(List.of(Trainee.builder().username(FIRST_NAME + "." + LAST_NAME).build()));
         when(traineeDAO.create(any())).thenReturn(createdTrainee);
 
-        traineeService.create(trainee);
+        traineeServiceImpl.create(trainee);
         assertNotEquals(createdTrainee, trainee);
         assertEquals(PASSWORD, trainee.getPassword());
         assertEquals(50, trainee.getUsername().length());
@@ -169,7 +170,7 @@ class TraineeServiceTest {
         when(traineeDAO.findAll()).thenReturn(List.of(Trainee.builder().username("name").build()));
         when(traineeDAO.create(any())).thenReturn(createdTrainee);
 
-        traineeService.create(trainee);
+        traineeServiceImpl.create(trainee);
         assertNotEquals(createdTrainee, trainee);
         assertEquals(PASSWORD, trainee.getPassword());
         assertEquals(10, trainee.getUsername().length());
@@ -188,7 +189,7 @@ class TraineeServiceTest {
         when(traineeDAO.findAll()).thenReturn(List.of(Trainee.builder().username("name").build()));
         when(traineeDAO.create(any())).thenReturn(createdTrainee);
 
-        traineeService.create(trainee);
+        traineeServiceImpl.create(trainee);
         assertNotEquals(createdTrainee, trainee);
         assertEquals(password2, trainee.getPassword());
         assertEquals(10, trainee.getUsername().length());
@@ -199,7 +200,7 @@ class TraineeServiceTest {
 
     @Test
     void givenNull_whenSelect_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> traineeService.select(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.select(null));
         assertEquals("Trainee can't be null", e.getMessage());
     }
 
@@ -209,7 +210,7 @@ class TraineeServiceTest {
 
         when(traineeDAO.findByUsername(any())).thenReturn(Optional.of(trainee));
 
-        Trainee foundTrainee = traineeService.select(trainee);
+        Trainee foundTrainee = traineeServiceImpl.select(trainee);
 
         assertEquals(trainee, foundTrainee);
         verify(traineeDAO, times(1)).findByUsername(any());

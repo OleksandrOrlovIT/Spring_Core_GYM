@@ -1,19 +1,20 @@
-package orlov.programming.springcoregym.dao.impl.user;
+package orlov.programming.springcoregym.dao.impl.user.trainer;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import orlov.programming.springcoregym.dao.impl.user.AbstractUserDao;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.storage.Storage;
 
 @Log4j2
 @Repository
-public class TrainerDAO extends AbstractUserDAO<Trainer> {
+public class TrainerDaoImpl extends AbstractUserDao<Trainer> implements TrainerDao {
 
     private static final String TRAINER_NULL_ERROR = "Trainer can't be null";
 
     @Autowired
-    public TrainerDAO(Storage storage) {
+    public TrainerDaoImpl(Storage storage) {
         super(storage, Trainer.class);
     }
 

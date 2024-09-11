@@ -1,11 +1,10 @@
-package orlov.programming.springcoregym.service.user;
+package orlov.programming.springcoregym.service.user.trainer;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import orlov.programming.springcoregym.dao.impl.user.DAOUsernameFindable;
+import orlov.programming.springcoregym.dao.DaoUsernameFindable;
 import orlov.programming.springcoregym.model.user.Trainer;
-import orlov.programming.springcoregym.service.UpdatableService;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
 import java.util.NoSuchElementException;
@@ -15,14 +14,14 @@ import java.util.UUID;
 
 @Log4j2
 @Service
-public class TrainerService implements UpdatableService<Trainer> {
+public class TrainerServiceImpl implements TrainerService {
 
-    private final DAOUsernameFindable<Trainer> trainerDAO;
+    private final DaoUsernameFindable<Trainer> trainerDAO;
 
     private final PasswordGenerator passwordGenerator;
 
     @Autowired
-    public TrainerService(DAOUsernameFindable<Trainer> trainerDAO, PasswordGenerator passwordGenerator) {
+    public TrainerServiceImpl(DaoUsernameFindable<Trainer> trainerDAO, PasswordGenerator passwordGenerator) {
         this.trainerDAO = trainerDAO;
         this.passwordGenerator = passwordGenerator;
     }

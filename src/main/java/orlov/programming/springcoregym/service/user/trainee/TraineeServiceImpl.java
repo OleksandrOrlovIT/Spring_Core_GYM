@@ -1,11 +1,9 @@
-package orlov.programming.springcoregym.service.user;
+package orlov.programming.springcoregym.service.user.trainee;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import orlov.programming.springcoregym.dao.impl.user.DAOUsernameFindable;
+import orlov.programming.springcoregym.dao.DaoUsernameFindable;
 import orlov.programming.springcoregym.model.user.Trainee;
-import orlov.programming.springcoregym.service.CRUDService;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
 import java.util.NoSuchElementException;
@@ -15,15 +13,15 @@ import java.util.UUID;
 
 @Log4j2
 @Service
-public class TraineeService implements CRUDService<Trainee> {
+public class TraineeServiceImpl implements TraineeService {
 
     private static final String TRAINEE_NULL_MESSAGE="Trainee can't be null";
 
-    private final DAOUsernameFindable<Trainee> traineeDAO;
+    private final DaoUsernameFindable<Trainee> traineeDAO;
 
     private final PasswordGenerator passwordGenerator;
 
-    public TraineeService(DAOUsernameFindable<Trainee> traineeDAO, PasswordGenerator passwordGenerator) {
+    public TraineeServiceImpl(DaoUsernameFindable<Trainee> traineeDAO, PasswordGenerator passwordGenerator) {
         this.traineeDAO = traineeDAO;
         this.passwordGenerator = passwordGenerator;
     }

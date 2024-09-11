@@ -5,8 +5,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import orlov.programming.springcoregym.dao.impl.user.DAOUsernameFindable;
+import orlov.programming.springcoregym.dao.DaoUsernameFindable;
 import orlov.programming.springcoregym.model.user.Trainer;
+import orlov.programming.springcoregym.service.user.trainer.TrainerServiceImpl;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
 import java.util.List;
@@ -25,13 +26,13 @@ class TrainerServiceTest {
     private static final String PASSWORD = "1111111111";
 
     @Mock
-    private DAOUsernameFindable<Trainer> trainerDAO;
+    private DaoUsernameFindable<Trainer> trainerDAO;
 
     @Mock
     private PasswordGenerator passwordGenerator;
 
     @InjectMocks
-    private TrainerService trainerService;
+    private TrainerServiceImpl trainerService;
 
     @Test
     void givenNull_whenUpdate_thenException(){

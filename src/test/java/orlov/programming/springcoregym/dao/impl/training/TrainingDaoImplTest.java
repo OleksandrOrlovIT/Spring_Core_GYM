@@ -6,7 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import orlov.programming.springcoregym.dao.DAO;
+import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
+import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
@@ -20,34 +21,34 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TrainingDAOTest {
+class TrainingDaoImplTest {
     private static final String TRAINING_NULL_ERROR = "Training can't be null";
     private static final String TRAINING_NOT_FOUND_ERROR_MESSAGE = "Training is not found for ";
     private static final String TRAINEE_NOT_FOUND_ERROR_MESSAGE = "Trainee is not found for ";
     private static final String TRAINER_NOT_FOUND_ERROR_MESSAGE = "Trainer is not found for ";
 
     @Mock
-    private DAO<Trainee> traineeDAO;
+    private TraineeDao traineeDAO;
 
     @Mock
-    private DAO<Trainer> trainerDAO;
+    private TrainerDao trainerDAO;
 
     @Mock
     private Storage storage;
 
     @InjectMocks
-    private TrainingDAO trainingDAO;
+    private TrainingDaoImpl trainingDaoImpl;
 
     @BeforeEach
     void setUp() {
         when(storage.getStorage(Training.class)).thenReturn(new HashMap<>());
         when(storage.getNextId(Training.class)).thenReturn(1L);
-        trainingDAO = new TrainingDAO(storage, traineeDAO, trainerDAO);
+        trainingDaoImpl = new TrainingDaoImpl(storage, traineeDAO, trainerDAO);
     }
 
     @Test
     void givenNull_whenCreate_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> trainingDAO.create(null));
+        var e = assertThrows(NullPointerException.class, () -> trainingDaoImpl.create(null));
         assertEquals(TRAINING_NULL_ERROR, e.getMessage());
     }
 
@@ -57,7 +58,7 @@ class TrainingDAOTest {
 
         when(traineeDAO.findByObject(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(IllegalArgumentException.class, () -> trainingDAO.create(training));
+        var e = assertThrows(IllegalArgumentException.class, () -> trainingDaoImpl.create(training));
         assertEquals(e.getMessage(), TRAINEE_NOT_FOUND_ERROR_MESSAGE + training.getTrainee());
         verify(traineeDAO, times(1)).findByObject(any());
     }
@@ -70,7 +71,7 @@ class TrainingDAOTest {
         when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
         when(trainerDAO.findByObject(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(IllegalArgumentException.class, () -> trainingDAO.create(training));
+        var e = assertThrows(IllegalArgumentException.class, () -> trainingDaoImpl.create(training));
         assertEquals(e.getMessage(), TRAINER_NOT_FOUND_ERROR_MESSAGE + training.getTrainer());
         verify(traineeDAO, times(1)).findByObject(any());
         verify(trainerDAO, times(1)).findByObject(any());
@@ -85,7 +86,7 @@ class TrainingDAOTest {
         when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
         when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
 
-        Training result = trainingDAO.create(training);
+        Training result = trainingDaoImpl.create(training);
         assertNotNull(result);
         assertEquals(trainee, result.getTrainee());
         assertEquals(trainer, result.getTrainer());
@@ -103,17 +104,17 @@ class TrainingDAOTest {
         when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
         when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
 
-        trainingDAO.create(training1);
-        trainingDAO.create(training2);
+        trainingDaoImpl.create(training1);
+        trainingDaoImpl.create(training2);
 
-        assertEquals(2, trainingDAO.findAll().size());
+        assertEquals(2, trainingDaoImpl.findAll().size());
         verify(traineeDAO, times(2)).findByObject(any());
         verify(trainerDAO, times(2)).findByObject(any());
     }
 
     @Test
     void givenNull_whenFindByObject_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> trainingDAO.findByObject(null));
+        var e = assertThrows(NullPointerException.class, () -> trainingDaoImpl.findByObject(null));
         assertEquals(TRAINING_NULL_ERROR, e.getMessage());
     }
 
@@ -126,11 +127,11 @@ class TrainingDAOTest {
         when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
         when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
 
-        trainingDAO.create(training);
+        trainingDaoImpl.create(training);
 
         Training searchedTraining = new Training();
 
-        var e = assertThrows(IllegalArgumentException.class, () -> trainingDAO.findByObject(searchedTraining));
+        var e = assertThrows(IllegalArgumentException.class, () -> trainingDaoImpl.findByObject(searchedTraining));
         assertEquals(TRAINING_NOT_FOUND_ERROR_MESSAGE + searchedTraining, e.getMessage());
         verify(traineeDAO, times(1)).findByObject(any());
         verify(trainerDAO, times(1)).findByObject(any());
@@ -145,9 +146,9 @@ class TrainingDAOTest {
         when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
         when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
 
-        training = trainingDAO.create(training);
+        training = trainingDaoImpl.create(training);
 
-        assertEquals(Optional.of(training), trainingDAO.findByObject(training));
+        assertEquals(Optional.of(training), trainingDaoImpl.findByObject(training));
         verify(traineeDAO, times(1)).findByObject(any());
         verify(trainerDAO, times(1)).findByObject(any());
     }

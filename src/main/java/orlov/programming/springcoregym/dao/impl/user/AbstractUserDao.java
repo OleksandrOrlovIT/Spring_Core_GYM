@@ -3,6 +3,7 @@ package orlov.programming.springcoregym.dao.impl.user;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import orlov.programming.springcoregym.dao.DaoUsernameFindable;
 import orlov.programming.springcoregym.storage.Storage;
 
 import java.util.List;
@@ -12,14 +13,14 @@ import java.util.Optional;
 
 @Log4j2
 @Repository
-public abstract class AbstractUserDAO<E> implements DAOUsernameFindable<E> {
+public abstract class AbstractUserDao<E> implements DaoUsernameFindable<E> {
     
     protected final Map<Long, E> userHashMap;
     protected final Class<E> entityClass;
     protected long nextId;
 
     @Autowired
-    public AbstractUserDAO(Storage storage, Class<E> entityClass) {
+    public AbstractUserDao(Storage storage, Class<E> entityClass) {
         this.entityClass = entityClass;
         this.userHashMap = storage.getStorage(entityClass);
         this.nextId = storage.getNextId(entityClass);

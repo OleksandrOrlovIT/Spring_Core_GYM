@@ -5,7 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import orlov.programming.springcoregym.dao.DAO;
+import orlov.programming.springcoregym.dao.Dao;
+import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.model.training.Training;
 
 import java.util.NoSuchElementException;
@@ -16,43 +17,43 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TrainingServiceTest {
+class TrainingServiceImplTest {
 
     @Mock
-    private DAO<Training> trainingDAO;
+    private TrainingDao trainingDao;
 
     @InjectMocks
-    private TrainingService trainingService;
+    private TrainingServiceImpl trainingServiceImpl;
 
     @Test
     void givenTraining_whenCreate_thenSuccess(){
         Training training = new Training();
 
-        when(trainingDAO.create(any())).thenReturn(training);
+        when(trainingDao.create(any())).thenReturn(training);
 
-        assertEquals(training, trainingService.create(training));
-        verify(trainingDAO, times(1)).create(any());
+        assertEquals(training, trainingServiceImpl.create(training));
+        verify(trainingDao, times(1)).create(any());
     }
 
     @Test
     void givenTraining_whenSelect_thenSuccess(){
         Training training = new Training();
 
-        when(trainingDAO.findByObject(any())).thenReturn(Optional.of(training));
+        when(trainingDao.findByObject(any())).thenReturn(Optional.of(training));
 
-        assertEquals(training, trainingService.select(training));
-        verify(trainingDAO, times(1)).findByObject(any());
+        assertEquals(training, trainingServiceImpl.select(training));
+        verify(trainingDao, times(1)).findByObject(any());
     }
 
     @Test
     void givenNotFoundTraining_whenSelect_thenFail(){
         Training training = new Training();
 
-        when(trainingDAO.findByObject(any())).thenReturn(Optional.empty());
+        when(trainingDao.findByObject(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(NoSuchElementException.class, () -> trainingService.select(training));
+        var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.select(training));
 
         assertEquals("Training not found " + training, e.getMessage());
-        verify(trainingDAO, times(1)).findByObject(any());
+        verify(trainingDao, times(1)).findByObject(any());
     }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDaoImpl;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.storage.Storage;
 
@@ -16,30 +17,30 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class TraineeDAOTest {
+class TraineeDaoImplTest {
 
     @Mock
     private Storage storage;
 
     @InjectMocks
-    private TraineeDAO traineeDAO;
+    private TraineeDaoImpl traineeDaoImpl;
 
     @BeforeEach
     void setUp() {
         when(storage.getStorage(Trainee.class)).thenReturn(new HashMap<>());
         when(storage.getNextId(Trainee.class)).thenReturn(1L);
-        traineeDAO = new TraineeDAO(storage);
+        traineeDaoImpl = new TraineeDaoImpl(storage);
     }
 
     @Test
     void givenNull_whenCreate_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> traineeDAO.create(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeDaoImpl.create(null));
         assertEquals("Trainee can't be null", e.getMessage());
     }
 
     @Test
     void givenTraineeWithId_whenCreate_thenThrowsException() {
-        var e = assertThrows(IllegalArgumentException.class, () -> traineeDAO.create(Trainee.builder().userId(1L).build()));
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeDaoImpl.create(Trainee.builder().userId(1L).build()));
         assertEquals("Entity's id has to be null", e.getMessage());
     }
 
@@ -47,39 +48,39 @@ class TraineeDAOTest {
     void givenValid_whenCreate_thenCreate() {
         Trainee trainee = new Trainee();
 
-        Trainee savedTrainee = traineeDAO.create(trainee);
+        Trainee savedTrainee = traineeDaoImpl.create(trainee);
 
         assertNotNull(savedTrainee);
         assertEquals(1, savedTrainee.getUserId());
-        assertEquals(1, traineeDAO.findAll().size());
+        assertEquals(1, traineeDaoImpl.findAll().size());
     }
 
     @Test
     void givenNull_whenUpdate_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> traineeDAO.update(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeDaoImpl.update(null));
         assertEquals("Trainee can't be null", e.getMessage());
     }
 
     @Test
     void givenTraineeWithNullId_whenUpdate_thenThrowsException() {
         Trainee trainee = new Trainee();
-        var e = assertThrows(IllegalArgumentException.class, () -> traineeDAO.update(trainee));
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeDaoImpl.update(trainee));
         assertEquals("Trainee's id can't be null", e.getMessage());
     }
 
     @Test
     void givenNonExistingTrainee_whenUpdate_thenThrowsException() {
         Trainee trainee = Trainee.builder().userId(1L).build();
-        var e = assertThrows(IllegalArgumentException.class, () -> traineeDAO.update(trainee));
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeDaoImpl.update(trainee));
         assertEquals("Entity does not exist", e.getMessage());
     }
 
     @Test
     void givenValid_whenUpdate_thenUpdate() {
-        Trainee trainee = traineeDAO.create(new Trainee());
+        Trainee trainee = traineeDaoImpl.create(new Trainee());
 
         String userName = "UserName";
-        Trainee updatedTrainee = traineeDAO.update(Trainee.builder().userId(1L).username(userName).build());
+        Trainee updatedTrainee = traineeDaoImpl.update(Trainee.builder().userId(1L).username(userName).build());
 
         assertNotNull(updatedTrainee);
         assertEquals(trainee.getUserId(), updatedTrainee.getUserId());
@@ -89,65 +90,65 @@ class TraineeDAOTest {
 
     @Test
     void givenNull_whenDelete_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> traineeDAO.delete(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeDaoImpl.delete(null));
         assertEquals("Trainee can't be null", e.getMessage());
     }
 
     @Test
     void givenTraineeWithNullId_whenDelete_thenThrowsException() {
         Trainee trainee = new Trainee();
-        var e = assertThrows(IllegalArgumentException.class, () -> traineeDAO.delete(trainee));
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeDaoImpl.delete(trainee));
         assertEquals("Trainee's id can't be null", e.getMessage());
     }
 
     @Test
     void givenValid_whenDelete_thenDelete() {
-        traineeDAO.create(new Trainee());
-        Trainee trainee2 = traineeDAO.create(new Trainee());
+        traineeDaoImpl.create(new Trainee());
+        Trainee trainee2 = traineeDaoImpl.create(new Trainee());
 
-        traineeDAO.delete(trainee2);
+        traineeDaoImpl.delete(trainee2);
 
-        assertEquals(1, traineeDAO.findAll().size());
+        assertEquals(1, traineeDaoImpl.findAll().size());
     }
 
     @Test
     void given2Entities_whenFindAll_thenFindAll() {
-        traineeDAO.create(new Trainee());
-        traineeDAO.create(new Trainee());
+        traineeDaoImpl.create(new Trainee());
+        traineeDaoImpl.create(new Trainee());
 
-        assertEquals(2, traineeDAO.findAll().size());
+        assertEquals(2, traineeDaoImpl.findAll().size());
     }
 
     @Test
     void givenNull_whenFindByObject_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> traineeDAO.findByObject(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeDaoImpl.findByObject(null));
         assertEquals("Trainee can't be null", e.getMessage());
     }
 
     @Test
     void givenTraineeWithNullId_whenfindByObject_thenThrowsException() {
         Trainee trainee = new Trainee();
-        var e = assertThrows(IllegalArgumentException.class, () -> traineeDAO.findByObject(trainee));
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeDaoImpl.findByObject(trainee));
         assertEquals("Trainee's id can't be null", e.getMessage());
     }
 
     @Test
     void givenValid_whenFindByObject_thenFindByObject() {
-        Trainee trainee = traineeDAO.create(new Trainee());
+        Trainee trainee = traineeDaoImpl.create(new Trainee());
 
-        assertEquals(Optional.of(trainee), traineeDAO.findByObject(trainee));
+        assertEquals(Optional.of(trainee), traineeDaoImpl.findByObject(trainee));
     }
 
     @Test
     void givenNull_whenFindByUsername_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> traineeDAO.findByUsername(null));
+        var e = assertThrows(NullPointerException.class, () -> traineeDaoImpl.findByUsername(null));
         assertEquals("Username can't be null", e.getMessage());
     }
 
     @Test
     void given0Entity_whenFindByUsername_thenNull(){
-        traineeDAO.create(new Trainee());
-        assertEquals(Optional.empty(), traineeDAO.findByUsername("someUserName"));
+        traineeDaoImpl.create(new Trainee());
+        assertEquals(Optional.empty(), traineeDaoImpl.findByUsername("someUserName"));
     }
 
     @Test
@@ -155,9 +156,9 @@ class TraineeDAOTest {
         String username = "UserName";
         Trainee trainee = Trainee.builder().username(username).build();
 
-        trainee = traineeDAO.create(trainee);
+        trainee = traineeDaoImpl.create(trainee);
 
-        assertEquals(Optional.of(trainee), traineeDAO.findByUsername(username));
+        assertEquals(Optional.of(trainee), traineeDaoImpl.findByUsername(username));
     }
 
     @Test
@@ -166,9 +167,9 @@ class TraineeDAOTest {
         hashmap.put(1L, null);
 
         when(storage.getStorage(Trainee.class)).thenReturn(hashmap);
-        traineeDAO = new TraineeDAO(storage);
+        traineeDaoImpl = new TraineeDaoImpl(storage);
 
         String username = "UserName";
-        assertEquals(Optional.empty(), traineeDAO.findByUsername(username));
+        assertEquals(Optional.empty(), traineeDaoImpl.findByUsername(username));
     }
 }
