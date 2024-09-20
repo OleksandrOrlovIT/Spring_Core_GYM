@@ -1,0 +1,10 @@
+John, Doe, John.Doe, somepass12, true, 1985-06-15, 123 Elm Street Springfield IL
+Jane, Smith, Jane.Smith, somepass12, true, 1990-09-22, 456 Oak Avenue Metropolis NY
+Emily, Johnson, Emily.Johnson, somepass12, false, 1988-11-30, 789 Pine Road Gotham NJ
+Michael, Brown, Michael.Brown, somepass12, true, 1975-04-10, 101 Maple Drive Star City CA
+Sarah, Miller, Sarah.Miller, somepass12, true, 1992-03-28, 202 Birch Lane Rivertown TX
+David, Wilson, David.Wilson, somepass12, true, 1980-07-19, 303 Cedar Street Brookfield WI
+Laura, Moore, Laura.Moore, somepass12, false, 1986-12-04, 404 Walnut Avenue Hilltown FL
+Chris, Taylor, Chris.Taylor, somepass12, true, 1995-05-12, 505 Spruce Drive Lakewood OH
+Angela, Davis, Angela.Davis, somepass12, true, 1982-08-23, 606 Pineview Road Crestview MI
+Kevin, Martinez, Kevin.Martinez, somepass12, false, 1993-11-17, 707 Oakwood Lane Valleyfield CO

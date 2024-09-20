@@ -1,8 +1,8 @@
-package orlov.programming.spring_core_gym;
+package orlov.programming.springcoregym;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import orlov.programming.spring_core_gym.configuration.AppConfig;
+import orlov.programming.springcoregym.configuration.AppConfig;
 
 public class SpringCoreGymApplication {
 
