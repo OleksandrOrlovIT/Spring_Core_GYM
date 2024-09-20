@@ -1,11 +1,11 @@
 package orlov.programming.springcoregym.dao.impl.user.trainee;
 
+import jakarta.persistence.EntityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import orlov.programming.springcoregym.dao.impl.user.AbstractUserDao;
 import orlov.programming.springcoregym.model.user.Trainee;
-import orlov.programming.springcoregym.storage.Storage;
 
 @Log4j2
 @Repository
@@ -14,9 +14,10 @@ public class TraineeDaoImpl extends AbstractUserDao<Trainee> implements TraineeD
     private static final String TRAINEE_NULL_ERROR = "Trainee can't be null";
 
     @Autowired
-    public TraineeDaoImpl(Storage storage) {
-        super(storage, Trainee.class);
+    public TraineeDaoImpl(EntityManager entityManager) {
+        super(entityManager, Trainee.class);
     }
+
 
     @Override
     protected String getNullEntityErrorMessage() {
@@ -33,13 +34,13 @@ public class TraineeDaoImpl extends AbstractUserDao<Trainee> implements TraineeD
     }
 
     @Override
-    protected Long getUserId(Trainee trainee) {
-        return trainee.getUserId();
+    protected Long getId(Trainee trainee) {
+        return trainee.getId();
     }
 
     @Override
-    protected void setUserId(Trainee trainee, Long id) {
-        trainee.setUserId(id);
+    protected void setId(Trainee trainee, Long id) {
+        trainee.setId(id);
     }
 
     @Override

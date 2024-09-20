@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import orlov.programming.springcoregym.dao.DaoUsernameFindable;
+import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
@@ -16,12 +17,12 @@ import java.util.UUID;
 @Service
 public class TrainerServiceImpl implements TrainerService {
 
-    private final DaoUsernameFindable<Trainer> trainerDAO;
+    private final TrainerDao trainerDAO;
 
     private final PasswordGenerator passwordGenerator;
 
     @Autowired
-    public TrainerServiceImpl(DaoUsernameFindable<Trainer> trainerDAO, PasswordGenerator passwordGenerator) {
+    public TrainerServiceImpl(TrainerDao trainerDAO, PasswordGenerator passwordGenerator) {
         this.trainerDAO = trainerDAO;
         this.passwordGenerator = passwordGenerator;
     }
@@ -67,7 +68,7 @@ public class TrainerServiceImpl implements TrainerService {
     private void checkAvailableUserName(Trainer trainer) {
         for(Trainer obj : trainerDAO.findAll()) {
             if(Objects.equals(obj.getUsername(), trainer.getUsername())) {
-                trainer.setUsername(trainer.getUsername() + trainer.getUserId() + UUID.randomUUID());
+                trainer.setUsername(trainer.getUsername() + trainer.getId() + UUID.randomUUID());
             }
         }
     }

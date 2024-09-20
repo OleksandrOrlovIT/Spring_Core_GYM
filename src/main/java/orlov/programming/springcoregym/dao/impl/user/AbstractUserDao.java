@@ -1,55 +1,55 @@
 package orlov.programming.springcoregym.dao.impl.user;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import orlov.programming.springcoregym.dao.DaoUsernameFindable;
-import orlov.programming.springcoregym.storage.Storage;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 @Log4j2
 @Repository
 public abstract class AbstractUserDao<E> implements DaoUsernameFindable<E> {
-    
-    protected final Map<Long, E> userHashMap;
+
+    @PersistenceContext
+    protected EntityManager entityManager;
     protected final Class<E> entityClass;
-    protected long nextId;
 
     @Autowired
-    public AbstractUserDao(Storage storage, Class<E> entityClass) {
+    public AbstractUserDao(EntityManager entityManager, Class<E> entityClass) {
+        this.entityManager = entityManager;
         this.entityClass = entityClass;
-        this.userHashMap = storage.getStorage(entityClass);
-        this.nextId = storage.getNextId(entityClass);
     }
 
     protected abstract String getNullEntityErrorMessage();
-    
+
     protected abstract void checkEntityIdIsNull(Long id);
-    
+
     @Override
+    @Transactional
     public E create(E entity) {
         Objects.requireNonNull(entity, getNullEntityErrorMessage());
-        if (getUserId(entity) != null) {
+        if (getId(entity) != null) {
             throw new IllegalArgumentException("Entity's id has to be null");
         }
 
-        setUserId(entity, nextId);
-        nextId++;
-
-        userHashMap.put(getUserId(entity), entity);
+        entityManager.persist(entity);
         log.info("Created new {} = {}", getClass().getSimpleName(), entity);
 
         return entity;
     }
 
     @Override
+    @Transactional
     public E update(E entity) {
         Objects.requireNonNull(entity, getNullEntityErrorMessage());
-        checkEntityIdIsNull(getUserId(entity));
+        checkEntityIdIsNull(getId(entity));
 
         if (findByObject(entity).isEmpty()) {
             IllegalArgumentException e = new IllegalArgumentException("Entity does not exist");
@@ -57,48 +57,51 @@ public abstract class AbstractUserDao<E> implements DaoUsernameFindable<E> {
             throw e;
         }
 
-        userHashMap.put(getUserId(entity), entity);
-        log.info("Updating {} = {}", getClass().getSimpleName(), entity);
-        return entity;
+        E updatedEntity = entityManager.merge(entity);
+        log.info("Updating {} = {}", getClass().getSimpleName(), updatedEntity);
+        return updatedEntity;
     }
 
     @Override
+    @Transactional
     public void delete(E entity) {
         log.info("Deleting {} = {}", getClass().getSimpleName(), entity);
         Objects.requireNonNull(entity, getNullEntityErrorMessage());
-        checkEntityIdIsNull(getUserId(entity));
+        checkEntityIdIsNull(getId(entity));
 
-        userHashMap.remove(getUserId(entity));
+        entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
     }
 
     @Override
     public List<E> findAll() {
-        return userHashMap.values().stream().toList();
+        return entityManager.createQuery("SELECT e FROM " + entityClass.getSimpleName() + " e", entityClass)
+                .getResultList();
     }
 
     @Override
     public Optional<E> findByObject(E entity) {
         Objects.requireNonNull(entity, getNullEntityErrorMessage());
-        checkEntityIdIsNull(getUserId(entity));
+        checkEntityIdIsNull(getId(entity));
 
-        return Optional.ofNullable(userHashMap.get(getUserId(entity)));
+        return Optional.ofNullable(entityManager.find(entityClass, getId(entity)));
     }
 
     @Override
     public Optional<E> findByUsername(String username) {
         Objects.requireNonNull(username, "Username can't be null");
-        for (E user : userHashMap.values()) {
-            if (user != null && username.equals(getUsername(user))) {
-                return Optional.of(user);
-            }
+        try {
+            return Optional.of(entityManager.createQuery(
+                            "SELECT u FROM " + entityClass.getSimpleName() + " u WHERE u.username = :username", entityClass)
+                    .setParameter("username", username)
+                    .getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
-    protected abstract Long getUserId(E entity);
+    protected abstract Long getId(E entity);
 
-    protected abstract void setUserId(E entity, Long id);
+    protected abstract void setId(E entity, Long id);
 
     protected abstract String getUsername(E entity);
 }

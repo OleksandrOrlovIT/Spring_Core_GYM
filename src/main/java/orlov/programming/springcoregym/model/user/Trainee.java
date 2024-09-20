@@ -1,9 +1,13 @@
 package orlov.programming.springcoregym.model.user;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import orlov.programming.springcoregym.model.training.Training;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -11,8 +15,13 @@ import java.time.LocalDate;
 @ToString(callSuper = true)
 @Setter
 @Getter
+@Entity
 public class Trainee extends User {
+
     private LocalDate dateOfBirth;
+
     private String address;
-    private Long userId;
+
+    @OneToMany(mappedBy = "trainee")
+    private List<Training> trainings;
 }

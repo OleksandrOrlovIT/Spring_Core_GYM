@@ -2,7 +2,7 @@ package orlov.programming.springcoregym.service.user.trainee;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import orlov.programming.springcoregym.dao.DaoUsernameFindable;
+import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
@@ -17,11 +17,11 @@ public class TraineeServiceImpl implements TraineeService {
 
     private static final String TRAINEE_NULL_MESSAGE="Trainee can't be null";
 
-    private final DaoUsernameFindable<Trainee> traineeDAO;
+    private final TraineeDao traineeDAO;
 
     private final PasswordGenerator passwordGenerator;
 
-    public TraineeServiceImpl(DaoUsernameFindable<Trainee> traineeDAO, PasswordGenerator passwordGenerator) {
+    public TraineeServiceImpl(TraineeDao traineeDAO, PasswordGenerator passwordGenerator) {
         this.traineeDAO = traineeDAO;
         this.passwordGenerator = passwordGenerator;
     }
@@ -73,7 +73,7 @@ public class TraineeServiceImpl implements TraineeService {
     private void checkAvailableUserName(Trainee trainee) {
         for(Trainee obj : traineeDAO.findAll()) {
             if(Objects.equals(obj.getUsername(), trainee.getUsername())) {
-                trainee.setUsername(trainee.getUsername() + trainee.getUserId() + UUID.randomUUID());
+                trainee.setUsername(trainee.getUsername() + trainee.getId() + UUID.randomUUID());
             }
         }
     }
