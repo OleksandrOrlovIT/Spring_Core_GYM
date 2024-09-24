@@ -23,11 +23,12 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public Training select(Training training) {
-        Optional<Training> foundTraining = trainingDAO.findByObject(training);
-        if (foundTraining.isEmpty()) {
-            throw new NoSuchElementException("Training not found " + training);
-        }
-
-        return foundTraining.get();
+//        Optional<Training> foundTraining = trainingDAO.findByObject(training);
+//        if (foundTraining.isEmpty()) {
+//            throw new NoSuchElementException("Training not found " + training);
+//        }
+//
+//        return foundTraining.get();e
+        return null;
     }
 }

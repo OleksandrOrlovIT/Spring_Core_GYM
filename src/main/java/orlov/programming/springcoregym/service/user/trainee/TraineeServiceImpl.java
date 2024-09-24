@@ -28,7 +28,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public void delete(Trainee trainee) {
-        traineeDAO.delete(trainee);
+//        traineeDAO.delete(trainee);
     }
 
     @Override

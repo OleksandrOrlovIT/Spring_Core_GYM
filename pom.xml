@@ -27,6 +27,7 @@
         <spring-tx.version>6.1.13</spring-tx.version>
         <postgresql.version>42.7.4</postgresql.version>
         <dotenv-java.version>3.0.0</dotenv-java.version>
+        <h2.version>2.3.232</h2.version>
     </properties>
 
     <dependencies>
@@ -100,6 +101,12 @@
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
             <version>${dotenv-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

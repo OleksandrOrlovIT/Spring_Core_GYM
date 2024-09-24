@@ -3,11 +3,13 @@ package orlov.programming.springcoregym.model.training;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Entity
 @Data
+@SuperBuilder
 @NoArgsConstructor
 public class TrainingType {
 
