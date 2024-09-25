@@ -1,6 +1,7 @@
 package orlov.programming.springcoregym.model.user;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -24,4 +25,7 @@ public class Trainee extends User {
 
     @OneToMany(mappedBy = "trainee")
     private List<Training> trainings;
+
+    @ManyToMany(mappedBy = "trainees")
+    private List<Trainer> trainers;
 }

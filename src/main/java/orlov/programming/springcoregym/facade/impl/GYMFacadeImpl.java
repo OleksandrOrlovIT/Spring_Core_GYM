@@ -40,7 +40,7 @@ public class GYMFacadeImpl implements GYMFacade {
 
     @Override
     public Trainee selectTrainee(Trainee trainee) {
-        return traineeService.select(trainee);
+        return traineeService.select(trainee.getId());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class GYMFacadeImpl implements GYMFacade {
 
     @Override
     public Trainer selectTrainer(Trainer trainer) {
-        return trainerService.select(trainer);
+        return trainerService.select(trainer.getId());
     }
 
     @Override
@@ -65,6 +65,6 @@ public class GYMFacadeImpl implements GYMFacade {
 
     @Override
     public Training selectTraining(Training training) {
-        return trainingService.select(training);
+        return trainingService.select(training.getId());
     }
 }

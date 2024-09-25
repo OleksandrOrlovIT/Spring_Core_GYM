@@ -17,7 +17,6 @@ import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,7 +78,7 @@ class TrainingDaoImplTest {
                 .trainingName(TRAINING_NAME)
                 .trainingType(testTrainingType)
                 .trainingDate(LocalDate.MIN)
-                .trainingDuration(LocalTime.MIN)
+                .trainingDuration(10L)
                 .build();
     }
 
@@ -152,7 +151,7 @@ class TrainingDaoImplTest {
                 .trainingName(TRAINING_NAME + delim)
                 .trainingType(testTrainingTypeForUpdate)
                 .trainingDate(LocalDate.MIN.plusDays(1))
-                .trainingDuration(LocalTime.MIN.plusMinutes(1))
+                .trainingDuration(10L)
                 .build();
 
         Training updated = trainingDao.update(diffTraining);
@@ -162,7 +161,7 @@ class TrainingDaoImplTest {
         assertEquals(testTrainingTypeForUpdate, updated.getTrainingType());
         assertEquals(TRAINING_NAME + delim, updated.getTrainingName());
         assertEquals(LocalDate.MIN.plusDays(1), updated.getTrainingDate());
-        assertEquals(LocalTime.MIN.plusMinutes(1), updated.getTrainingDuration());
+        assertEquals(10L, updated.getTrainingDuration());
     }
 
     @Test
@@ -173,7 +172,7 @@ class TrainingDaoImplTest {
                 .trainingName(TRAINING_NAME)
                 .trainingType(testTrainingType)
                 .trainingDate(LocalDate.MIN.plusDays(1))
-                .trainingDuration(LocalTime.MIN.plusMinutes(1))
+                .trainingDuration(10L)
                 .build();
 
         trainingDao.create(testTraining);

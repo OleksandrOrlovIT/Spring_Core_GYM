@@ -35,7 +35,7 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee update(Trainee trainee) {
         trainee.setUsername(constructTraineeUsername(trainee));
 
-        select(trainee);
+        select(trainee.getId());
 
         if(trainee.getPassword() == null || trainee.getPassword().length() != 10){
             trainee.setPassword(passwordGenerator.generatePassword());
@@ -58,16 +58,14 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public Trainee select(Trainee trainee) {
-        Objects.requireNonNull(trainee, TRAINEE_NULL_MESSAGE);
+    public Trainee select(Long id) {
+        return traineeDAO.findById(id);
 
-        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(trainee.getUsername());
+//        if(foundTrainee.isEmpty()){
+//            throw new NoSuchElementException("Trainee not found " + trainee);
+//        }
 
-        if(foundTrainee.isEmpty()){
-            throw new NoSuchElementException("Trainee not found " + trainee);
-        }
-
-        return foundTrainee.get();
+//        return foundTrainee.get();
     }
 
     private void checkAvailableUserName(Trainee trainee) {

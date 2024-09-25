@@ -39,5 +39,5 @@ public class Training {
     private LocalDate trainingDate;
 
     @Column(nullable = false)
-    private LocalTime trainingDuration;
+    private Long trainingDuration;
 }

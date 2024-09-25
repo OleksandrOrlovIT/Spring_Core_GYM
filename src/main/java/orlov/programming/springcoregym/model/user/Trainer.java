@@ -1,8 +1,6 @@
 package orlov.programming.springcoregym.model.user;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import orlov.programming.springcoregym.model.training.Training;
@@ -23,4 +21,12 @@ public class Trainer extends User {
 
     @OneToMany(mappedBy = "trainer")
     private List<Training> trainings;
+
+    @ManyToMany
+    @JoinTable(
+            name = "trainer_trainee",
+            joinColumns = @JoinColumn(name = "trainer_id"),
+            inverseJoinColumns = @JoinColumn(name = "trainee_id")
+    )
+    private List<Trainee> trainees;
 }
