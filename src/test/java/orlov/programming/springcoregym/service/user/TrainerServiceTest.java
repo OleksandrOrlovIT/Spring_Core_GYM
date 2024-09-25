@@ -347,12 +347,12 @@ class TrainerServiceTest {
     void givenValid_whenGetTrainingsByDate_thenReturnsTrainings(){
         List<Training> trainings = List.of(new Training(), new Training());
 
-        when(trainerDAO.getTrainingsByDate(any(), any(), any())).thenReturn(trainings);
+        when(trainerDAO.getTrainingsByDateAndUsername(any(), any(), any())).thenReturn(trainings);
 
         List<Training> foundTrainings = trainerService.getTrainingsByDate(LocalDate.MIN, LocalDate.MIN, FIRST_NAME);
 
         assertEquals(trainings, foundTrainings);
-        verify(trainerDAO, times(1)).getTrainingsByDate(any(), any(), any());
+        verify(trainerDAO, times(1)).getTrainingsByDateAndUsername(any(), any(), any());
     }
 
     @Test

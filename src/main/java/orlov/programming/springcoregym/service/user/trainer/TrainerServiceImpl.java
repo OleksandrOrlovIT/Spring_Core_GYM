@@ -137,7 +137,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public List<Training> getTrainingsByDate(LocalDate startDate, LocalDate endDate, String userName) {
-        return trainerDAO.getTrainingsByDate(startDate, endDate, userName);
+        return trainerDAO.getTrainingsByDateAndUsername(startDate, endDate, userName);
     }
 
     @Override

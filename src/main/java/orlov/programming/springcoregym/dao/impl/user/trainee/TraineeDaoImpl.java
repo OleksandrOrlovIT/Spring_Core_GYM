@@ -1,12 +1,16 @@
 package orlov.programming.springcoregym.dao.impl.user.trainee;
 
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Repository;
 import orlov.programming.springcoregym.dao.AbstractDao;
+import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Log4j2
@@ -32,5 +36,30 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
             log.info("No trainee found with username: {}", username);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public List<Training> getTrainingsByDateAndUsername(LocalDate startDate, LocalDate endDate, String userName) {
+        String jpql = "SELECT tr FROM Training tr "
+                + "JOIN tr.trainee t "
+                + "WHERE t.username = :username "
+                + "AND tr.trainingDate BETWEEN :startDate AND :endDate";
+
+        TypedQuery<Training> query = getEntityManager().createQuery(jpql, Training.class);
+        query.setParameter("username", userName);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public void deleteByUsername(String username) {
+        String jpql = "DELETE FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
+        Query query = getEntityManager().createQuery(jpql);
+        query.setParameter("username", username);
+        int rowsAffected = query.executeUpdate();
+
+        log.info("Deleted {} trainee(s) with username: {}", rowsAffected, username);
     }
 }

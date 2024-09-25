@@ -165,7 +165,7 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    void whenGetTrainingsByDate_thenReturnTrainings(){
+    void whenGetTrainingsByDate_thenReturnTrainingsAndUsername(){
         TrainingType testTrainingType = TrainingType.builder()
                 .trainingTypeName("testTrainingType1")
                 .build();
@@ -204,7 +204,7 @@ public class TrainerDaoImplTest {
         trainingDao.create(testTraining2);
 
         List<Training> foundTrainings =
-                trainerDao.getTrainingsByDate(LocalDate.MIN, LocalDate.MIN.plusDays(1), testTrainer.getUsername());
+                trainerDao.getTrainingsByDateAndUsername(LocalDate.MIN, LocalDate.MIN.plusDays(1), testTrainer.getUsername());
 
         assertNotNull(foundTrainings);
         assertEquals(2, foundTrainings.size());

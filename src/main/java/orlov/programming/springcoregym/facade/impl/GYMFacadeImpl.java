@@ -35,7 +35,7 @@ public class GYMFacadeImpl implements GYMFacade {
 
     @Override
     public void deleteTrainee(Trainee trainee) {
-        traineeService.delete(trainee);
+        traineeService.deleteByUsername(trainee.getUsername());
     }
 
     @Override

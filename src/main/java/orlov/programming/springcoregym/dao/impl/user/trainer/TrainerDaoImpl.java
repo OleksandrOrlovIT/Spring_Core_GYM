@@ -39,7 +39,7 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
     }
 
     @Override
-    public List<Training> getTrainingsByDate(LocalDate startDate, LocalDate endDate, String userName) {
+    public List<Training> getTrainingsByDateAndUsername(LocalDate startDate, LocalDate endDate, String userName) {
         String jpql = "SELECT tr FROM Training tr "
                 + "JOIN tr.trainer t "
                 + "WHERE t.username = :username "

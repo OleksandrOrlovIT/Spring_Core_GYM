@@ -9,11 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import orlov.programming.springcoregym.TestConfig;
+import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
+import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
+import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
+import orlov.programming.springcoregym.model.training.Training;
+import orlov.programming.springcoregym.model.training.TrainingType;
 import orlov.programming.springcoregym.model.user.Trainee;
+import orlov.programming.springcoregym.model.user.Trainer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +30,16 @@ import java.util.Optional;
 class TraineeDaoImplTest {
 
     @Autowired
+    private TrainerDao trainerDao;
+
+    @Autowired
     private TraineeDao traineeDao;
+
+    @Autowired
+    private TrainingTypeDao trainingTypeDao;
+
+    @Autowired
+    private TrainingDao trainingDao;
 
     private Trainee testTrainee;
 
@@ -140,6 +156,69 @@ class TraineeDaoImplTest {
         Optional<Trainee> optionalTrainee = traineeDao.findByUsername("");
 
         assertTrue(optionalTrainee.isEmpty());
+    }
+
+    @Test
+    void whenGetTrainingsByDate_thenReturnTrainingsAndUsername(){
+        TrainingType testTrainingType = TrainingType.builder()
+                .trainingTypeName("testTrainingType1")
+                .build();
+
+        Trainer testTrainer = Trainer.builder()
+                .username(USERNAME + "TRAINER")
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .password(PASSWORD)
+                .specialization("SPEC")
+                .isActive(IS_ACTIVE)
+                .build();
+
+        testTrainingType = trainingTypeDao.create(testTrainingType);
+        testTrainer = trainerDao.create(testTrainer);
+        testTrainee = traineeDao.create(testTrainee);
+
+        Training testTraining1 = Training.builder()
+                .trainee(testTrainee)
+                .trainer(testTrainer)
+                .trainingName("TRAINING_NAME")
+                .trainingType(testTrainingType)
+                .trainingDate(LocalDate.MIN)
+                .trainingDuration(10L)
+                .build();
+
+        Training testTraining2 = Training.builder()
+                .trainee(testTrainee)
+                .trainer(testTrainer)
+                .trainingName("TRAINING_NAME")
+                .trainingType(testTrainingType)
+                .trainingDate(LocalDate.MIN.plusDays(1))
+                .trainingDuration(10L)
+                .build();
+
+        trainingDao.create(testTraining1);
+        trainingDao.create(testTraining2);
+
+        List<Training> foundTrainings =
+                traineeDao.getTrainingsByDateAndUsername(LocalDate.MIN, LocalDate.MIN.plusDays(1), testTrainee.getUsername());
+
+        assertNotNull(foundTrainings);
+        assertEquals(2, foundTrainings.size());
+    }
+
+    @Test
+    void givenTrainee_whenDeleteByUsername_ThenSuccess(){
+        Trainee savedTrainee = traineeDao.create(testTrainee);
+
+        traineeDao.deleteByUsername(savedTrainee.getUsername());
+
+        assertEquals(0, traineeDao.findAll().size());
+    }
+
+    @Test
+    void givenNothing_whenDeleteByUsername_ThenNothing(){
+        assertDoesNotThrow(() -> traineeDao.deleteByUsername(USERNAME));
+
+        assertEquals(0, traineeDao.findAll().size());
     }
 
     @AfterEach
