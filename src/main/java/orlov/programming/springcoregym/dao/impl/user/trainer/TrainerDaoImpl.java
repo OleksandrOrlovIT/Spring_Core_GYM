@@ -10,6 +10,7 @@ import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,6 +60,19 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
                 "WHERE :trainee NOT MEMBER OF tr.trainees";
         TypedQuery<Trainer> query = getEntityManager().createQuery(jpql, Trainer.class);
         query.setParameter("trainee", trainee);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Trainer> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String jpql = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.id IN :ids";
+        TypedQuery<Trainer> query = getEntityManager().createQuery(jpql, Trainer.class);
+        query.setParameter("ids", ids);
+
         return query.getResultList();
     }
 }

@@ -11,4 +11,5 @@ import java.util.List;
 public interface TrainerDao extends DaoUsernameFindable<Trainer, Long> {
     List<Training> getTrainingsByDateAndUsername(LocalDate startDate, LocalDate endDate, String userName);
     List<Trainer> getTrainersWithoutPassedTrainee(Trainee trainee);
+    List<Trainer> findByIds(List<Long> trainerIds);
 }

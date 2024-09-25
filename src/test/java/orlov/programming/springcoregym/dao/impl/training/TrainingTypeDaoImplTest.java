@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import orlov.programming.springcoregym.TestConfig;
+import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.model.training.TrainingType;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = TestDaoConfig.class)
 @Transactional
 class TrainingTypeDaoImplTest {
 

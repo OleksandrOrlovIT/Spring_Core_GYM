@@ -26,6 +26,7 @@ import static org.mockito.Mockito.*;
 class TrainerServiceTest {
 
     private static final Long ID = 1L;
+    private static final String USERNAME = "USERNAME";
     private static final String FIRST_NAME = "FIRST";
     private static final String LAST_NAME = "LAST";
     private static final String PASSWORD = "1111111111";
@@ -75,8 +76,8 @@ class TrainerServiceTest {
 
     @Test
     void givenValid_whenUpdate_thenSuccess(){
-        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).build();
-        Trainer updatedTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).build();
+        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
+        Trainer updatedTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).isActive(true).build();
 
         when(trainerDAO.findById(anyLong())).thenReturn(trainer);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
@@ -93,8 +94,8 @@ class TrainerServiceTest {
 
     @Test
     void givenValidWithWrongPassword_whenUpdate_thenSuccess(){
-        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD + "1").build();
-        Trainer updatedTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).build();
+        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD + "1").isActive(true).build();
+        Trainer updatedTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).isActive(true).build();
 
         when(trainerDAO.findById(anyLong())).thenReturn(trainer);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
@@ -112,8 +113,8 @@ class TrainerServiceTest {
     @Test
     void givenValidWithNewPassword_whenUpdate_thenSuccess(){
         String password2 = "2222222222";
-        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
-        Trainer updatedTrainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
+        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+        Trainer updatedTrainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
 
         when(trainerDAO.findById(any())).thenReturn(trainer);
         when(trainerDAO.update(any())).thenReturn(updatedTrainer);
@@ -122,6 +123,26 @@ class TrainerServiceTest {
         assertEquals(password2, resultTrainer.getPassword());
         assertEquals(FIRST_NAME + "." + LAST_NAME, trainer.getUsername());
 
+        verify(trainerDAO, times(1)).findById(any());
+        verify(trainerDAO, times(1)).update(any());
+    }
+
+    @Test
+    void givenValidWithNewPasswordAndOldUserName_whenUpdate_thenSetsOldName(){
+        String password2 = "2222222222";
+        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+        Trainer updatedTrainer = Trainer.builder().username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+
+        when(trainerDAO.findByUsername(any()))
+                .thenReturn(Optional.ofNullable(Trainer.builder().username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build()));
+        when(trainerDAO.findById(any())).thenReturn(trainer);
+        when(trainerDAO.update(any())).thenReturn(updatedTrainer);
+
+        Trainer resultTrainer = trainerService.update(trainer);
+        assertEquals(password2, resultTrainer.getPassword());
+        assertEquals(USERNAME, resultTrainer.getUsername());
+
+        verify(trainerDAO, times(1)).findByUsername(any());
         verify(trainerDAO, times(1)).findById(any());
         verify(trainerDAO, times(1)).update(any());
     }
@@ -148,30 +169,31 @@ class TrainerServiceTest {
 
     @Test
     void givenValid_whenCreate_thenSuccess(){
-        Trainer trainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).build();
-        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).build();
+        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
+        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
 
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
-        when(trainerDAO.findAll()).thenReturn(List.of(Trainer.builder().username(FIRST_NAME + "." + LAST_NAME).build()));
+        when(trainerDAO.findByUsername(any()))
+                .thenReturn(Optional.ofNullable(Trainer.builder().id(ID + 1).username(FIRST_NAME + "." + LAST_NAME).build()));
         when(trainerDAO.create(any())).thenReturn(createdTrainer);
 
         trainerService.create(trainer);
         assertNotEquals(createdTrainer, trainer);
         assertEquals(PASSWORD, trainer.getPassword());
-        assertEquals(50, trainer.getUsername().length());
+        assertEquals(46, trainer.getUsername().length());
 
         verify(passwordGenerator, times(1)).generatePassword();
-        verify(trainerDAO, times(1)).findAll();
+        verify(trainerDAO, times(1)).findByUsername(any());
         verify(trainerDAO, times(1)).create(any());
     }
 
     @Test
     void givenPasswordDifferentLengthAndNewName_whenCreate_thenSuccess(){
-        Trainer trainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD + "!").build();
-        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).build();
+        Trainer trainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD + "!").isActive(true).build();
+        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).isActive(true).build();
 
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
-        when(trainerDAO.findAll()).thenReturn(List.of(Trainer.builder().username("name").build()));
+        when(trainerDAO.findByUsername(any())).thenReturn(Optional.empty());
         when(trainerDAO.create(any())).thenReturn(createdTrainer);
 
         trainerService.create(trainer);
@@ -180,17 +202,17 @@ class TrainerServiceTest {
         assertEquals(10, trainer.getUsername().length());
 
         verify(passwordGenerator, times(1)).generatePassword();
-        verify(trainerDAO, times(1)).findAll();
+        verify(trainerDAO, times(1)).findByUsername(any());
         verify(trainerDAO, times(1)).create(any());
     }
 
     @Test
     void givenPassword_whenCreate_thenSuccess(){
         String password2 = "2222222222";
-        Trainer trainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
-        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
+        Trainer trainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
 
-        when(trainerDAO.findAll()).thenReturn(List.of(Trainer.builder().username("name").build()));
+        when(trainerDAO.findByUsername(any())).thenReturn(Optional.empty());
         when(trainerDAO.create(any())).thenReturn(createdTrainer);
 
         trainerService.create(trainer);
@@ -198,7 +220,7 @@ class TrainerServiceTest {
         assertEquals(password2, trainer.getPassword());
         assertEquals(10, trainer.getUsername().length());
 
-        verify(trainerDAO, times(1)).findAll();
+        verify(trainerDAO, times(1)).findByUsername(any());
         verify(trainerDAO, times(1)).create(any());
     }
 
@@ -376,5 +398,66 @@ class TrainerServiceTest {
         assertEquals(trainers, foundTrainers);
         verify(traineeDao, times(1)).findByUsername(any());
         verify(trainerDAO, times(1)).getTrainersWithoutPassedTrainee(any());
+    }
+
+    @Test
+    void givenValid_whenFindAll_thenSuccess(){
+        when(trainerDAO.findAll()).thenReturn(List.of(new Trainer(), new Trainer()));
+
+        List<Trainer> trainers = trainerService.findAll();
+
+        assertNotNull(trainers);
+        assertEquals(2, trainers.size());
+        verify(trainerDAO, times(1)).findAll();
+    }
+
+    @Test
+    void givenNotFound_whenAuthenticateTrainer_thenException(){
+        when(trainerDAO.findByUsername(any())).thenReturn(Optional.empty());
+
+        var e = assertThrows(IllegalArgumentException.class, () -> trainerService.authenticateTrainer(USERNAME, ""));
+
+        assertEquals("Trainer not found " + USERNAME, e.getMessage());
+        verify(trainerDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenWrongPassword_whenAuthenticateTrainer_thenException(){
+        when(trainerDAO.findByUsername(any())).thenReturn(Optional.ofNullable(Trainer.builder().password("pass").build()));
+
+        var e = assertThrows(IllegalArgumentException.class, () -> trainerService.authenticateTrainer(USERNAME, PASSWORD));
+
+        assertEquals("Wrong password for trainer " + USERNAME, e.getMessage());
+        verify(trainerDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenValid_whenAuthenticateTrainer_thenSuccess(){
+        when(trainerDAO.findByUsername(any())).thenReturn(Optional.ofNullable(Trainer.builder().password(PASSWORD).build()));
+
+        Trainer trainer = trainerService.authenticateTrainer(USERNAME, PASSWORD);
+
+        assertNotNull(trainer);
+        verify(trainerDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenNotFound_whenFindByUsername_thenException(){
+        when(trainerDAO.findByUsername(any())).thenReturn(Optional.empty());
+
+        var e = assertThrows(IllegalArgumentException.class, () -> trainerService.findByUsername(USERNAME));
+
+        assertEquals("Trainer not found " + USERNAME, e.getMessage());
+        verify(trainerDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenValid_whenFindByUsername_thenSuccess(){
+        when(trainerDAO.findByUsername(any())).thenReturn(Optional.ofNullable(Trainer.builder().build()));
+
+        Trainer trainer = trainerService.findByUsername(USERNAME);
+
+        assertNotNull(trainer);
+        verify(trainerDAO, times(1)).findByUsername(any());
     }
 }

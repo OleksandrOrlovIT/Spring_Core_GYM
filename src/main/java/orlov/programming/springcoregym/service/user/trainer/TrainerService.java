@@ -20,4 +20,8 @@ public interface TrainerService extends UpdatableService<Trainer, Long> {
     List<Training> getTrainingsByDate(LocalDate startDate, LocalDate endDate, String userName);
 
     List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername);
+
+    Trainer authenticateTrainer(String userName, String password);
+
+    Trainer findByUsername(String trainerUserName);
 }

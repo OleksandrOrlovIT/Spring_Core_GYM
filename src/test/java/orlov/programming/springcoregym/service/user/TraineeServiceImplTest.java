@@ -1,17 +1,21 @@
 package orlov.programming.springcoregym.service.user;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
+import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
+import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.service.user.trainee.TraineeServiceImpl;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -34,6 +38,9 @@ class TraineeServiceImplTest {
 
     @Mock
     private PasswordGenerator passwordGenerator;
+
+    @Mock
+    private TrainerDao trainerDAO;
 
     @InjectMocks
     private TraineeServiceImpl traineeServiceImpl;
@@ -76,8 +83,8 @@ class TraineeServiceImplTest {
 
     @Test
     void givenValid_whenUpdate_thenSuccess(){
-        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).build();
-        Trainee updatedTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).build();
+        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
+        Trainee updatedTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).password(PASSWORD).build();
 
         when(traineeDAO.findById(any())).thenReturn(trainee);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
@@ -94,8 +101,8 @@ class TraineeServiceImplTest {
 
     @Test
     void givenValidWithWrongPassword_whenUpdate_thenSuccess(){
-        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD + "1").build();
-        Trainee updatedTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).build();
+        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD + "1").isActive(true).build();
+        Trainee updatedTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).isActive(true).build();
 
         when(traineeDAO.findById(any())).thenReturn(trainee);
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
@@ -113,8 +120,8 @@ class TraineeServiceImplTest {
     @Test
     void givenValidWithNewPassword_whenUpdate_thenSuccess(){
         String password2 = "2222222222";
-        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
-        Trainee updatedTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
+        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+        Trainee updatedTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
 
         when(traineeDAO.findById(any())).thenReturn(trainee);
         when(traineeDAO.update(any())).thenReturn(updatedTrainee);
@@ -122,6 +129,26 @@ class TraineeServiceImplTest {
         Trainee resultTrainee = traineeServiceImpl.update(trainee);
         assertEquals(password2, resultTrainee.getPassword());
         assertEquals(FIRST_NAME + "." + LAST_NAME, trainee.getUsername());
+        verify(traineeDAO, times(1)).findById(any());
+        verify(traineeDAO, times(1)).update(any());
+    }
+
+    @Test
+    void givenValidWithNewPasswordAndOldUserName_whenUpdate_thenSetsOldName(){
+        String password2 = "2222222222";
+        Trainee trainee = Trainee.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+        Trainee updatedTrainee = Trainee.builder().username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+
+        when(traineeDAO.findByUsername(any()))
+                .thenReturn(Optional.ofNullable(Trainee.builder().username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build()));
+        when(traineeDAO.findById(any())).thenReturn(trainee);
+        when(traineeDAO.update(any())).thenReturn(updatedTrainee);
+
+        Trainee resultTrainee = traineeServiceImpl.update(trainee);
+        assertEquals(password2, resultTrainee.getPassword());
+        assertEquals(USERNAME, resultTrainee.getUsername());
+
+        verify(traineeDAO, times(1)).findByUsername(any());
         verify(traineeDAO, times(1)).findById(any());
         verify(traineeDAO, times(1)).update(any());
     }
@@ -148,30 +175,31 @@ class TraineeServiceImplTest {
 
     @Test
     void givenValid_whenCreate_thenSuccess(){
-        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).build();
+        Trainee trainee = Trainee.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
         Trainee createdTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).build();
 
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
-        when(traineeDAO.findAll()).thenReturn(List.of(Trainee.builder().username(FIRST_NAME + "." + LAST_NAME).build()));
+        when(traineeDAO.findByUsername(any()))
+                .thenReturn(Optional.ofNullable(Trainee.builder().id(ID + 1).username(FIRST_NAME + "." + LAST_NAME).build()));
         when(traineeDAO.create(any())).thenReturn(createdTrainee);
 
         traineeServiceImpl.create(trainee);
         assertNotEquals(createdTrainee, trainee);
         assertEquals(PASSWORD, trainee.getPassword());
-        assertEquals(50, trainee.getUsername().length());
+        assertEquals(46, trainee.getUsername().length());
 
         verify(passwordGenerator, times(1)).generatePassword();
-        verify(traineeDAO, times(1)).findAll();
+        verify(traineeDAO, times(1)).findByUsername(any());
         verify(traineeDAO, times(1)).create(any());
     }
 
     @Test
     void givenPasswordDifferentLengthAndNewName_whenCreate_thenSuccess(){
-        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD + "!").build();
+        Trainee trainee = Trainee.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).password(PASSWORD + "!").build();
         Trainee createdTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).build();
 
         when(passwordGenerator.generatePassword()).thenReturn(PASSWORD);
-        when(traineeDAO.findAll()).thenReturn(List.of(Trainee.builder().username("name").build()));
+        when(traineeDAO.findByUsername(any())).thenReturn(Optional.empty());
         when(traineeDAO.create(any())).thenReturn(createdTrainee);
 
         traineeServiceImpl.create(trainee);
@@ -180,17 +208,17 @@ class TraineeServiceImplTest {
         assertEquals(10, trainee.getUsername().length());
 
         verify(passwordGenerator, times(1)).generatePassword();
-        verify(traineeDAO, times(1)).findAll();
+        verify(traineeDAO, times(1)).findByUsername(any());
         verify(traineeDAO, times(1)).create(any());
     }
 
     @Test
     void givenPassword_whenCreate_thenSuccess(){
         String password2 = "2222222222";
-        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
+        Trainee trainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).password(password2).build();
         Trainee createdTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).build();
 
-        when(traineeDAO.findAll()).thenReturn(List.of(Trainee.builder().username("name").build()));
+        when(traineeDAO.findByUsername(any())).thenReturn(Optional.empty());
         when(traineeDAO.create(any())).thenReturn(createdTrainee);
 
         traineeServiceImpl.create(trainee);
@@ -198,7 +226,7 @@ class TraineeServiceImplTest {
         assertEquals(password2, trainee.getPassword());
         assertEquals(10, trainee.getUsername().length());
 
-        verify(traineeDAO, times(1)).findAll();
+        verify(traineeDAO, times(1)).findByUsername(any());
         verify(traineeDAO, times(1)).create(any());
     }
 
@@ -347,11 +375,104 @@ class TraineeServiceImplTest {
     void givenValid_whenGetTrainingsByDate_thenReturnsTrainings(){
         List<Training> trainings = List.of(new Training(), new Training());
 
-        when(traineeDAO.getTrainingsByDateAndUsername(any(), any(), any())).thenReturn(trainings);
+        when(traineeDAO.getTrainingsByDateUsernameTrainingType(any(), any(), any(), any())).thenReturn(trainings);
 
-        List<Training> foundTrainings = traineeServiceImpl.getTrainingsByDate(LocalDate.MIN, LocalDate.MIN, FIRST_NAME);
+        List<Training> foundTrainings = traineeServiceImpl
+                .getTrainingsByDateTraineeNameTrainingType(LocalDate.MIN, LocalDate.MIN, FIRST_NAME, "TRAINING");
 
         assertEquals(trainings, foundTrainings);
-        verify(traineeDAO, times(1)).getTrainingsByDateAndUsername(any(), any(), any());
+        verify(traineeDAO, times(1)).getTrainingsByDateUsernameTrainingType(any(), any(), any(), any());
+    }
+
+    @Test
+    void givenValid_whenFindAll_thenSuccess(){
+        when(traineeDAO.findAll()).thenReturn(List.of(new Trainee(), new Trainee()));
+
+        List<Trainee> trainees = traineeServiceImpl.findAll();
+
+        assertNotNull(trainees);
+        assertEquals(2, trainees.size());
+        verify(traineeDAO, times(1)).findAll();
+    }
+
+    @Test
+    void givenNotFound_whenAuthenticateTrainee_thenException(){
+        when(traineeDAO.findByUsername(any())).thenReturn(Optional.empty());
+
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeServiceImpl.authenticateTrainee(USERNAME, ""));
+
+        assertEquals("Trainee not found " + USERNAME, e.getMessage());
+        verify(traineeDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenWrongPassword_whenAuthenticateTrainee_thenException(){
+        when(traineeDAO.findByUsername(any())).thenReturn(Optional.ofNullable(Trainee.builder().password("pass").build()));
+
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeServiceImpl.authenticateTrainee(USERNAME, PASSWORD));
+
+        assertEquals("Wrong password for trainee " + USERNAME, e.getMessage());
+        verify(traineeDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenValid_whenAuthenticateTrainee_thenSuccess(){
+        when(traineeDAO.findByUsername(any())).thenReturn(Optional.ofNullable(Trainee.builder().password(PASSWORD).build()));
+
+        Trainee trainee = traineeServiceImpl.authenticateTrainee(USERNAME, PASSWORD);
+
+        assertNotNull(trainee);
+        verify(traineeDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenNotFound_whenFindByUsername_thenException(){
+        when(traineeDAO.findByUsername(any())).thenReturn(Optional.empty());
+
+        var e = assertThrows(IllegalArgumentException.class, () -> traineeServiceImpl.findByUsername(USERNAME));
+
+        assertEquals("Trainee not found " + USERNAME, e.getMessage());
+        verify(traineeDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenValid_whenFindByUsername_thenSuccess(){
+        when(traineeDAO.findByUsername(any())).thenReturn(Optional.ofNullable(Trainee.builder().build()));
+
+        Trainee trainee = traineeServiceImpl.findByUsername(USERNAME);
+
+        assertNotNull(trainee);
+        verify(traineeDAO, times(1)).findByUsername(any());
+    }
+
+    @Test
+    void givenNoTrainers_whenUpdateTraineeTrainers_thenException(){
+        Trainee trainee = Trainee.builder().build();
+
+        when(traineeDAO.findById(any())).thenReturn(trainee);
+        when(trainerDAO.findByIds(any())).thenReturn(List.of());
+
+        var e = assertThrows(EntityNotFoundException.class, () -> traineeServiceImpl.updateTraineeTrainers(ID, List.of()));
+
+        assertEquals("No trainers found with the provided IDs", e.getMessage());
+        verify(traineeDAO, times(1)).findById(any());
+        verify(trainerDAO, times(1)).findByIds(any());
+    }
+
+    @Test
+    void givenValid_whenUpdateTraineeTrainers_thenSuccess(){
+        Trainee trainee = Trainee.builder().build();
+        List<Trainer> trainers = List.of(Trainer.builder().build(), Trainer.builder().trainees(List.of(trainee)).build());
+        Trainee traineeWithTrainers = Trainee.builder().trainers(trainers).build();
+
+        when(traineeDAO.findById(any())).thenReturn(trainee);
+        when(trainerDAO.findByIds(any())).thenReturn(trainers);
+        when(traineeDAO.update(trainee)).thenReturn(traineeWithTrainers);
+
+        traineeServiceImpl.updateTraineeTrainers(ID, List.of(1L, 2L));
+
+        verify(traineeDAO, times(1)).findById(any());
+        verify(trainerDAO, times(1)).findByIds(any());
+        verify(traineeDAO, times(1)).update(any());
     }
 }

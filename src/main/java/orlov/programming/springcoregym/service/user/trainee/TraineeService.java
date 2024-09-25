@@ -2,7 +2,6 @@ package orlov.programming.springcoregym.service.user.trainee;
 
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
-import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.service.CRUDService;
 
 import java.time.LocalDate;
@@ -17,5 +16,12 @@ public interface TraineeService extends CRUDService<Trainee, Long> {
 
     Trainee deactivateTrainee(Long traineeId);
 
-    List<Training> getTrainingsByDate(LocalDate startDate, LocalDate endDate, String userName);
+    List<Training> getTrainingsByDateTraineeNameTrainingType
+            (LocalDate startDate, LocalDate endDate, String userName, String trainingType);
+
+    Trainee authenticateTrainee(String userName, String password);
+
+    Trainee findByUsername(String traineeUsername);
+
+    void updateTraineeTrainers(Long traineeId, List<Long> trainerIds);
 }

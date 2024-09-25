@@ -191,6 +191,7 @@
                 <configuration>
                     <excludes>
                         <exclude>org/apache/logging/log4j2/**</exclude>
+                        <exclude>orlov/programming/springcoregym/model/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

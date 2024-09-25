@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import orlov.programming.springcoregym.TestConfig;
+import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
@@ -25,7 +25,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = TestDaoConfig.class)
 @Transactional
 public class TrainerDaoImplTest {
 
@@ -42,6 +42,7 @@ public class TrainerDaoImplTest {
     private TrainingDao trainingDao;
 
     private Trainer testTrainer;
+    private TrainingType testTrainingType;
 
     private static final String USERNAME = "testUser";
     private static final String FIRST_NAME = "firstName";
@@ -52,12 +53,18 @@ public class TrainerDaoImplTest {
 
     @BeforeEach
     void setUp(){
+        testTrainingType = TrainingType.builder()
+                .trainingTypeName(SPECIALIZATION)
+                .build();
+
+        testTrainingType = trainingTypeDao.create(testTrainingType);
+
         testTrainer = Trainer.builder()
                 .username(USERNAME)
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)
                 .password(PASSWORD)
-                .specialization(SPECIALIZATION)
+                .specialization(testTrainingType)
                 .isActive(IS_ACTIVE)
                 .build();
     }
@@ -108,13 +115,20 @@ public class TrainerDaoImplTest {
 
         String delim = "1";
 
+        TrainingType diffTrainingType = TrainingType
+                .builder()
+                .trainingTypeName(SPECIALIZATION + delim)
+                .build();
+
+        diffTrainingType = trainingTypeDao.create(diffTrainingType);
+
         Trainer diffTrainer = Trainer.builder()
                 .username(savedTrainer.getUsername() + delim)
                 .firstName(savedTrainer.getFirstName() + delim)
                 .lastName(savedTrainer.getLastName() + delim)
                 .password(savedTrainer.getPassword() + delim)
                 .isActive(!savedTrainer.getIsActive())
-                .specialization(savedTrainer.getSpecialization() + delim)
+                .specialization(diffTrainingType)
                 .build();
 
         Trainer updated = trainerDao.update(diffTrainer);
@@ -125,7 +139,8 @@ public class TrainerDaoImplTest {
         assertEquals(updated.getLastName(), savedTrainer.getLastName() + delim);
         assertEquals(updated.getPassword(), savedTrainer.getPassword() + delim);
         assertEquals(updated.getIsActive(), !savedTrainer.getIsActive() );
-        assertEquals(updated.getSpecialization(), savedTrainer.getSpecialization() + delim);
+        assertEquals(updated.getSpecialization().getTrainingTypeName(),
+                savedTrainer.getSpecialization().getTrainingTypeName() + delim);
     }
 
     @Test
@@ -136,7 +151,7 @@ public class TrainerDaoImplTest {
                 .lastName("Last1")
                 .password("pass1")
                 .isActive(true)
-                .specialization("Specialization")
+                .specialization(testTrainingType)
                 .build();
 
         Trainer trainer2 = Trainer.builder()
@@ -145,7 +160,7 @@ public class TrainerDaoImplTest {
                 .lastName("Last2")
                 .password("pass2")
                 .isActive(true)
-                .specialization("Specialization")
+                .specialization(testTrainingType)
                 .build();
 
         trainerDao.create(trainer1);
@@ -225,7 +240,7 @@ public class TrainerDaoImplTest {
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)
                 .password(PASSWORD)
-                .specialization(SPECIALIZATION)
+                .specialization(testTrainingType)
                 .isActive(IS_ACTIVE)
                 .build();
 
@@ -241,10 +256,62 @@ public class TrainerDaoImplTest {
         assertTrue(trainers.contains(testTrainer2));
     }
 
+    @Test
+    void given2Trainers_whenFindByIds_thenSuccess(){
+        Trainer testTrainer2 = Trainer.builder()
+                .username(USERNAME + USERNAME)
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .password(PASSWORD)
+                .specialization(testTrainingType)
+                .isActive(IS_ACTIVE)
+                .build();
+
+        testTrainer = trainerDao.create(testTrainer);
+        testTrainer2 = trainerDao.create(testTrainer2);
+
+        List<Long> ids = List.of(testTrainer.getId(), testTrainer2.getId());
+
+        List<Trainer> trainers = trainerDao.findByIds(ids);
+
+        assertNotNull(trainers);
+        assertEquals(2, trainers.size());
+        assertTrue(trainers.contains(testTrainer));
+        assertTrue(trainers.contains(testTrainer2));
+    }
+
+    @Test
+    void givenNullIds_whenFindByIds_thenEmptyList(){
+        List<Trainer> trainers = trainerDao.findByIds(null);
+
+        assertNotNull(trainers);
+        assertEquals(0, trainers.size());
+    }
+
+    @Test
+    void givenEmptyIds_whenFindByIds_thenEmptyList(){
+        List<Trainer> trainers = trainerDao.findByIds(List.of());
+
+        assertNotNull(trainers);
+        assertEquals(0, trainers.size());
+    }
+
     @AfterEach
     public void setAfter(){
+        for(Training training : trainingDao.findAll()){
+            trainingDao.deleteById(training.getId());
+        }
+
         for(Trainer trainer : trainerDao.findAll()){
             trainerDao.deleteById(trainer.getId());
+        }
+
+        for(Trainee trainee : traineeDao.findAll()){
+            traineeDao.deleteById(trainee.getId());
+        }
+
+        for(TrainingType trainingType : trainingTypeDao.findAll()){
+            trainingTypeDao.deleteById(trainingType.getId());
         }
     }
 }

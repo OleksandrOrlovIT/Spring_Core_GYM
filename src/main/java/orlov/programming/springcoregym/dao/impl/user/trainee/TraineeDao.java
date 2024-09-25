@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TraineeDao extends DaoUsernameFindable<Trainee, Long> {
-    List<Training> getTrainingsByDateAndUsername(LocalDate startDate, LocalDate endDate, String userName);
+    List<Training> getTrainingsByDateUsernameTrainingType
+            (LocalDate startDate, LocalDate endDate, String userName, String trainingType);
     void deleteByUsername(String username);
 }

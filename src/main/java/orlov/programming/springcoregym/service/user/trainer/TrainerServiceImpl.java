@@ -28,11 +28,15 @@ public class TrainerServiceImpl implements TrainerService {
     public Trainer update(Trainer trainer) {
         trainer.setUsername(constructTrainerUsername(trainer));
 
+        checkAvailableUserName(trainer);
+
         Trainer foundTrainer = select(trainer.getId());
 
         if(trainer.getPassword() == null || trainer.getPassword().length() != 10){
             trainer.setPassword(passwordGenerator.generatePassword());
         }
+
+        Objects.requireNonNull(trainer.getIsActive(), "Trainer's isActive field can't be null");
 
         if(foundTrainer.getIsActive() != trainer.getIsActive()){
             throw new IllegalArgumentException("IsActive field can't be changed in update");
@@ -51,6 +55,8 @@ public class TrainerServiceImpl implements TrainerService {
             trainer.setPassword(passwordGenerator.generatePassword());
         }
 
+        Objects.requireNonNull(trainer.getIsActive(), "Trainer's isActive field can't be null");
+
         return trainerDAO.create(trainer);
     }
 
@@ -66,9 +72,13 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     private void checkAvailableUserName(Trainer trainer) {
-        for(Trainer obj : trainerDAO.findAll()) {
-            if(Objects.equals(obj.getUsername(), trainer.getUsername())) {
-                trainer.setUsername(trainer.getUsername() + trainer.getId() + UUID.randomUUID());
+        Optional<Trainer> optionalTrainer = trainerDAO.findByUsername(trainer.getUsername());
+
+        if(optionalTrainer.isPresent()){
+            if(!optionalTrainer.get().getId().equals(trainer.getId())) {
+                trainer.setUsername(trainer.getUsername() + UUID.randomUUID());
+            } else {
+                trainer.setUsername(optionalTrainer.get().getUsername());
             }
         }
     }
@@ -149,5 +159,36 @@ public class TrainerServiceImpl implements TrainerService {
         }
 
         return trainerDAO.getTrainersWithoutPassedTrainee(trainee.get());
+    }
+
+    @Override
+    public List<Trainer> findAll() {
+        return trainerDAO.findAll();
+    }
+
+    @Override
+    public Trainer authenticateTrainer(String userName, String password) {
+        Optional<Trainer> foundTrainer = trainerDAO.findByUsername(userName);
+
+        if(foundTrainer.isEmpty()){
+            throw new IllegalArgumentException("Trainer not found " + userName);
+        }
+
+        if(!foundTrainer.get().getPassword().equals(password)){
+            throw new IllegalArgumentException("Wrong password for trainer " + userName);
+        }
+
+        return foundTrainer.get();
+    }
+
+    @Override
+    public Trainer findByUsername(String trainerUserName) {
+        Optional<Trainer> foundTrainer = trainerDAO.findByUsername(trainerUserName);
+
+        if(foundTrainer.isEmpty()){
+            throw new IllegalArgumentException("Trainer not found " + trainerUserName);
+        }
+
+        return foundTrainer.get();
     }
 }

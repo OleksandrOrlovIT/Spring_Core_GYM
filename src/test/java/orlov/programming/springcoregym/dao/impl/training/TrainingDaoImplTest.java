@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import orlov.programming.springcoregym.TestConfig;
+import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
 import orlov.programming.springcoregym.model.training.Training;
@@ -22,7 +23,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = TestDaoConfig.class)
 @Transactional
 class TrainingDaoImplTest {
 
@@ -50,15 +51,7 @@ class TrainingDaoImplTest {
         testTrainingType = TrainingType.builder()
                 .trainingTypeName("testTrainingType1")
                 .build();
-
-        testTrainer = Trainer.builder()
-                .username("testTrainer")
-                .firstName("First1")
-                .lastName("Last1")
-                .password("pass1")
-                .isActive(true)
-                .specialization("Specialization1")
-                .build();
+        testTrainingType = trainingTypeDao.create(testTrainingType);
 
         testTrainee = Trainee.builder()
                 .username("testTrainee")
@@ -67,10 +60,17 @@ class TrainingDaoImplTest {
                 .password("pass1")
                 .isActive(true)
                 .build();
-
-        testTrainingType = trainingTypeDao.create(testTrainingType);
-        testTrainer = trainerDao.create(testTrainer);
         testTrainee = traineeDao.create(testTrainee);
+
+        testTrainer = Trainer.builder()
+                .username("testTrainer")
+                .firstName("First1")
+                .lastName("Last1")
+                .password("pass1")
+                .isActive(true)
+                .specialization(testTrainingType)
+                .build();
+        testTrainer = trainerDao.create(testTrainer);
 
         testTraining = Training.builder()
                 .trainee(testTrainee)
@@ -129,7 +129,7 @@ class TrainingDaoImplTest {
                 .lastName(testTrainer.getLastName() + delim)
                 .password(testTrainer.getPassword() + delim)
                 .isActive(!testTrainer.getIsActive())
-                .specialization(testTrainer.getSpecialization() + delim)
+                .specialization(testTrainingType)
                 .build();
 
         Trainee testTraineeForUpdate = Trainee.builder()
@@ -190,16 +190,16 @@ class TrainingDaoImplTest {
             trainingDao.deleteById(training.getId());
         }
 
-        for(TrainingType trainingType : trainingTypeDao.findAll()){
-            trainingTypeDao.deleteById(trainingType.getId());
+        for(Trainer trainer : trainerDao.findAll()){
+            trainerDao.deleteById(trainer.getId());
         }
 
         for(Trainee trainee : traineeDao.findAll()){
             traineeDao.deleteById(trainee.getId());
         }
 
-        for(Trainer trainer : trainerDao.findAll()){
-            trainerDao.deleteById(trainer.getId());
+        for(TrainingType trainingType : trainingTypeDao.findAll()){
+            trainingTypeDao.deleteById(trainingType.getId());
         }
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import orlov.programming.springcoregym.TestConfig;
+import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
+@ContextConfiguration(classes = TestDaoConfig.class)
 @Transactional
 class TraineeDaoImplTest {
 
@@ -169,7 +170,7 @@ class TraineeDaoImplTest {
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)
                 .password(PASSWORD)
-                .specialization("SPEC")
+                .specialization(testTrainingType)
                 .isActive(IS_ACTIVE)
                 .build();
 
@@ -199,7 +200,8 @@ class TraineeDaoImplTest {
         trainingDao.create(testTraining2);
 
         List<Training> foundTrainings =
-                traineeDao.getTrainingsByDateAndUsername(LocalDate.MIN, LocalDate.MIN.plusDays(1), testTrainee.getUsername());
+                traineeDao.getTrainingsByDateUsernameTrainingType(LocalDate.MIN, LocalDate.MIN.plusDays(1),
+                        testTrainee.getUsername(), testTrainingType.getTrainingTypeName());
 
         assertNotNull(foundTrainings);
         assertEquals(2, foundTrainings.size());
@@ -208,6 +210,8 @@ class TraineeDaoImplTest {
     @Test
     void givenTrainee_whenDeleteByUsername_ThenSuccess(){
         Trainee savedTrainee = traineeDao.create(testTrainee);
+
+        assertEquals(1, traineeDao.findAll().size());
 
         traineeDao.deleteByUsername(savedTrainee.getUsername());
 

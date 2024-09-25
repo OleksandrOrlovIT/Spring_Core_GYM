@@ -1,8 +1,12 @@
 package orlov.programming.springcoregym.service.user.trainee;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
+import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
@@ -13,18 +17,14 @@ import java.util.*;
 
 @Log4j2
 @Service
+@AllArgsConstructor
 public class TraineeServiceImpl implements TraineeService {
-
-    private static final String TRAINEE_NULL_MESSAGE="Trainee can't be null";
 
     private final TraineeDao traineeDAO;
 
-    private final PasswordGenerator passwordGenerator;
+    private final TrainerDao trainerDAO;
 
-    public TraineeServiceImpl(TraineeDao traineeDAO, PasswordGenerator passwordGenerator) {
-        this.traineeDAO = traineeDAO;
-        this.passwordGenerator = passwordGenerator;
-    }
+    private final PasswordGenerator passwordGenerator;
 
     @Override
     public void deleteByUsername(String userName) {
@@ -35,15 +35,20 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee update(Trainee trainee) {
         trainee.setUsername(constructTraineeUsername(trainee));
 
+        checkAvailableUserName(trainee);
+
         Trainee foundTrainee = select(trainee.getId());
 
         if(trainee.getPassword() == null || trainee.getPassword().length() != 10){
             trainee.setPassword(passwordGenerator.generatePassword());
         }
 
+        Objects.requireNonNull(trainee.getIsActive(), "Trainee's isActive field can't be null");
         if(foundTrainee.getIsActive() != trainee.getIsActive()){
             throw new IllegalArgumentException("IsActive field can't be changed in update");
         }
+
+        trainee.setTrainings(foundTrainee.getTrainings());
 
         return traineeDAO.update(trainee);
     }
@@ -53,6 +58,8 @@ public class TraineeServiceImpl implements TraineeService {
         trainee.setUsername(constructTraineeUsername(trainee));
 
         checkAvailableUserName(trainee);
+
+        Objects.requireNonNull(trainee.getIsActive(), "Trainee's isActive field can't be null");
 
         if(trainee.getPassword() == null || trainee.getPassword().length() != 10){
             trainee.setPassword(passwordGenerator.generatePassword());
@@ -73,9 +80,13 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     private void checkAvailableUserName(Trainee trainee) {
-        for(Trainee obj : traineeDAO.findAll()) {
-            if(Objects.equals(obj.getUsername(), trainee.getUsername())) {
-                trainee.setUsername(trainee.getUsername() + trainee.getId() + UUID.randomUUID());
+        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(trainee.getUsername());
+
+        if(foundTrainee.isPresent()){
+            if(!foundTrainee.get().getId().equals(trainee.getId())) {
+                trainee.setUsername(trainee.getUsername() + UUID.randomUUID());
+            } else {
+                trainee.setUsername(foundTrainee.get().getUsername());
             }
         }
     }
@@ -143,7 +154,63 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public List<Training> getTrainingsByDate(LocalDate startDate, LocalDate endDate, String userName) {
-        return traineeDAO.getTrainingsByDateAndUsername(startDate, endDate, userName);
+    public List<Training> getTrainingsByDateTraineeNameTrainingType
+            (LocalDate startDate, LocalDate endDate, String userName, String trainingTypename) {
+        return traineeDAO.getTrainingsByDateUsernameTrainingType(startDate, endDate, userName, trainingTypename);
+    }
+
+    @Override
+    public List<Trainee> findAll() {
+        return traineeDAO.findAll();
+    }
+
+    @Override
+    public Trainee authenticateTrainee(String userName, String password) {
+        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(userName);
+
+        if(foundTrainee.isEmpty()){
+            throw new IllegalArgumentException("Trainee not found " + userName);
+        }
+
+        if(!foundTrainee.get().getPassword().equals(password)){
+            throw new IllegalArgumentException("Wrong password for trainee " + userName);
+        }
+
+        return foundTrainee.get();
+    }
+
+    @Override
+    public Trainee findByUsername(String traineeUsername) {
+        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(traineeUsername);
+
+        if(foundTrainee.isEmpty()){
+            throw new IllegalArgumentException("Trainee not found " + traineeUsername);
+        }
+
+        return foundTrainee.get();
+    }
+
+    @Transactional
+    public void updateTraineeTrainers(Long traineeId, List<Long> trainerIds) {
+        Trainee trainee = select(traineeId);
+
+        List<Trainer> trainers = trainerDAO.findByIds(trainerIds);
+        if (trainers.isEmpty()) {
+            throw new EntityNotFoundException("No trainers found with the provided IDs");
+        }
+
+        trainee.setTrainers(trainers);
+
+        for (Trainer trainer : trainers) {
+            if(trainer.getTrainees() == null){
+                trainer.setTrainees(new ArrayList<>());
+            }
+
+            if (!trainer.getTrainees().contains(trainee)) {
+                trainer.getTrainees().add(trainee);
+            }
+        }
+
+        traineeDAO.update(trainee);
     }
 }
