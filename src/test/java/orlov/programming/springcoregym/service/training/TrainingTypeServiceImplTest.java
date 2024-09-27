@@ -9,6 +9,8 @@ import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.model.training.TrainingType;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,7 +61,7 @@ class TrainingTypeServiceImplTest {
 
     @Test
     void givenValidId_whenSelect_thenException(){
-        when(trainingTypeDao.findById(any())).thenReturn(new TrainingType());
+        when(trainingTypeDao.findById(any())).thenReturn(Optional.of(new TrainingType()));
 
         TrainingType trainingType = trainingTypeService.select(1L);
 
@@ -74,6 +76,17 @@ class TrainingTypeServiceImplTest {
 
         assertNotNull(trainingTypes);
         assertEquals(2, trainingTypes.size());
+    }
+
+    @Test
+    void givenNotFound_whenSelect_thenException(){
+        long id = 1L;
+
+        when(trainingTypeDao.findById(any())).thenReturn(Optional.empty());
+
+        var e = assertThrows(NoSuchElementException.class, () -> trainingTypeService.select(id));
+
+        assertEquals("TrainingType not found with id = " + id, e.getMessage());
     }
 
 }

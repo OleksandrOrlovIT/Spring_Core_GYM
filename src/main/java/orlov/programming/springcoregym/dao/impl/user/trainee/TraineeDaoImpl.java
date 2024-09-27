@@ -7,10 +7,10 @@ import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Repository;
 import orlov.programming.springcoregym.dao.AbstractDao;
+import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,14 +34,12 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
             return Optional.of(trainee);
 
         } catch (NoResultException e) {
-            log.info("No trainee found with username: {}", username);
             return Optional.empty();
         }
     }
 
     @Override
-    public List<Training> getTrainingsByDateUsernameTrainingType
-            (LocalDate startDate, LocalDate endDate, String userName, String trainingType) {
+    public List<Training> getTrainingsByDateUsernameTrainingType(TraineeTrainingDTO traineeTrainingDTO) {
         String jpql = "SELECT tr FROM Training tr "
                 + "JOIN tr.trainee t "
                 + "JOIN tr.trainingType tt "
@@ -50,10 +48,10 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
                 + "AND tr.trainingDate BETWEEN :startDate AND :endDate";
 
         TypedQuery<Training> query = getEntityManager().createQuery(jpql, Training.class);
-        query.setParameter("username", userName);
-        query.setParameter("trainingType", trainingType);
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
+        query.setParameter("username", traineeTrainingDTO.getUserName());
+        query.setParameter("trainingType", traineeTrainingDTO.getTrainingType());
+        query.setParameter("startDate", traineeTrainingDTO.getStartDate());
+        query.setParameter("endDate", traineeTrainingDTO.getEndDate());
 
         return query.getResultList();
     }
@@ -64,8 +62,6 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
         String jpql = "DELETE FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
         Query query = getEntityManager().createQuery(jpql);
         query.setParameter("username", username);
-        int rowsAffected = query.executeUpdate();
-
-        log.info("Deleted {} trainee(s) with username: {}", rowsAffected, username);
+        query.executeUpdate();
     }
 }

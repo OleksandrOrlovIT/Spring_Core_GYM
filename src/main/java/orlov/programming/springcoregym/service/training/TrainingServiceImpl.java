@@ -7,6 +7,7 @@ import orlov.programming.springcoregym.model.training.Training;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class TrainingServiceImpl implements TrainingService {
@@ -32,12 +33,13 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public Training select(Long id) {
-        Training foundTraining = trainingDAO.findById(id);
-        if (foundTraining == null) {
-            throw new NoSuchElementException("Training not found with id " + id);
+        Optional<Training> training = trainingDAO.findById(id);
+
+        if (training.isEmpty()) {
+            throw new NoSuchElementException("Training not found with id = " + id);
         }
 
-        return foundTraining;
+        return training.get();
     }
 
     @Override

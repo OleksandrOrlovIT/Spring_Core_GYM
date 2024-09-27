@@ -1,13 +1,23 @@
 package orlov.programming.springcoregym.service.user.trainee;
 
+import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
-import orlov.programming.springcoregym.service.CRUDService;
 
-import java.time.LocalDate;
 import java.util.List;
 
-public interface TraineeService extends CRUDService<Trainee, Long> {
+public interface TraineeService {
+
+    Trainee create(Trainee e);
+
+    Trainee select(Long id);
+
+    List<Trainee> findAll();
+
+    Trainee update(Trainee trainee);
+
+    void deleteByUsername(String userName);
+
     boolean userNameMatchPassword(String username, String password);
 
     Trainee changePassword(Trainee trainee, String newPassword);
@@ -16,8 +26,7 @@ public interface TraineeService extends CRUDService<Trainee, Long> {
 
     Trainee deactivateTrainee(Long traineeId);
 
-    List<Training> getTrainingsByDateTraineeNameTrainingType
-            (LocalDate startDate, LocalDate endDate, String userName, String trainingType);
+    List<Training> getTrainingsByDateTraineeNameTrainingType(TraineeTrainingDTO traineeTrainingDTO);
 
     Trainee authenticateTrainee(String userName, String password);
 

@@ -1,6 +1,7 @@
 package orlov.programming.springcoregym.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface Dao<E, ID> {
     E create(E e);
@@ -11,5 +12,5 @@ public interface Dao<E, ID> {
 
     List<E> findAll();
 
-    E findById(ID id);
+    Optional<E> findById(ID id);
 }

@@ -14,6 +14,7 @@ import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
+import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.training.TrainingType;
 import orlov.programming.springcoregym.model.user.Trainee;
@@ -72,10 +73,10 @@ class TraineeDaoImplTest {
     @Test
     void testFindById() {
         testTrainee = traineeDao.create(testTrainee);
-        Trainee foundTrainee = traineeDao.findById(testTrainee.getId());
+        Optional<Trainee> foundTrainee = traineeDao.findById(testTrainee.getId());
 
-        assertNotNull(foundTrainee);
-        assertEquals(testTrainee, foundTrainee);
+        assertTrue(foundTrainee.isPresent());
+        assertEquals(testTrainee, foundTrainee.get());
     }
 
     @Test
@@ -92,8 +93,8 @@ class TraineeDaoImplTest {
         Trainee trainee = traineeDao.create(testTrainee);
 
         traineeDao.deleteById(trainee.getId());
-        Trainee deleted = traineeDao.findById(trainee.getId());
-        assertNull(deleted);
+        Optional<Trainee> deleted = traineeDao.findById(trainee.getId());
+        assertTrue(deleted.isEmpty());
     }
 
     @Test
@@ -199,9 +200,9 @@ class TraineeDaoImplTest {
         trainingDao.create(testTraining1);
         trainingDao.create(testTraining2);
 
-        List<Training> foundTrainings =
-                traineeDao.getTrainingsByDateUsernameTrainingType(LocalDate.MIN, LocalDate.MIN.plusDays(1),
-                        testTrainee.getUsername(), testTrainingType.getTrainingTypeName());
+        TraineeTrainingDTO traineeTrainingDTO = new TraineeTrainingDTO(LocalDate.MIN, LocalDate.MIN.plusDays(1),
+                testTrainee.getUsername(), testTrainingType.getTrainingTypeName());
+        List<Training> foundTrainings = traineeDao.getTrainingsByDateUsernameTrainingType(traineeTrainingDTO);
 
         assertNotNull(foundTrainings);
         assertEquals(2, foundTrainings.size());

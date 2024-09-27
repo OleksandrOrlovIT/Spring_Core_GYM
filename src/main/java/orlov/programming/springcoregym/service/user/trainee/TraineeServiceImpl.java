@@ -7,12 +7,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
+import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.util.PasswordGenerator;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Log4j2
@@ -70,13 +70,13 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Trainee select(Long id) {
-        Trainee foundTrainee = traineeDAO.findById(id);
+        Optional<Trainee> foundTrainee = traineeDAO.findById(id);
 
-        if(foundTrainee == null){
+        if(foundTrainee.isEmpty()){
             throw new NoSuchElementException("Trainee not found with id = " + id);
         }
 
-        return foundTrainee;
+        return foundTrainee.get();
     }
 
     private void checkAvailableUserName(Trainee trainee) {
@@ -111,7 +111,11 @@ public class TraineeServiceImpl implements TraineeService {
             throw new IllegalArgumentException("Trainee not found " + username);
         }
 
-        return foundTrainee.get().getPassword().equals(password);
+        if(password != null){
+            return password.equals(foundTrainee.get().getPassword());
+        }
+
+        return false;
     }
 
     @Override
@@ -154,9 +158,8 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public List<Training> getTrainingsByDateTraineeNameTrainingType
-            (LocalDate startDate, LocalDate endDate, String userName, String trainingTypename) {
-        return traineeDAO.getTrainingsByDateUsernameTrainingType(startDate, endDate, userName, trainingTypename);
+    public List<Training> getTrainingsByDateTraineeNameTrainingType(TraineeTrainingDTO traineeTrainingDTO) {
+        return traineeDAO.getTrainingsByDateUsernameTrainingType(traineeTrainingDTO);
     }
 
     @Override

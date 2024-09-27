@@ -13,6 +13,7 @@ import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.model.training.TrainingType;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,10 +47,10 @@ class TrainingTypeDaoImplTest {
     @Test
     void testFindById() {
         testTrainingType = trainingTypeDao.create(testTrainingType);
-        TrainingType foundTrainingType = trainingTypeDao.findById(testTrainingType.getId());
+        Optional<TrainingType> foundTrainingType = trainingTypeDao.findById(testTrainingType.getId());
 
-        assertNotNull(foundTrainingType);
-        assertEquals(testTrainingType, foundTrainingType);
+        assertTrue(foundTrainingType.isPresent());
+        assertEquals(testTrainingType, foundTrainingType.get());
     }
 
     @Test
@@ -57,8 +58,8 @@ class TrainingTypeDaoImplTest {
         TrainingType trainingType = trainingTypeDao.create(testTrainingType);
 
         trainingTypeDao.deleteById(trainingType.getId());
-        TrainingType deleted = trainingTypeDao.findById(trainingType.getId());
-        assertNull(deleted);
+        Optional<TrainingType> deleted = trainingTypeDao.findById(trainingType.getId());
+        assertTrue(deleted.isEmpty());
     }
 
     @Test

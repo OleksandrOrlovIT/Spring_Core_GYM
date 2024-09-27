@@ -5,8 +5,9 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
-public abstract class AbstractDao<T, ID> implements Dao<T, ID>{
+public abstract class AbstractDao<T, ID> implements Dao<T, ID> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -27,17 +28,18 @@ public abstract class AbstractDao<T, ID> implements Dao<T, ID>{
     @Override
     @Transactional
     public void deleteById(ID id) {
-        T entity = findById(id);
-        if (entity != null) {
-            entityManager.remove(entity);
-        }
+        Optional<T> entity = findById(id);
+        entity.ifPresent(t -> entityManager.remove(t));
     }
 
     @Override
-    public T findById(ID id) {
-        return entityManager.find(getEntityClass(), id);
+    public Optional<T> findById(ID id) {
+        T entity = entityManager.find(getEntityClass(), id);
+
+        return entity != null ? Optional.of(entity) : Optional.empty();
     }
 
+    @Override
     public List<T> findAll() {
         String query = "SELECT e FROM " + getEntityClass().getSimpleName() + " e";
         return entityManager.createQuery(query, getEntityClass()).getResultList();

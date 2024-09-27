@@ -19,6 +19,7 @@ import orlov.programming.springcoregym.model.user.Trainer;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,10 +94,10 @@ class TrainingDaoImplTest {
     @Test
     void testFindById() {
         testTraining = trainingDao.create(testTraining);
-        Training foundTraining = trainingDao.findById(testTraining.getId());
+        Optional<Training> foundTraining = trainingDao.findById(testTraining.getId());
 
-        assertNotNull(foundTraining);
-        assertEquals(testTraining, foundTraining);
+        assertTrue(foundTraining.isPresent());
+        assertEquals(testTraining, foundTraining.get());
     }
 
     @Test
@@ -104,8 +105,8 @@ class TrainingDaoImplTest {
         testTraining = trainingDao.create(testTraining);
 
         trainingDao.deleteById(testTraining.getId());
-        Training deleted = trainingDao.findById(testTraining.getId());
-        assertNull(deleted);
+        Optional<Training> deleted = trainingDao.findById(testTraining.getId());
+        assertTrue(deleted.isEmpty());
     }
 
     @Test

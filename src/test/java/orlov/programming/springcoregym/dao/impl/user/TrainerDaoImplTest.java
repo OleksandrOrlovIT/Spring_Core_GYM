@@ -80,10 +80,10 @@ public class TrainerDaoImplTest {
     @Test
     void testFindById() {
         testTrainer = trainerDao.create(testTrainer);
-        Trainer foundTrainer = trainerDao.findById(testTrainer.getId());
+        Optional<Trainer> foundTrainer = trainerDao.findById(testTrainer.getId());
 
-        assertNotNull(foundTrainer);
-        assertEquals(testTrainer, foundTrainer);
+        assertTrue(foundTrainer.isPresent());
+        assertEquals(testTrainer, foundTrainer.get());
     }
 
     @Test
@@ -100,8 +100,8 @@ public class TrainerDaoImplTest {
         Trainer trainer = trainerDao.create(testTrainer);
 
         trainerDao.deleteById(trainer.getId());
-        Trainer deleted = trainerDao.findById(trainer.getId());
-        assertNull(deleted);
+        Optional<Trainer> deleted = trainerDao.findById(trainer.getId());
+        assertTrue(deleted.isEmpty());
     }
 
     @Test

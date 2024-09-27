@@ -62,13 +62,13 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public Trainer select(Long id) {
-        Trainer foundTrainer = trainerDAO.findById(id);
+        Optional<Trainer> foundTrainer = trainerDAO.findById(id);
 
-        if(foundTrainer == null){
+        if(foundTrainer.isEmpty()){
             throw new NoSuchElementException("Trainer not found with id = " + id);
         }
 
-        return foundTrainer;
+        return foundTrainer.get();
     }
 
     private void checkAvailableUserName(Trainer trainer) {
@@ -103,7 +103,11 @@ public class TrainerServiceImpl implements TrainerService {
             throw new IllegalArgumentException("Trainer not found " + username);
         }
 
-        return foundTrainer.get().getPassword().equals(password);
+        if(password != null){
+            return password.equals(foundTrainer.get().getPassword());
+        }
+
+        return false;
     }
 
     @Override

@@ -2,12 +2,19 @@ package orlov.programming.springcoregym.service.user.trainer;
 
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainer;
-import orlov.programming.springcoregym.service.UpdatableService;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface TrainerService extends UpdatableService<Trainer, Long> {
+public interface TrainerService {
+
+    Trainer create(Trainer trainer);
+
+    Trainer select(Long id);
+
+    List<Trainer> findAll();
+
+    Trainer update(Trainer trainer);
 
     boolean userNameMatchPassword(String username, String password);
 

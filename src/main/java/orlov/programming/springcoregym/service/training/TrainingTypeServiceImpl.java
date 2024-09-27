@@ -6,7 +6,9 @@ import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.model.training.TrainingType;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -26,7 +28,13 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     public TrainingType select(Long id) {
         Objects.requireNonNull(id, "TrainingType id must not be null");
 
-        return trainingTypeDao.findById(id);
+        Optional<TrainingType> trainingType = trainingTypeDao.findById(id);
+
+        if (trainingType.isEmpty()) {
+            throw new NoSuchElementException("TrainingType not found with id = " + id);
+        }
+
+        return trainingType.get();
     }
 
     @Override

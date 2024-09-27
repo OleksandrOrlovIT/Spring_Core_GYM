@@ -14,6 +14,7 @@ import orlov.programming.springcoregym.model.user.Trainer;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -125,7 +126,7 @@ class TrainingServiceImplTest {
     void givenTraining_whenSelect_thenSuccess(){
         Training training = new Training();
 
-        when(trainingDao.findById(any())).thenReturn(training);
+        when(trainingDao.findById(any())).thenReturn(Optional.of(training));
 
         assertEquals(training, trainingServiceImpl.select(1L));
         verify(trainingDao, times(1)).findById(any());
@@ -135,11 +136,11 @@ class TrainingServiceImplTest {
     void givenNotFoundTraining_whenSelect_thenFail(){
         Training training = new Training();
 
-        when(trainingDao.findById(any())).thenReturn(null);
+        when(trainingDao.findById(any())).thenReturn(Optional.empty());
 
         var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.select(training.getId()));
 
-        assertEquals("Training not found with id " + training.getId(), e.getMessage());
+        assertEquals("Training not found with id = " + training.getId(), e.getMessage());
         verify(trainingDao, times(1)).findById(any());
     }
 

@@ -1,21 +1,17 @@
 package orlov.programming.springcoregym.model.training;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Objects;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @SuperBuilder
 @Entity
