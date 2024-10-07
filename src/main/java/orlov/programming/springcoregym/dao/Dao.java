@@ -10,7 +10,7 @@ public interface Dao<E, ID> {
 
     void deleteById(ID id);
 
-    List<E> findAll();
+    List<E> getAll();
 
-    Optional<E> findById(ID id);
+    Optional<E> getById(ID id);
 }

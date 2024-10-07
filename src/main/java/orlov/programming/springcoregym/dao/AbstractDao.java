@@ -28,19 +28,19 @@ public abstract class AbstractDao<T, ID> implements Dao<T, ID> {
     @Override
     @Transactional
     public void deleteById(ID id) {
-        Optional<T> entity = findById(id);
+        Optional<T> entity = getById(id);
         entity.ifPresent(t -> entityManager.remove(t));
     }
 
     @Override
-    public Optional<T> findById(ID id) {
+    public Optional<T> getById(ID id) {
         T entity = entityManager.find(getEntityClass(), id);
 
         return entity != null ? Optional.of(entity) : Optional.empty();
     }
 
     @Override
-    public List<T> findAll() {
+    public List<T> getAll() {
         String query = "SELECT e FROM " + getEntityClass().getSimpleName() + " e";
         return entityManager.createQuery(query, getEntityClass()).getResultList();
     }

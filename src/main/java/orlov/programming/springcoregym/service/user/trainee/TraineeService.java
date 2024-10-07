@@ -12,13 +12,13 @@ public interface TraineeService {
 
     Trainee select(Long id);
 
-    List<Trainee> findAll();
+    List<Trainee> getAll();
 
     Trainee update(Trainee trainee);
 
     void deleteByUsername(String userName);
 
-    boolean userNameMatchPassword(String username, String password);
+    boolean isUserNameMatchPassword(String username, String password);
 
     Trainee changePassword(Trainee trainee, String newPassword);
 
@@ -26,11 +26,11 @@ public interface TraineeService {
 
     Trainee deactivateTrainee(Long traineeId);
 
-    List<Training> getTrainingsByDateTraineeNameTrainingType(TraineeTrainingDTO traineeTrainingDTO);
+    List<Training> getTrainingsByTraineeTrainingDTO(TraineeTrainingDTO traineeTrainingDTO);
 
     Trainee authenticateTrainee(String userName, String password);
 
-    Trainee findByUsername(String traineeUsername);
+    Trainee getByUsername(String traineeUsername);
 
     void updateTraineeTrainers(Long traineeId, List<Long> trainerIds);
 }

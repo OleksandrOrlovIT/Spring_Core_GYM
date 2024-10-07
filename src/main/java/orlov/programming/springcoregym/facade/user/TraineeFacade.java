@@ -9,12 +9,20 @@ import java.util.Optional;
 
 public interface TraineeFacade {
     Optional<Trainee> createTrainee(Trainee trainee);
-    boolean traineeUsernamePasswordMatch(String username, String password);
+
+    boolean isTraineeUsernamePasswordMatch(String username, String password);
+
     Optional<Trainee> updateTrainee(Trainee trainee);
+
     void deleteTrainee(String username);
+
     Optional<Trainee> selectTrainee(String username);
+
     Optional<Trainee> changeTraineePassword(String username, String newPassword);
+
     Optional<Trainee> activateTrainee(String username);
-    List<Training> getTraineeTrainingsByDateTraineeNameTrainingType(TraineeTrainingDTO traineeTrainingDTO);
+
+    List<Training> getTraineeTrainingsByTraineeTrainingDTO(TraineeTrainingDTO traineeTrainingDTO);
+
     void updateTraineeTrainers(Long traineeId, List<Long> trainerIds);
 }

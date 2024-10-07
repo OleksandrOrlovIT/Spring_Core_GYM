@@ -84,7 +84,7 @@ class TrainingFacadeTest {
     }
 
     @Test
-    void createTraining() {
+    void addTraining() {
         testTrainingType = trainingTypeDao.create(testTrainingType);
         testTrainer.setSpecialization(testTrainingType);
         testTrainer = trainerDao.create(testTrainer);
@@ -100,25 +100,26 @@ class TrainingFacadeTest {
     }
 
     @AfterEach
-    public void setAfter(){
-        for(Training training : trainingDao.findAll()){
+    public void setAfter() {
+        for (Training training : trainingDao.getAll()) {
             trainingDao.deleteById(training.getId());
         }
 
-        for(Trainer trainer : trainerDao.findAll()){
+        for (Trainer trainer : trainerDao.getAll()) {
             trainerDao.deleteById(trainer.getId());
         }
 
-        for(Trainee trainee : traineeDao.findAll()){
+        for (Trainee trainee : traineeDao.getAll()) {
             traineeDao.deleteById(trainee.getId());
         }
 
-        for(TrainingType trainingType : trainingTypeDao.findAll()){
+        for (TrainingType trainingType : trainingTypeDao.getAll()) {
             trainingTypeDao.deleteById(trainingType.getId());
         }
 
         try {
             authenticationService.logOut();
-        } catch (IllegalArgumentException ignored){}
+        } catch (IllegalArgumentException ignored) {
+        }
     }
 }

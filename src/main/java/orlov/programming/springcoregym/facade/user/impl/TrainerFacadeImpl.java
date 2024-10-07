@@ -33,10 +33,10 @@ public class TrainerFacadeImpl implements TrainerFacade {
     }
 
     @Override
-    public boolean trainerUsernamePasswordMatch(String username, String password) {
+    public boolean isTrainerUsernamePasswordMatch(String username, String password) {
         try {
             authenticationService.isUserLogged();
-            return trainerService.userNameMatchPassword(username, password);
+            return trainerService.isUserNameMatchPassword(username, password);
         } catch (Exception e) {
             log.error(e);
         }
@@ -60,7 +60,7 @@ public class TrainerFacadeImpl implements TrainerFacade {
     public Optional<Trainer> selectTrainer(String username) {
         try {
             authenticationService.isUserLogged();
-            return Optional.ofNullable(trainerService.findByUsername(username));
+            return Optional.ofNullable(trainerService.getByUsername(username));
         } catch (Exception e) {
             log.error(e);
         }
@@ -72,7 +72,7 @@ public class TrainerFacadeImpl implements TrainerFacade {
     public Optional<Trainer> changeTrainerPassword(String username, String newPassword) {
         try {
             authenticationService.isUserLogged();
-            Trainer trainer = trainerService.findByUsername(username);
+            Trainer trainer = trainerService.getByUsername(username);
             return Optional.ofNullable(trainerService.changePassword(trainer, newPassword));
         } catch (Exception e) {
             log.error(e);
@@ -85,7 +85,7 @@ public class TrainerFacadeImpl implements TrainerFacade {
     public Optional<Trainer> activateTrainer(String username) {
         try {
             authenticationService.isUserLogged();
-            Trainer trainer = trainerService.findByUsername(username);
+            Trainer trainer = trainerService.getByUsername(username);
             return Optional.ofNullable(trainerService.activateTrainer(trainer.getId()));
         } catch (Exception e) {
             log.error(e);

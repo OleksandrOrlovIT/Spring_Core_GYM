@@ -8,6 +8,7 @@ import orlov.programming.springcoregym.model.user.Trainee;
 import java.util.List;
 
 public interface TraineeDao extends DaoUsernameFindable<Trainee, Long> {
-    List<Training> getTrainingsByDateUsernameTrainingType(TraineeTrainingDTO traineeTrainingDTO);
+    List<Training> getTrainingsByTraineeTrainingDTO(TraineeTrainingDTO traineeTrainingDTO);
+
     void deleteByUsername(String username);
 }

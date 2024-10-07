@@ -9,5 +9,5 @@ public interface TrainingTypeService {
 
     TrainingType select(Long id);
 
-    List<TrainingType> findAll();
+    List<TrainingType> getAll();
 }

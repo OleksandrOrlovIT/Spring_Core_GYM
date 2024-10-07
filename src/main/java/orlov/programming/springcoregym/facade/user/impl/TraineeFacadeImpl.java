@@ -33,10 +33,10 @@ public class TraineeFacadeImpl implements TraineeFacade {
     }
 
     @Override
-    public boolean traineeUsernamePasswordMatch(String username, String password) {
+    public boolean isTraineeUsernamePasswordMatch(String username, String password) {
         try {
             authenticationService.isUserLogged();
-            return traineeService.userNameMatchPassword(username, password);
+            return traineeService.isUserNameMatchPassword(username, password);
         } catch (Exception e) {
             log.error(e);
             return false;
@@ -65,7 +65,7 @@ public class TraineeFacadeImpl implements TraineeFacade {
     public Optional<Trainee> selectTrainee(String username) {
         try {
             authenticationService.isUserLogged();
-            return Optional.ofNullable(traineeService.findByUsername(username));
+            return Optional.ofNullable(traineeService.getByUsername(username));
         } catch (Exception e) {
             log.error(e);
         }
@@ -77,9 +77,9 @@ public class TraineeFacadeImpl implements TraineeFacade {
     public Optional<Trainee> changeTraineePassword(String username, String newPassword) {
         try {
             authenticationService.isUserLogged();
-            Trainee trainee = traineeService.findByUsername(username);
+            Trainee trainee = traineeService.getByUsername(username);
 
-            if(!authenticationService.getLoggedUser().getUsername().equals(trainee.getUsername())) {
+            if (!authenticationService.getLoggedUser().getUsername().equals(trainee.getUsername())) {
                 throw new IllegalArgumentException("User tried to change password of different user");
             }
 
@@ -95,7 +95,7 @@ public class TraineeFacadeImpl implements TraineeFacade {
     public Optional<Trainee> activateTrainee(String username) {
         try {
             authenticationService.isUserLogged();
-            Trainee trainee = traineeService.findByUsername(username);
+            Trainee trainee = traineeService.getByUsername(username);
 
             return Optional.ofNullable(traineeService.activateTrainee(trainee.getId()));
         } catch (Exception e) {
@@ -106,9 +106,9 @@ public class TraineeFacadeImpl implements TraineeFacade {
     }
 
     @Override
-    public List<Training> getTraineeTrainingsByDateTraineeNameTrainingType(TraineeTrainingDTO traineeTrainingDTO) {
+    public List<Training> getTraineeTrainingsByTraineeTrainingDTO(TraineeTrainingDTO traineeTrainingDTO) {
         authenticationService.isUserLogged();
-        return traineeService.getTrainingsByDateTraineeNameTrainingType(traineeTrainingDTO);
+        return traineeService.getTrainingsByTraineeTrainingDTO(traineeTrainingDTO);
     }
 
     @Override

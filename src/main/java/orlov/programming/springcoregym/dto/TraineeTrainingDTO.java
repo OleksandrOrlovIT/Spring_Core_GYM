@@ -12,6 +12,6 @@ import java.time.LocalDate;
 public class TraineeTrainingDTO {
     LocalDate startDate;
     LocalDate endDate;
-    String userName ;
+    String userName;
     String trainingType;
 }

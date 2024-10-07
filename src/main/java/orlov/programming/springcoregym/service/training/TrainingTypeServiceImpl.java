@@ -28,17 +28,12 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     public TrainingType select(Long id) {
         Objects.requireNonNull(id, "TrainingType id must not be null");
 
-        Optional<TrainingType> trainingType = trainingTypeDao.findById(id);
-
-        if (trainingType.isEmpty()) {
-            throw new NoSuchElementException("TrainingType not found with id = " + id);
-        }
-
-        return trainingType.get();
+        return trainingTypeDao.getById(id)
+                .orElseThrow(() -> new NoSuchElementException("TrainingType not found with id = " + id));
     }
 
     @Override
-    public List<TrainingType> findAll() {
-        return trainingTypeDao.findAll();
+    public List<TrainingType> getAll() {
+        return trainingTypeDao.getAll();
     }
 }

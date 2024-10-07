@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordGeneratorImplTest {
     @Test
-    void whenGeneratePassword_thenPassword() {
+    void generatePasswordThenSuccess() {
         PasswordGeneratorImpl passwordGenerator = new PasswordGeneratorImpl();
         String password = passwordGenerator.generatePassword();
         assertEquals(10, password.length());

@@ -21,4 +21,9 @@ public class PasswordGeneratorImpl implements PasswordGenerator {
         }
         return sb.toString();
     }
+
+    @Override
+    public Integer getPasswordLength() {
+        return PASSWORD_LENGTH;
+    }
 }

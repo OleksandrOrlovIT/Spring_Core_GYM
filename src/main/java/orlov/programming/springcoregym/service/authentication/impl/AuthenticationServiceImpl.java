@@ -14,7 +14,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
 
-    private User loggedUser;
+    private static ThreadLocal<User> loggedUser = ThreadLocal.withInitial(() -> null);
 
     public AuthenticationServiceImpl(TraineeService traineeService, TrainerService trainerService) {
         this.traineeService = traineeService;
@@ -24,12 +24,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void authenticateUser(String userName, String password, boolean isTrainee) {
         try {
-            if(isTrainee){
-                loggedUser = traineeService.authenticateTrainee(userName, password);
+            if (isTrainee) {
+                User trainee = traineeService.authenticateTrainee(userName, password);
+                loggedUser.set(trainee);
             } else {
-                loggedUser = trainerService.authenticateTrainer(userName, password);
+                User trainer = trainerService.authenticateTrainer(userName, password);
+                loggedUser.set(trainer);
             }
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             log.error(e.getMessage());
         }
     }
@@ -37,12 +39,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logOut() {
         isUserLogged();
-        loggedUser = null;
+        loggedUser = ThreadLocal.withInitial(() -> null);
     }
 
     @Override
     public void isUserLogged() {
-        if(loggedUser == null) {
+        if (loggedUser == null || loggedUser.get() == null) {
             throw new IllegalArgumentException("You are not logged in");
         }
     }
@@ -50,7 +52,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public User getLoggedUser() {
         isUserLogged();
-
-        return loggedUser;
+        return loggedUser.get();
     }
 }

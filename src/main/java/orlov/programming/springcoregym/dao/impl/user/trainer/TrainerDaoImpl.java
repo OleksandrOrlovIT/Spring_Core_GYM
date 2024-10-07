@@ -18,35 +18,45 @@ import java.util.Optional;
 @Repository
 public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements TrainerDao {
 
+    private static String FIND_BY_USERNAME_QUERY;
+    private static String GET_TRAININGS_BY_DATE_AND_USERNAME_QUERY;
+    private static String GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY;
+    private static String FIND_BY_IDS_QUERY;
+
+    public TrainerDaoImpl() {
+        FIND_BY_USERNAME_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
+        GET_TRAININGS_BY_DATE_AND_USERNAME_QUERY = """
+                SELECT tr FROM Training tr
+                JOIN tr.trainer t
+                WHERE t.username = :username
+                AND tr.trainingDate BETWEEN :startDate AND :endDate
+                """;
+        GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY = "SELECT tr FROM Trainer tr WHERE :trainee NOT MEMBER OF tr.trainees";
+        FIND_BY_IDS_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.id IN :ids";
+    }
+
     @Override
     protected Class<Trainer> getEntityClass() {
         return Trainer.class;
     }
 
     @Override
-    public Optional<Trainer> findByUsername(String username) {
+    public Optional<Trainer> getByUsername(String username) {
         try {
-            String jpql = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
-            TypedQuery<Trainer> query = getEntityManager().createQuery(jpql, Trainer.class);
+            TypedQuery<Trainer> query = getEntityManager().createQuery(FIND_BY_USERNAME_QUERY, Trainer.class);
             query.setParameter("username", username);
 
             Trainer trainer = query.getSingleResult();
             return Optional.of(trainer);
 
         } catch (NoResultException e) {
-            log.info("No trainer found with username: {}", username);
             return Optional.empty();
         }
     }
 
     @Override
     public List<Training> getTrainingsByDateAndUsername(LocalDate startDate, LocalDate endDate, String userName) {
-        String jpql = "SELECT tr FROM Training tr "
-                + "JOIN tr.trainer t "
-                + "WHERE t.username = :username "
-                + "AND tr.trainingDate BETWEEN :startDate AND :endDate";
-
-        TypedQuery<Training> query = getEntityManager().createQuery(jpql, Training.class);
+        TypedQuery<Training> query = getEntityManager().createQuery(GET_TRAININGS_BY_DATE_AND_USERNAME_QUERY, Training.class);
         query.setParameter("username", userName);
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
@@ -56,21 +66,22 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
 
     @Override
     public List<Trainer> getTrainersWithoutPassedTrainee(Trainee trainee) {
-        String jpql = "SELECT tr FROM Trainer tr " +
-                "WHERE :trainee NOT MEMBER OF tr.trainees";
-        TypedQuery<Trainer> query = getEntityManager().createQuery(jpql, Trainer.class);
+        TypedQuery<Trainer> query = getEntityManager().createQuery(GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY, Trainer.class);
         query.setParameter("trainee", trainee);
         return query.getResultList();
     }
 
     @Override
-    public List<Trainer> findByIds(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
+    public List<Trainer> getByIds(List<Long> ids) {
+        if (ids == null) {
+            throw new IllegalArgumentException("Ids can't be null");
+        }
+
+        if (ids.isEmpty()) {
             return Collections.emptyList();
         }
 
-        String jpql = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.id IN :ids";
-        TypedQuery<Trainer> query = getEntityManager().createQuery(jpql, Trainer.class);
+        TypedQuery<Trainer> query = getEntityManager().createQuery(FIND_BY_IDS_QUERY, Trainer.class);
         query.setParameter("ids", ids);
 
         return query.getResultList();

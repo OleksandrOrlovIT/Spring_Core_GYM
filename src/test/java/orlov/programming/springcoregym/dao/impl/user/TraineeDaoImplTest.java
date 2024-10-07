@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import orlov.programming.springcoregym.TestConfig;
 import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
@@ -52,7 +51,7 @@ class TraineeDaoImplTest {
     private static final boolean IS_ACTIVE = true;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         testTrainee = Trainee.builder()
                 .username(USERNAME)
                 .firstName(FIRST_NAME)
@@ -63,7 +62,7 @@ class TraineeDaoImplTest {
     }
 
     @Test
-    void testCreate() {
+    void createTrainee() {
         testTrainee = traineeDao.create(testTrainee);
 
         assertNotNull(testTrainee);
@@ -71,39 +70,39 @@ class TraineeDaoImplTest {
     }
 
     @Test
-    void testFindById() {
+    void getByIdTrainee() {
         testTrainee = traineeDao.create(testTrainee);
-        Optional<Trainee> foundTrainee = traineeDao.findById(testTrainee.getId());
+        Optional<Trainee> foundTrainee = traineeDao.getById(testTrainee.getId());
 
         assertTrue(foundTrainee.isPresent());
         assertEquals(testTrainee, foundTrainee.get());
     }
 
     @Test
-    void testFindByUsername() {
+    void getByUsernameTrainee() {
         Trainee trainee = traineeDao.create(testTrainee);
 
-        Optional<Trainee> found = traineeDao.findByUsername(trainee.getUsername());
+        Optional<Trainee> found = traineeDao.getByUsername(trainee.getUsername());
         assertTrue(found.isPresent());
         assertEquals(trainee, found.get());
     }
 
     @Test
-    void testDelete() {
+    void deleteTrainee() {
         Trainee trainee = traineeDao.create(testTrainee);
 
         traineeDao.deleteById(trainee.getId());
-        Optional<Trainee> deleted = traineeDao.findById(trainee.getId());
+        Optional<Trainee> deleted = traineeDao.getById(trainee.getId());
         assertTrue(deleted.isEmpty());
     }
 
     @Test
-    void testDelete_NonExistentTrainee() {
+    void deleteNonExistentTrainee() {
         assertDoesNotThrow(() -> traineeDao.deleteById(-1L));
     }
 
     @Test
-    void testUpdate() {
+    void updateTrainee() {
         Trainee savedTrainee = traineeDao.create(testTrainee);
 
         String delim = "1";
@@ -123,11 +122,11 @@ class TraineeDaoImplTest {
         assertEquals(updated.getFirstName(), savedTrainee.getFirstName() + delim);
         assertEquals(updated.getLastName(), savedTrainee.getLastName() + delim);
         assertEquals(updated.getPassword(), savedTrainee.getPassword() + delim);
-        assertEquals(updated.getIsActive(), !savedTrainee.getIsActive() );
+        assertEquals(updated.getIsActive(), !savedTrainee.getIsActive());
     }
 
     @Test
-    void testFindAll() {
+    void getAllTrainees() {
         Trainee trainee1 = Trainee.builder()
                 .username(USERNAME + 1)
                 .firstName(FIRST_NAME + 1)
@@ -147,21 +146,21 @@ class TraineeDaoImplTest {
         traineeDao.create(trainee1);
         traineeDao.create(trainee2);
 
-        List<Trainee> traineeList = traineeDao.findAll();
+        List<Trainee> traineeList = traineeDao.getAll();
 
         assertNotNull(traineeList);
         assertEquals(2, traineeList.size());
     }
 
     @Test
-    void givenNothing_whenFindByUsername_ThenException(){
-        Optional<Trainee> optionalTrainee = traineeDao.findByUsername("");
+    void getByUsernameGivenNothingThenException() {
+        Optional<Trainee> optionalTrainee = traineeDao.getByUsername("");
 
         assertTrue(optionalTrainee.isEmpty());
     }
 
     @Test
-    void whenGetTrainingsByDate_thenReturnTrainingsAndUsername(){
+    void getTrainingsByDateThenReturnTrainingsAndUsername() {
         TrainingType testTrainingType = TrainingType.builder()
                 .trainingTypeName("testTrainingType1")
                 .build();
@@ -202,33 +201,33 @@ class TraineeDaoImplTest {
 
         TraineeTrainingDTO traineeTrainingDTO = new TraineeTrainingDTO(LocalDate.MIN, LocalDate.MIN.plusDays(1),
                 testTrainee.getUsername(), testTrainingType.getTrainingTypeName());
-        List<Training> foundTrainings = traineeDao.getTrainingsByDateUsernameTrainingType(traineeTrainingDTO);
+        List<Training> foundTrainings = traineeDao.getTrainingsByTraineeTrainingDTO(traineeTrainingDTO);
 
         assertNotNull(foundTrainings);
         assertEquals(2, foundTrainings.size());
     }
 
     @Test
-    void givenTrainee_whenDeleteByUsername_ThenSuccess(){
+    void deleteByUsernameThenSuccess() {
         Trainee savedTrainee = traineeDao.create(testTrainee);
 
-        assertEquals(1, traineeDao.findAll().size());
+        assertEquals(1, traineeDao.getAll().size());
 
         traineeDao.deleteByUsername(savedTrainee.getUsername());
 
-        assertEquals(0, traineeDao.findAll().size());
+        assertEquals(0, traineeDao.getAll().size());
     }
 
     @Test
-    void givenNothing_whenDeleteByUsername_ThenNothing(){
+    void deleteByUsernameThenNothing() {
         assertDoesNotThrow(() -> traineeDao.deleteByUsername(USERNAME));
 
-        assertEquals(0, traineeDao.findAll().size());
+        assertEquals(0, traineeDao.getAll().size());
     }
 
     @AfterEach
-    public void setAfter(){
-        for(Trainee trainee : traineeDao.findAll()){
+    public void setAfter() {
+        for (Trainee trainee : traineeDao.getAll()) {
             traineeDao.deleteById(trainee.getId());
         }
     }

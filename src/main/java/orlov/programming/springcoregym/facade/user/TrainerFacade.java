@@ -9,11 +9,18 @@ import java.util.Optional;
 
 public interface TrainerFacade {
     Optional<Trainer> createTrainer(Trainer trainer);
-    boolean trainerUsernamePasswordMatch(String username, String password);
+
+    boolean isTrainerUsernamePasswordMatch(String username, String password);
+
     Optional<Trainer> updateTrainer(Trainer trainer);
+
     Optional<Trainer> selectTrainer(String username);
+
     Optional<Trainer> changeTrainerPassword(String username, String newPassword);
+
     Optional<Trainer> activateTrainer(String username);
+
     List<Training> getTrainingsByDateTrainerName(LocalDate startDate, LocalDate endDate, String trainerName);
+
     List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername);
 }

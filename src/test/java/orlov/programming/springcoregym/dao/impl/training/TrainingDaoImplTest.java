@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import orlov.programming.springcoregym.TestConfig;
 import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
@@ -48,7 +47,7 @@ class TrainingDaoImplTest {
     private static final String TRAINING_NAME = "testTrainingName";
 
     @BeforeEach
-    void setUpEntities(){
+    void setUpEntities() {
         testTrainingType = TrainingType.builder()
                 .trainingTypeName("testTrainingType1")
                 .build();
@@ -84,7 +83,7 @@ class TrainingDaoImplTest {
     }
 
     @Test
-    void testCreate() {
+    void createTraining() {
         testTraining = trainingDao.create(testTraining);
 
         assertNotNull(testTraining);
@@ -92,30 +91,30 @@ class TrainingDaoImplTest {
     }
 
     @Test
-    void testFindById() {
+    void getByIdTraining() {
         testTraining = trainingDao.create(testTraining);
-        Optional<Training> foundTraining = trainingDao.findById(testTraining.getId());
+        Optional<Training> foundTraining = trainingDao.getById(testTraining.getId());
 
         assertTrue(foundTraining.isPresent());
         assertEquals(testTraining, foundTraining.get());
     }
 
     @Test
-    void testDelete() {
+    void deleteTraining() {
         testTraining = trainingDao.create(testTraining);
 
         trainingDao.deleteById(testTraining.getId());
-        Optional<Training> deleted = trainingDao.findById(testTraining.getId());
+        Optional<Training> deleted = trainingDao.getById(testTraining.getId());
         assertTrue(deleted.isEmpty());
     }
 
     @Test
-    void testDelete_NonExistentTraining() {
+    void deleteNonExistentTraining() {
         assertDoesNotThrow(() -> trainingDao.deleteById(-1L));
     }
 
     @Test
-    void testUpdate() {
+    void updateTraining() {
         Training savedTraining = trainingDao.create(testTraining);
 
         String delim = "1";
@@ -166,7 +165,7 @@ class TrainingDaoImplTest {
     }
 
     @Test
-    void testFindAll() {
+    void getAllTrainings() {
         Training training2 = Training.builder()
                 .trainee(testTrainee)
                 .trainer(testTrainer)
@@ -179,27 +178,27 @@ class TrainingDaoImplTest {
         trainingDao.create(testTraining);
         trainingDao.create(training2);
 
-        List<Training> trainingList = trainingDao.findAll();
+        List<Training> trainingList = trainingDao.getAll();
 
         assertNotNull(trainingList);
         assertEquals(2, trainingList.size());
     }
 
     @AfterEach
-    public void setAfter(){
-        for(Training training : trainingDao.findAll()){
+    public void setAfter() {
+        for (Training training : trainingDao.getAll()) {
             trainingDao.deleteById(training.getId());
         }
 
-        for(Trainer trainer : trainerDao.findAll()){
+        for (Trainer trainer : trainerDao.getAll()) {
             trainerDao.deleteById(trainer.getId());
         }
 
-        for(Trainee trainee : traineeDao.findAll()){
+        for (Trainee trainee : traineeDao.getAll()) {
             traineeDao.deleteById(trainee.getId());
         }
 
-        for(TrainingType trainingType : trainingTypeDao.findAll()){
+        for (TrainingType trainingType : trainingTypeDao.getAll()) {
             trainingTypeDao.deleteById(trainingType.getId());
         }
     }

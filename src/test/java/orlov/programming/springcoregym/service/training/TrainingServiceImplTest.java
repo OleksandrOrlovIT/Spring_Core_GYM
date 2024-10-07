@@ -30,7 +30,7 @@ class TrainingServiceImplTest {
     private TrainingServiceImpl trainingServiceImpl;
 
     @Test
-    void givenTrainingNull_whenCreate_thenException(){
+    void createGivenTrainingNullThenException() {
         Training training = null;
 
         var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
@@ -38,7 +38,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTrainingTraineeNull_whenCreate_thenException(){
+    void createGivenTrainingTraineeNullThenException() {
         Training training = Training.builder().build();
 
         var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
@@ -46,7 +46,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTrainingTrainerNull_whenCreate_thenException(){
+    void createGivenTrainingTrainerNullThenException() {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .build();
@@ -56,7 +56,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTrainingNameNull_whenCreate_thenException(){
+    void createGivenTrainingNameNullThenException() {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
@@ -67,7 +67,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTrainingTypeNull_whenCreate_thenException(){
+    void createGivenTrainingTypeNullThenException() {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
@@ -79,7 +79,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTrainingDateNull_whenCreate_thenException(){
+    void createGivenTrainingDateNullThenException() {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
@@ -92,7 +92,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTrainingDurationNull_whenCreate_thenException(){
+    void createGivenTrainingDurationNullThenException() {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
@@ -106,7 +106,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTraining_whenCreate_thenSuccess(){
+    void createGivenTrainingThenSuccess() {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
@@ -123,35 +123,35 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTraining_whenSelect_thenSuccess(){
+    void selectGivenTrainingThenSuccess() {
         Training training = new Training();
 
-        when(trainingDao.findById(any())).thenReturn(Optional.of(training));
+        when(trainingDao.getById(any())).thenReturn(Optional.of(training));
 
         assertEquals(training, trainingServiceImpl.select(1L));
-        verify(trainingDao, times(1)).findById(any());
+        verify(trainingDao, times(1)).getById(any());
     }
 
     @Test
-    void givenNotFoundTraining_whenSelect_thenFail(){
+    void selectGivenNotFoundTrainingThenFail() {
         Training training = new Training();
 
-        when(trainingDao.findById(any())).thenReturn(Optional.empty());
+        when(trainingDao.getById(any())).thenReturn(Optional.empty());
 
         var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.select(training.getId()));
 
         assertEquals("Training not found with id = " + training.getId(), e.getMessage());
-        verify(trainingDao, times(1)).findById(any());
+        verify(trainingDao, times(1)).getById(any());
     }
 
     @Test
-    void givenValid_whenFindAll_thenSuccess(){
-        when(trainingDao.findAll()).thenReturn(List.of(new Training(), new Training()));
+    void getAllGivenValidThenSuccess() {
+        when(trainingDao.getAll()).thenReturn(List.of(new Training(), new Training()));
 
-        List<Training> trainings = trainingServiceImpl.findAll();
+        List<Training> trainings = trainingServiceImpl.getAll();
 
         assertNotNull(trainings);
         assertEquals(2, trainings.size());
-        verify(trainingDao, times(1)).findAll();
+        verify(trainingDao, times(1)).getAll();
     }
 }

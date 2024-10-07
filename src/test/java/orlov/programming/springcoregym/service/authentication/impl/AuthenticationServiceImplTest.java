@@ -17,7 +17,7 @@ class AuthenticationServiceImplTest {
     private AuthenticationService authenticationService;
 
     @Test
-    void givenNull_whenAuthenticateUser_thenNothing(){
+    void authenticateUserGivenNullThenNothing() {
         assertDoesNotThrow(() -> authenticationService.authenticateUser(null, null, true));
         assertDoesNotThrow(() -> authenticationService.authenticateUser(null, null, false));
     }

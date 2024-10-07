@@ -8,20 +8,28 @@ import orlov.programming.springcoregym.model.training.TrainingType;
 
 import java.util.List;
 
-@NoArgsConstructor
-@SuperBuilder
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@NoArgsConstructor
+@SuperBuilder
 @Entity
 public class Trainer extends User {
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(optional = false)
     @JoinColumn(name = "training_type_id", nullable = false)
     private TrainingType specialization;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "trainer")
     private List<Training> trainings;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToMany
     @JoinTable(
             name = "trainer_trainee",
@@ -29,16 +37,4 @@ public class Trainer extends User {
             inverseJoinColumns = @JoinColumn(name = "trainee_id")
     )
     private List<Trainee> trainees;
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(" +
-                "id = " + getId() + ", " +
-                "specialization = " + getSpecialization() + ", " +
-                "firstName = " + getFirstName() + ", " +
-                "lastName = " + getLastName() + ", " +
-                "username = " + getUsername() + ", " +
-                "password = " + getPassword() + ", " +
-                "isActive = " + getIsActive() + ")";
-    }
 }

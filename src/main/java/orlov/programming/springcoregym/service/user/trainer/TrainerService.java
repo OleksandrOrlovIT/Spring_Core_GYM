@@ -12,11 +12,11 @@ public interface TrainerService {
 
     Trainer select(Long id);
 
-    List<Trainer> findAll();
+    List<Trainer> getAll();
 
     Trainer update(Trainer trainer);
 
-    boolean userNameMatchPassword(String username, String password);
+    boolean isUserNameMatchPassword(String username, String password);
 
     Trainer changePassword(Trainer trainer, String newPassword);
 
@@ -30,5 +30,5 @@ public interface TrainerService {
 
     Trainer authenticateTrainer(String userName, String password);
 
-    Trainer findByUsername(String trainerUserName);
+    Trainer getByUsername(String trainerUserName);
 }

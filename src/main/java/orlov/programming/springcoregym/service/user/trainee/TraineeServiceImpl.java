@@ -39,12 +39,12 @@ public class TraineeServiceImpl implements TraineeService {
 
         Trainee foundTrainee = select(trainee.getId());
 
-        if(trainee.getPassword() == null || trainee.getPassword().length() != 10){
+        if (trainee.getPassword() == null || trainee.getPassword().length() != passwordGenerator.getPasswordLength()) {
             trainee.setPassword(passwordGenerator.generatePassword());
         }
 
         Objects.requireNonNull(trainee.getIsActive(), "Trainee's isActive field can't be null");
-        if(foundTrainee.getIsActive() != trainee.getIsActive()){
+        if (foundTrainee.getIsActive() != trainee.getIsActive()) {
             throw new IllegalArgumentException("IsActive field can't be changed in update");
         }
 
@@ -61,7 +61,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         Objects.requireNonNull(trainee.getIsActive(), "Trainee's isActive field can't be null");
 
-        if(trainee.getPassword() == null || trainee.getPassword().length() != 10){
+        if (trainee.getPassword() == null || trainee.getPassword().length() != passwordGenerator.getPasswordLength()) {
             trainee.setPassword(passwordGenerator.generatePassword());
         }
 
@@ -70,49 +70,40 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Trainee select(Long id) {
-        Optional<Trainee> foundTrainee = traineeDAO.findById(id);
-
-        if(foundTrainee.isEmpty()){
-            throw new NoSuchElementException("Trainee not found with id = " + id);
-        }
-
-        return foundTrainee.get();
+        return traineeDAO.getById(id)
+                .orElseThrow(() -> new NoSuchElementException("Trainee not found with id = " + id));
     }
 
     private void checkAvailableUserName(Trainee trainee) {
-        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(trainee.getUsername());
-
-        if(foundTrainee.isPresent()){
-            if(!foundTrainee.get().getId().equals(trainee.getId())) {
-                trainee.setUsername(trainee.getUsername() + UUID.randomUUID());
-            } else {
-                trainee.setUsername(foundTrainee.get().getUsername());
-            }
-        }
+        traineeDAO.getByUsername(trainee.getUsername())
+                .ifPresent(foundTrainee -> {
+                    if (!foundTrainee.getId().equals(trainee.getId())) {
+                        trainee.setUsername(trainee.getUsername() + UUID.randomUUID());
+                    } else {
+                        trainee.setUsername(foundTrainee.getUsername());
+                    }
+                });
     }
 
-    private String constructTraineeUsername(Trainee trainee){
+    private String constructTraineeUsername(Trainee trainee) {
         checkFirstLastNames(trainee);
 
         return trainee.getFirstName() + "." + trainee.getLastName();
     }
 
-    private void checkFirstLastNames(Trainee trainee){
+    private void checkFirstLastNames(Trainee trainee) {
         Objects.requireNonNull(trainee, "Trainee can't be null");
         Objects.requireNonNull(trainee.getFirstName(), "Trainee's firstName can't be null");
         Objects.requireNonNull(trainee.getLastName(), "Trainee's lastName can't be null");
     }
 
     @Override
-    public boolean userNameMatchPassword(String username, String password) {
-        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(username);
+    public boolean isUserNameMatchPassword(String username, String password) {
+        Trainee foundTrainee = traineeDAO.getByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + username));
 
-        if(foundTrainee.isEmpty()){
-            throw new IllegalArgumentException("Trainee not found " + username);
-        }
-
-        if(password != null){
-            return password.equals(foundTrainee.get().getPassword());
+        if (password != null) {
+            return password.equals(foundTrainee.getPassword());
         }
 
         return false;
@@ -122,7 +113,7 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee changePassword(Trainee trainee, String newPassword) {
         Trainee foundTrainee = select(trainee.getId());
 
-        if(!foundTrainee.getPassword().equals(trainee.getPassword())){
+        if (!foundTrainee.getPassword().equals(trainee.getPassword())) {
             throw new IllegalArgumentException("Wrong password for trainee " + trainee.getUsername());
         }
 
@@ -135,7 +126,7 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee activateTrainee(Long traineeId) {
         Trainee foundTrainee = select(traineeId);
 
-        if(foundTrainee.getIsActive()){
+        if (foundTrainee.getIsActive()) {
             throw new IllegalArgumentException("Trainee is already active " + foundTrainee);
         }
 
@@ -148,7 +139,7 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee deactivateTrainee(Long traineeId) {
         Trainee foundTrainee = select(traineeId);
 
-        if(!foundTrainee.getIsActive()){
+        if (!foundTrainee.getIsActive()) {
             throw new IllegalArgumentException("Trainee is already deactivated " + foundTrainee);
         }
 
@@ -158,46 +149,38 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public List<Training> getTrainingsByDateTraineeNameTrainingType(TraineeTrainingDTO traineeTrainingDTO) {
-        return traineeDAO.getTrainingsByDateUsernameTrainingType(traineeTrainingDTO);
+    public List<Training> getTrainingsByTraineeTrainingDTO(TraineeTrainingDTO traineeTrainingDTO) {
+        return traineeDAO.getTrainingsByTraineeTrainingDTO(traineeTrainingDTO);
     }
 
     @Override
-    public List<Trainee> findAll() {
-        return traineeDAO.findAll();
+    public List<Trainee> getAll() {
+        return traineeDAO.getAll();
     }
 
     @Override
     public Trainee authenticateTrainee(String userName, String password) {
-        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(userName);
+        Trainee foundTrainee = traineeDAO.getByUsername(userName)
+                .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + userName));
 
-        if(foundTrainee.isEmpty()){
-            throw new IllegalArgumentException("Trainee not found " + userName);
-        }
-
-        if(!foundTrainee.get().getPassword().equals(password)){
+        if (!foundTrainee.getPassword().equals(password)) {
             throw new IllegalArgumentException("Wrong password for trainee " + userName);
         }
 
-        return foundTrainee.get();
+        return foundTrainee;
     }
 
     @Override
-    public Trainee findByUsername(String traineeUsername) {
-        Optional<Trainee> foundTrainee = traineeDAO.findByUsername(traineeUsername);
-
-        if(foundTrainee.isEmpty()){
-            throw new IllegalArgumentException("Trainee not found " + traineeUsername);
-        }
-
-        return foundTrainee.get();
+    public Trainee getByUsername(String traineeUsername) {
+        return traineeDAO.getByUsername(traineeUsername)
+                .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + traineeUsername));
     }
 
     @Transactional
     public void updateTraineeTrainers(Long traineeId, List<Long> trainerIds) {
         Trainee trainee = select(traineeId);
 
-        List<Trainer> trainers = trainerDAO.findByIds(trainerIds);
+        List<Trainer> trainers = trainerDAO.getByIds(trainerIds);
         if (trainers.isEmpty()) {
             throw new EntityNotFoundException("No trainers found with the provided IDs");
         }
@@ -205,7 +188,7 @@ public class TraineeServiceImpl implements TraineeService {
         trainee.setTrainers(trainers);
 
         for (Trainer trainer : trainers) {
-            if(trainer.getTrainees() == null){
+            if (trainer.getTrainees() == null) {
                 trainer.setTrainees(new ArrayList<>());
             }
 

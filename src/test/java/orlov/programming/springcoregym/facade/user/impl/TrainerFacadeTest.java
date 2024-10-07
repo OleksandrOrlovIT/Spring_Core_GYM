@@ -80,26 +80,26 @@ class TrainerFacadeTest {
                 .trainer(testTrainer)
                 .trainingName("TRAINING_NAME")
                 .trainingType(testTrainingType)
-                .trainingDate(LocalDate.MIN)
+                .trainingDate(LocalDate.of(2020, 10, 10))
                 .trainingDuration(10L)
                 .build();
     }
 
     @Test
-    void givenNull_whenCreateTrainer_thenEmpty(){
+    void createTrainerGivenNullThenEmpty() {
         Optional<Trainer> savedTrainer = facade.createTrainer(null);
         assertTrue(savedTrainer.isEmpty());
     }
 
     @Test
-    void givenNull_whenTrainerUsernamePasswordMatch_thenFalse(){
-        boolean res = facade.trainerUsernamePasswordMatch(null, null);
+    void isTrainerUsernamePasswordMatchGivenNullThenFalse() {
+        boolean res = facade.isTrainerUsernamePasswordMatch(null, null);
 
         assertFalse(res);
     }
 
     @Test
-    void givenValid_whenTrainerUsernamePasswordMatch_thenTrue(){
+    void isTrainerUsernamePasswordMatchGivenValidThenTrue() {
         testTrainingType = trainingTypeDao.create(testTrainingType);
         testTrainer.setSpecialization(testTrainingType);
         Optional<Trainer> createdTrainer = facade.createTrainer(testTrainer);
@@ -107,34 +107,34 @@ class TrainerFacadeTest {
         testTrainer = createdTrainer.get();
 
         authenticationService.authenticateUser(testTrainer.getUsername(), testTrainer.getPassword(), false);
-        boolean res = facade.trainerUsernamePasswordMatch(testTrainer.getUsername(), testTrainer.getPassword());
+        boolean res = facade.isTrainerUsernamePasswordMatch(testTrainer.getUsername(), testTrainer.getPassword());
 
         assertTrue(res);
     }
 
     @Test
-    void givenNull_whenUpdateTrainer_thenEmpty(){
+    void updateTrainerGivenNullThenEmpty() {
         Optional<Trainer> trainer = facade.updateTrainer(null);
 
         assertTrue(trainer.isEmpty());
     }
 
     @Test
-    void givenNull_whenSelectTrainer_thenEmpty(){
+    void selectTrainerGivenNullThenEmpty() {
         Optional<Trainer> trainer = facade.selectTrainer(null);
 
         assertTrue(trainer.isEmpty());
     }
 
     @Test
-    void givenNotFound_whenActivateTrainer_thenEmpty(){
+    void activateTrainerGivenNotFoundThenEmpty() {
         Optional<Trainer> trainer = facade.activateTrainer(testTrainer.getUsername());
 
         assertTrue(trainer.isEmpty());
     }
 
     @Test
-    void givenValid_whenActivateTrainer_thenSuccess(){
+    void activateTrainerGivenValidThenSuccess() {
         testTrainer.setIsActive(false);
         testTrainingType = trainingTypeDao.create(testTrainingType);
         testTrainer.setSpecialization(testTrainingType);
@@ -150,14 +150,14 @@ class TrainerFacadeTest {
     }
 
     @Test
-    void givenNull_whenChangeTrainerPassword_thenEmpty(){
+    void changeTrainerPasswordGivenNullThenEmpty() {
         Optional<Trainer> savedTrainer = facade.changeTrainerPassword(null, null);
 
         assertTrue(savedTrainer.isEmpty());
     }
 
     @Test
-    void givenValid_whenChangeTrainerPassword_thenSuccess(){
+    void changeTrainerPasswordGivenValidThenSuccess() {
         testTrainingType = trainingTypeDao.create(testTrainingType);
         testTrainer.setSpecialization(testTrainingType);
         Optional<Trainer> createdTrainer = facade.createTrainer(testTrainer);
@@ -174,7 +174,7 @@ class TrainerFacadeTest {
     }
 
     @Test
-    void givenValid_whenGetTrainingsByDateTrainerName_thenSuccess(){
+    void getTrainingsByDateTrainerNameGivenValidThenSuccess() {
         testTrainee = traineeDao.create(testTrainee);
         testTrainingType = trainingTypeDao.create(testTrainingType);
 
@@ -195,13 +195,13 @@ class TrainerFacadeTest {
                 .trainer(testTrainer)
                 .trainingName("TRAINING_NAME")
                 .trainingType(testTrainingType)
-                .trainingDate(LocalDate.MIN)
+                .trainingDate(LocalDate.of(2020, 10, 10))
                 .trainingDuration(10L)
                 .build();
         training2 = trainingDao.create(training2);
 
         List<Training> trainings = facade.getTrainingsByDateTrainerName(
-                testTraining.getTrainingDate(),testTraining.getTrainingDate(), testTrainer.getUsername());
+                testTraining.getTrainingDate(), testTraining.getTrainingDate(), testTrainer.getUsername());
 
         assertNotNull(trainings);
         assertEquals(2, trainings.size());
@@ -210,7 +210,7 @@ class TrainerFacadeTest {
     }
 
     @Test
-    void givenValid_whenGetTrainersWithoutPassedTrainee_thenSuccess(){
+    void getTrainersWithoutPassedTraineeGivenValidThenSuccess() {
         testTrainee = traineeDao.create(testTrainee);
         testTrainingType = trainingTypeDao.create(testTrainingType);
 
@@ -293,25 +293,26 @@ class TrainerFacadeTest {
     }
 
     @AfterEach
-    public void setAfter(){
-        for(Training training : trainingDao.findAll()){
+    public void setAfter() {
+        for (Training training : trainingDao.getAll()) {
             trainingDao.deleteById(training.getId());
         }
 
-        for(Trainer trainer : trainerDao.findAll()){
+        for (Trainer trainer : trainerDao.getAll()) {
             trainerDao.deleteById(trainer.getId());
         }
 
-        for(Trainee trainee : traineeDao.findAll()){
+        for (Trainee trainee : traineeDao.getAll()) {
             traineeDao.deleteById(trainee.getId());
         }
 
-        for(TrainingType trainingType : trainingTypeDao.findAll()){
+        for (TrainingType trainingType : trainingTypeDao.getAll()) {
             trainingTypeDao.deleteById(trainingType.getId());
         }
 
         try {
             authenticationService.logOut();
-        } catch (IllegalArgumentException ignored){}
+        } catch (IllegalArgumentException ignored) {
+        }
     }
 }

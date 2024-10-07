@@ -33,17 +33,12 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public Training select(Long id) {
-        Optional<Training> training = trainingDAO.findById(id);
-
-        if (training.isEmpty()) {
-            throw new NoSuchElementException("Training not found with id = " + id);
-        }
-
-        return training.get();
+        return trainingDAO.getById(id)
+                .orElseThrow(() -> new NoSuchElementException("Training not found with id = " + id));
     }
 
     @Override
-    public List<Training> findAll() {
-        return trainingDAO.findAll();
+    public List<Training> getAll() {
+        return trainingDAO.getAll();
     }
 }

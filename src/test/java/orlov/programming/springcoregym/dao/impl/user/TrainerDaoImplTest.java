@@ -52,7 +52,7 @@ public class TrainerDaoImplTest {
     private static final boolean IS_ACTIVE = true;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         testTrainingType = TrainingType.builder()
                 .trainingTypeName(SPECIALIZATION)
                 .build();
@@ -70,7 +70,7 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    void testCreate() {
+    void createTrainer() {
         testTrainer = trainerDao.create(testTrainer);
 
         assertNotNull(testTrainer);
@@ -78,39 +78,39 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    void testFindById() {
+    void getByIdTrainer() {
         testTrainer = trainerDao.create(testTrainer);
-        Optional<Trainer> foundTrainer = trainerDao.findById(testTrainer.getId());
+        Optional<Trainer> foundTrainer = trainerDao.getById(testTrainer.getId());
 
         assertTrue(foundTrainer.isPresent());
         assertEquals(testTrainer, foundTrainer.get());
     }
 
     @Test
-    void testFindByUsername() {
+    void getByUsernameTrainer() {
         Trainer trainer = trainerDao.create(testTrainer);
 
-        Optional<Trainer> found = trainerDao.findByUsername(trainer.getUsername());
+        Optional<Trainer> found = trainerDao.getByUsername(trainer.getUsername());
         assertTrue(found.isPresent());
         assertEquals(trainer, found.get());
     }
 
     @Test
-    void testDelete() {
+    void deleteTrainer() {
         Trainer trainer = trainerDao.create(testTrainer);
 
         trainerDao.deleteById(trainer.getId());
-        Optional<Trainer> deleted = trainerDao.findById(trainer.getId());
+        Optional<Trainer> deleted = trainerDao.getById(trainer.getId());
         assertTrue(deleted.isEmpty());
     }
 
     @Test
-    void testDelete_NonExistentTrainer() {
+    void deleteNonExistentTrainer() {
         assertDoesNotThrow(() -> trainerDao.deleteById(-1L));
     }
 
     @Test
-    void testUpdate() {
+    void updateTrainer() {
         Trainer savedTrainer = trainerDao.create(testTrainer);
 
         String delim = "1";
@@ -138,13 +138,13 @@ public class TrainerDaoImplTest {
         assertEquals(updated.getFirstName(), savedTrainer.getFirstName() + delim);
         assertEquals(updated.getLastName(), savedTrainer.getLastName() + delim);
         assertEquals(updated.getPassword(), savedTrainer.getPassword() + delim);
-        assertEquals(updated.getIsActive(), !savedTrainer.getIsActive() );
+        assertEquals(updated.getIsActive(), !savedTrainer.getIsActive());
         assertEquals(updated.getSpecialization().getTrainingTypeName(),
                 savedTrainer.getSpecialization().getTrainingTypeName() + delim);
     }
 
     @Test
-    void testFindAll() {
+    void getAllTrainers() {
         Trainer trainer1 = Trainer.builder()
                 .username("testUser1")
                 .firstName("First1")
@@ -166,21 +166,21 @@ public class TrainerDaoImplTest {
         trainerDao.create(trainer1);
         trainerDao.create(trainer2);
 
-        List<Trainer> trainerList = trainerDao.findAll();
+        List<Trainer> trainerList = trainerDao.getAll();
 
         assertNotNull(trainerList);
         assertEquals(2, trainerList.size());
     }
 
     @Test
-    void givenNothing_whenFindByUsername_ThenException(){
-        Optional<Trainer> optionalTrainer = trainerDao.findByUsername("");
+    void getByUsernameThenException() {
+        Optional<Trainer> optionalTrainer = trainerDao.getByUsername("");
 
         assertTrue(optionalTrainer.isEmpty());
     }
 
     @Test
-    void whenGetTrainingsByDate_thenReturnTrainingsAndUsername(){
+    void getTrainingsByDateThenReturnTrainingsAndUsername() {
         TrainingType testTrainingType = TrainingType.builder()
                 .trainingTypeName("testTrainingType1")
                 .build();
@@ -226,7 +226,7 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    void given2TrainerWithoutTrainees_whenGetTrainersWithoutPassedTrainee_thenSuccess(){
+    void getTrainersWithoutPassedTraineeGiven2TrainerWithoutTraineesThenSuccess() {
         Trainee testTrainee = Trainee.builder()
                 .username("testTrainee")
                 .firstName("First1")
@@ -257,7 +257,7 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    void given2Trainers_whenFindByIds_thenSuccess(){
+    void getByIdsGiven2TrainersThenSuccess() {
         Trainer testTrainer2 = Trainer.builder()
                 .username(USERNAME + USERNAME)
                 .firstName(FIRST_NAME)
@@ -272,7 +272,7 @@ public class TrainerDaoImplTest {
 
         List<Long> ids = List.of(testTrainer.getId(), testTrainer2.getId());
 
-        List<Trainer> trainers = trainerDao.findByIds(ids);
+        List<Trainer> trainers = trainerDao.getByIds(ids);
 
         assertNotNull(trainers);
         assertEquals(2, trainers.size());
@@ -281,36 +281,34 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    void givenNullIds_whenFindByIds_thenEmptyList(){
-        List<Trainer> trainers = trainerDao.findByIds(null);
-
-        assertNotNull(trainers);
-        assertEquals(0, trainers.size());
+    void getByIdsGivenNullIdsThenException() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> trainerDao.getByIds(null));
+        assertEquals("Ids can't be null", e.getMessage());
     }
 
     @Test
-    void givenEmptyIds_whenFindByIds_thenEmptyList(){
-        List<Trainer> trainers = trainerDao.findByIds(List.of());
+    void getByIdsGivenEmptyIdsThenEmptyList() {
+        List<Trainer> trainers = trainerDao.getByIds(List.of());
 
         assertNotNull(trainers);
         assertEquals(0, trainers.size());
     }
 
     @AfterEach
-    public void setAfter(){
-        for(Training training : trainingDao.findAll()){
+    public void setAfter() {
+        for (Training training : trainingDao.getAll()) {
             trainingDao.deleteById(training.getId());
         }
 
-        for(Trainer trainer : trainerDao.findAll()){
+        for (Trainer trainer : trainerDao.getAll()) {
             trainerDao.deleteById(trainer.getId());
         }
 
-        for(Trainee trainee : traineeDao.findAll()){
+        for (Trainee trainee : traineeDao.getAll()) {
             traineeDao.deleteById(trainee.getId());
         }
 
-        for(TrainingType trainingType : trainingTypeDao.findAll()){
+        for (TrainingType trainingType : trainingTypeDao.getAll()) {
             trainingTypeDao.deleteById(trainingType.getId());
         }
     }

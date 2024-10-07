@@ -18,16 +18,32 @@ import java.util.Optional;
 @Repository
 public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements TraineeDao {
 
+    private static String FIND_BY_USERNAME_QUERY;
+    private static String GET_TRAININGS_BY_DATE_USERNAME_TRAINING_TYPE_QUERY;
+    private static String DELETE_BY_USERNAME_QUERY;
+
+    public TraineeDaoImpl() {
+        FIND_BY_USERNAME_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
+        GET_TRAININGS_BY_DATE_USERNAME_TRAINING_TYPE_QUERY = """
+                SELECT tr FROM Training tr
+                JOIN tr.trainee t
+                JOIN tr.trainingType tt
+                WHERE t.username = :username
+                AND tt.trainingTypeName = :trainingType
+                AND tr.trainingDate BETWEEN :startDate AND :endDate
+                """;
+        DELETE_BY_USERNAME_QUERY = "DELETE FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
+    }
+
     @Override
     protected Class<Trainee> getEntityClass() {
         return Trainee.class;
     }
 
     @Override
-    public Optional<Trainee> findByUsername(String username) {
+    public Optional<Trainee> getByUsername(String username) {
         try {
-            String jpql = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
-            TypedQuery<Trainee> query = getEntityManager().createQuery(jpql, Trainee.class);
+            TypedQuery<Trainee> query = getEntityManager().createQuery(FIND_BY_USERNAME_QUERY, Trainee.class);
             query.setParameter("username", username);
 
             Trainee trainee = query.getSingleResult();
@@ -39,15 +55,9 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
     }
 
     @Override
-    public List<Training> getTrainingsByDateUsernameTrainingType(TraineeTrainingDTO traineeTrainingDTO) {
-        String jpql = "SELECT tr FROM Training tr "
-                + "JOIN tr.trainee t "
-                + "JOIN tr.trainingType tt "
-                + "WHERE t.username = :username "
-                + "AND tt.trainingTypeName = :trainingType "
-                + "AND tr.trainingDate BETWEEN :startDate AND :endDate";
-
-        TypedQuery<Training> query = getEntityManager().createQuery(jpql, Training.class);
+    public List<Training> getTrainingsByTraineeTrainingDTO(TraineeTrainingDTO traineeTrainingDTO) {
+        TypedQuery<Training> query =
+                getEntityManager().createQuery(GET_TRAININGS_BY_DATE_USERNAME_TRAINING_TYPE_QUERY, Training.class);
         query.setParameter("username", traineeTrainingDTO.getUserName());
         query.setParameter("trainingType", traineeTrainingDTO.getTrainingType());
         query.setParameter("startDate", traineeTrainingDTO.getStartDate());
@@ -59,8 +69,7 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
     @Transactional
     @Override
     public void deleteByUsername(String username) {
-        String jpql = "DELETE FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
-        Query query = getEntityManager().createQuery(jpql);
+        Query query = getEntityManager().createQuery(DELETE_BY_USERNAME_QUERY);
         query.setParameter("username", username);
         query.executeUpdate();
     }
