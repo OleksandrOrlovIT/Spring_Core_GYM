@@ -1,12 +1,12 @@
 package orlov.programming.springcoregym.dao.impl.user;
 
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
@@ -17,6 +17,7 @@ import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.training.TrainingType;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
+import orlov.programming.springcoregym.util.model.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestDaoConfig.class)
 @Transactional
+@Sql(scripts = "/sql/trainer/populate_trainer.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class TrainerDaoImplTest {
 
     @Autowired
@@ -53,11 +56,12 @@ public class TrainerDaoImplTest {
 
     @BeforeEach
     void setUp() {
-        testTrainingType = TrainingType.builder()
-                .trainingTypeName(SPECIALIZATION)
-                .build();
+        assertEquals(1, trainingTypeDao.getAll().size());
+        assertEquals(2, trainerDao.getAll().size());
+        assertEquals(1, traineeDao.getAll().size());
+        assertEquals(2, trainingDao.getAll().size());
 
-        testTrainingType = trainingTypeDao.create(testTrainingType);
+        testTrainingType = trainingTypeDao.getAll().get(0);
 
         testTrainer = Trainer.builder()
                 .username(USERNAME)
@@ -70,6 +74,7 @@ public class TrainerDaoImplTest {
     }
 
     @Test
+    @Transactional
     void createTrainer() {
         testTrainer = trainerDao.create(testTrainer);
 
@@ -79,7 +84,7 @@ public class TrainerDaoImplTest {
 
     @Test
     void getByIdTrainer() {
-        testTrainer = trainerDao.create(testTrainer);
+        testTrainer = trainerDao.getAll().get(0);
         Optional<Trainer> foundTrainer = trainerDao.getById(testTrainer.getId());
 
         assertTrue(foundTrainer.isPresent());
@@ -88,7 +93,7 @@ public class TrainerDaoImplTest {
 
     @Test
     void getByUsernameTrainer() {
-        Trainer trainer = trainerDao.create(testTrainer);
+        Trainer trainer = trainerDao.getAll().get(0);
 
         Optional<Trainer> found = trainerDao.getByUsername(trainer.getUsername());
         assertTrue(found.isPresent());
@@ -96,8 +101,9 @@ public class TrainerDaoImplTest {
     }
 
     @Test
+    @Transactional
     void deleteTrainer() {
-        Trainer trainer = trainerDao.create(testTrainer);
+        Trainer trainer = trainerDao.getAll().get(0);
 
         trainerDao.deleteById(trainer.getId());
         Optional<Trainer> deleted = trainerDao.getById(trainer.getId());
@@ -110,8 +116,9 @@ public class TrainerDaoImplTest {
     }
 
     @Test
+    @Transactional
     void updateTrainer() {
-        Trainer savedTrainer = trainerDao.create(testTrainer);
+        Trainer savedTrainer = trainerDao.getAll().get(0);
 
         String delim = "1";
 
@@ -133,39 +140,18 @@ public class TrainerDaoImplTest {
 
         Trainer updated = trainerDao.update(diffTrainer);
 
-        assertNotEquals(updated, savedTrainer);
-        assertEquals(updated.getUsername(), savedTrainer.getUsername() + delim);
-        assertEquals(updated.getFirstName(), savedTrainer.getFirstName() + delim);
-        assertEquals(updated.getLastName(), savedTrainer.getLastName() + delim);
-        assertEquals(updated.getPassword(), savedTrainer.getPassword() + delim);
-        assertEquals(updated.getIsActive(), !savedTrainer.getIsActive());
-        assertEquals(updated.getSpecialization().getTrainingTypeName(),
-                savedTrainer.getSpecialization().getTrainingTypeName() + delim);
+        assertNotEquals(savedTrainer, updated);
+        assertEquals(savedTrainer.getUsername() + delim, updated.getUsername());
+        assertEquals(savedTrainer.getFirstName() + delim, updated.getFirstName());
+        assertEquals(savedTrainer.getLastName() + delim, updated.getLastName());
+        assertEquals(savedTrainer.getPassword() + delim, updated.getPassword());
+        assertEquals(!savedTrainer.getIsActive(), updated.getIsActive());
+        assertEquals(diffTrainingType.getTrainingTypeName(),
+                updated.getSpecialization().getTrainingTypeName());
     }
 
     @Test
     void getAllTrainers() {
-        Trainer trainer1 = Trainer.builder()
-                .username("testUser1")
-                .firstName("First1")
-                .lastName("Last1")
-                .password("pass1")
-                .isActive(true)
-                .specialization(testTrainingType)
-                .build();
-
-        Trainer trainer2 = Trainer.builder()
-                .username("testUser2")
-                .firstName("First2")
-                .lastName("Last2")
-                .password("pass2")
-                .isActive(true)
-                .specialization(testTrainingType)
-                .build();
-
-        trainerDao.create(trainer1);
-        trainerDao.create(trainer2);
-
         List<Trainer> trainerList = trainerDao.getAll();
 
         assertNotNull(trainerList);
@@ -181,45 +167,12 @@ public class TrainerDaoImplTest {
 
     @Test
     void getTrainingsByDateThenReturnTrainingsAndUsername() {
-        TrainingType testTrainingType = TrainingType.builder()
-                .trainingTypeName("testTrainingType1")
-                .build();
-
-        Trainee testTrainee = Trainee.builder()
-                .username("testTrainee")
-                .firstName("First1")
-                .lastName("Last1")
-                .password("pass1")
-                .isActive(true)
-                .build();
-
-        testTrainingType = trainingTypeDao.create(testTrainingType);
-        testTrainer = trainerDao.create(testTrainer);
-        testTrainee = traineeDao.create(testTrainee);
-
-        Training testTraining1 = Training.builder()
-                .trainee(testTrainee)
-                .trainer(testTrainer)
-                .trainingName("TRAINING_NAME")
-                .trainingType(testTrainingType)
-                .trainingDate(LocalDate.MIN)
-                .trainingDuration(10L)
-                .build();
-
-        Training testTraining2 = Training.builder()
-                .trainee(testTrainee)
-                .trainer(testTrainer)
-                .trainingName("TRAINING_NAME")
-                .trainingType(testTrainingType)
-                .trainingDate(LocalDate.MIN.plusDays(1))
-                .trainingDuration(10L)
-                .build();
-
-        trainingDao.create(testTraining1);
-        trainingDao.create(testTraining2);
+        testTrainingType = trainingTypeDao.getAll().get(0);
+        testTrainer = trainerDao.getAll().get(0);
+        LocalDate date = LocalDate.of(2024, 10, 1);
 
         List<Training> foundTrainings =
-                trainerDao.getTrainingsByDateAndUsername(LocalDate.MIN, LocalDate.MIN.plusDays(1), testTrainer.getUsername());
+                trainerDao.getTrainingsByDateAndUsername(date, date.plusDays(2), testTrainer.getUsername());
 
         assertNotNull(foundTrainings);
         assertEquals(2, foundTrainings.size());
@@ -227,28 +180,11 @@ public class TrainerDaoImplTest {
 
     @Test
     void getTrainersWithoutPassedTraineeGiven2TrainerWithoutTraineesThenSuccess() {
-        Trainee testTrainee = Trainee.builder()
-                .username("testTrainee")
-                .firstName("First1")
-                .lastName("Last1")
-                .password("pass1")
-                .isActive(true)
-                .build();
+        testTrainer = trainerDao.getAll().get(0);
+        Trainer testTrainer2 = trainerDao.getAll().get(1);
+        Trainee testTrainee = traineeDao.getAll().get(0);
 
-        Trainer testTrainer2 = Trainer.builder()
-                .username(USERNAME + "1")
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .password(PASSWORD)
-                .specialization(testTrainingType)
-                .isActive(IS_ACTIVE)
-                .build();
-
-        testTrainer = trainerDao.create(testTrainer);
-        testTrainer2 = trainerDao.create(testTrainer2);
-        testTrainee = traineeDao.create(testTrainee);
-
-        List<Trainer> trainers = trainerDao.getTrainersWithoutPassedTrainee(testTrainee);
+        List<Trainer> trainers = trainerDao.getTrainersWithoutPassedTrainee(testTrainee, new Pageable(0, 2));
 
         assertNotNull(trainers);
         assertEquals(2, trainers.size());
@@ -258,26 +194,15 @@ public class TrainerDaoImplTest {
 
     @Test
     void getByIdsGiven2TrainersThenSuccess() {
-        Trainer testTrainer2 = Trainer.builder()
-                .username(USERNAME + USERNAME)
-                .firstName(FIRST_NAME)
-                .lastName(LAST_NAME)
-                .password(PASSWORD)
-                .specialization(testTrainingType)
-                .isActive(IS_ACTIVE)
-                .build();
+        List<Trainer> trainers = trainerDao.getAll();
 
-        testTrainer = trainerDao.create(testTrainer);
-        testTrainer2 = trainerDao.create(testTrainer2);
+        List<Long> ids = List.of(trainers.get(0).getId(), trainers.get(1).getId());
 
-        List<Long> ids = List.of(testTrainer.getId(), testTrainer2.getId());
-
-        List<Trainer> trainers = trainerDao.getByIds(ids);
+        List<Trainer> foundTrainers = trainerDao.getByIds(ids);
 
         assertNotNull(trainers);
         assertEquals(2, trainers.size());
-        assertTrue(trainers.contains(testTrainer));
-        assertTrue(trainers.contains(testTrainer2));
+        assertEquals(trainers, foundTrainers);
     }
 
     @Test
@@ -292,24 +217,5 @@ public class TrainerDaoImplTest {
 
         assertNotNull(trainers);
         assertEquals(0, trainers.size());
-    }
-
-    @AfterEach
-    public void setAfter() {
-        for (Training training : trainingDao.getAll()) {
-            trainingDao.deleteById(training.getId());
-        }
-
-        for (Trainer trainer : trainerDao.getAll()) {
-            trainerDao.deleteById(trainer.getId());
-        }
-
-        for (Trainee trainee : traineeDao.getAll()) {
-            traineeDao.deleteById(trainee.getId());
-        }
-
-        for (TrainingType trainingType : trainingTypeDao.getAll()) {
-            trainingTypeDao.deleteById(trainingType.getId());
-        }
     }
 }

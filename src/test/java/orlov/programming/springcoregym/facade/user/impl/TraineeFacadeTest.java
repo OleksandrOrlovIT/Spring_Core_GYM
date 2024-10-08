@@ -1,11 +1,13 @@
 package orlov.programming.springcoregym.facade.user.impl;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import orlov.programming.springcoregym.TestConfig;
 import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
@@ -20,7 +22,6 @@ import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.service.authentication.AuthenticationService;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
+@Sql(scripts = "/sql/trainee/populate_trainee.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 class TraineeFacadeTest {
 
     @Autowired
@@ -55,87 +58,74 @@ class TraineeFacadeTest {
 
     @BeforeEach
     void setFacade() {
-        testTrainingType = TrainingType.builder()
-                .trainingTypeName("testTrainingType1")
-                .build();
+        assertEquals(1, traineeDao.getAll().size());
+        assertEquals(1, trainingTypeDao.getAll().size());
+        assertEquals(1, trainerDao.getAll().size());
+        assertEquals(2, trainingDao.getAll().size());
 
-        testTrainee = Trainee.builder()
-                .username("testTrainee")
-                .firstName("First1Trainee")
-                .lastName("Last1Trainee")
-                .password("pass1")
-                .isActive(true)
-                .build();
-
-        testTrainer = Trainer.builder()
-                .username("testTrainer")
-                .firstName("First1Trainer")
-                .lastName("Last1Trainer")
-                .password("pass1")
-                .isActive(true)
-                .specialization(testTrainingType)
-                .build();
-
-        testTraining = Training.builder()
-                .trainee(testTrainee)
-                .trainer(testTrainer)
-                .trainingName("TRAINING_NAME")
-                .trainingType(testTrainingType)
-                .trainingDate(LocalDate.of(2020, 10, 10))
-                .trainingDuration(10L)
-                .build();
+        testTrainingType = trainingTypeDao.getAll().get(0);
+        testTrainer = trainerDao.getAll().get(0);
+        testTraining = trainingDao.getAll().get(0);
+        testTrainee = traineeDao.getAll().get(0);
     }
 
     @Test
+    @Transactional
     void createTrainee() {
-        Optional<Trainee> savedTrainee = facade.createTrainee(testTrainee);
+        String delim = "1";
+        Trainee customTrainee = Trainee.builder()
+                .firstName(testTrainee.getFirstName() + delim)
+                .lastName(testTrainee.getLastName() + delim)
+                .password(testTrainee.getPassword() + delim)
+                .isActive(false)
+                .build();
+        Optional<Trainee> savedTrainee = facade.createTrainee(customTrainee);
 
         assertTrue(savedTrainee.isPresent());
-        assertEquals(savedTrainee.get().getFirstName(), testTrainee.getFirstName());
-        assertEquals(savedTrainee.get().getLastName(), testTrainee.getLastName());
+        assertEquals(savedTrainee.get().getFirstName(), customTrainee.getFirstName());
+        assertEquals(savedTrainee.get().getLastName(), customTrainee.getLastName());
     }
 
     @Test
+    @Transactional
     void updateTrainee() {
-        Optional<Trainee> savedTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(savedTraineeOptional.isPresent());
-        Trainee savedTrainee = savedTraineeOptional.get();
-        authenticationService.authenticateUser(savedTrainee.getUsername(), savedTrainee.getPassword(), true);
+        authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
 
         String updatedAddress = "newAddress";
-        savedTrainee.setAddress(updatedAddress);
+        testTrainee.setAddress(updatedAddress);
 
-        Optional<Trainee> updatedTrainee = facade.updateTrainee(savedTrainee);
+        Optional<Trainee> updatedTrainee = facade.updateTrainee(testTrainee);
 
         assertTrue(updatedTrainee.isPresent());
         assertEquals(updatedTrainee.get().getAddress(), updatedAddress);
     }
 
     @Test
+    @Transactional
     void deleteTrainee() {
-        Optional<Trainee> savedTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(savedTraineeOptional.isPresent());
-        Trainee savedTrainee = savedTraineeOptional.get();
-        authenticationService.authenticateUser(savedTrainee.getUsername(), savedTrainee.getPassword(), true);
+        String delim = "1";
+        Trainee customTrainee = Trainee.builder()
+                .firstName(testTrainee.getFirstName() + delim)
+                .lastName(testTrainee.getLastName() + delim)
+                .password(testTrainee.getPassword() + delim)
+                .isActive(false)
+                .build();
 
-        Optional<Trainee> foundTrainee = facade.selectTrainee(savedTrainee.getUsername());
-        assertTrue(foundTrainee.isPresent());
-        facade.deleteTrainee(foundTrainee.get().getUsername());
+        Trainee createdTrainee = facade.createTrainee(customTrainee).orElseThrow();
 
-        assertTrue(facade.selectTrainee(savedTrainee.getUsername()).isEmpty());
+        authenticationService.authenticateUser(createdTrainee.getUsername(), createdTrainee.getPassword(), true);
+
+        facade.deleteTrainee(createdTrainee.getUsername());
+
+        assertTrue(facade.selectTrainee(createdTrainee.getUsername()).isEmpty());
     }
 
     @Test
     void selectTrainee() {
-        testTrainingType = trainingTypeDao.create(testTrainingType);
-        testTrainer.setSpecialization(testTrainingType);
-        Optional<Trainee> savedTrainee = facade.createTrainee(testTrainee);
-        assertTrue(savedTrainee.isPresent());
-
         authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
-        Optional<Trainee> foundTrainee = facade.selectTrainee(savedTrainee.get().getUsername());
+        Optional<Trainee> foundTrainee = facade.selectTrainee(testTrainee.getUsername());
         assertTrue(foundTrainee.isPresent());
-        assertEquals(savedTrainee.get(), foundTrainee.get());
+        assertEquals(testTrainee, foundTrainee.get());
     }
 
     @Test
@@ -154,12 +144,8 @@ class TraineeFacadeTest {
 
     @Test
     void isTraineeUsernamePasswordMatchGivenValidThenTrue() {
-        Optional<Trainee> savedTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(savedTraineeOptional.isPresent());
-        Trainee savedTrainee = savedTraineeOptional.get();
-
-        authenticationService.authenticateUser(savedTrainee.getUsername(), savedTrainee.getPassword(), true);
-        boolean res = facade.isTraineeUsernamePasswordMatch(savedTrainee.getUsername(), savedTrainee.getPassword());
+        authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
+        boolean res = facade.isTraineeUsernamePasswordMatch(testTrainee.getUsername(), testTrainee.getPassword());
 
         assertTrue(res);
     }
@@ -173,7 +159,6 @@ class TraineeFacadeTest {
 
     @Test
     void deleteTraineeGivenNullthenEmpty() {
-        facade.createTrainee(testTrainee);
         authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
         assertDoesNotThrow(() -> facade.deleteTrainee(null));
     }
@@ -186,10 +171,8 @@ class TraineeFacadeTest {
     }
 
     @Test
+    @Transactional
     void changeTraineePasswordGivenWrongUserThenSuccess() {
-        Optional<Trainee> createdTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(createdTraineeOptional.isPresent());
-        testTrainee = createdTraineeOptional.get();
         Trainee newTrainee = Trainee.builder()
                 .username("testTrainee")
                 .firstName("NewTrainee")
@@ -210,10 +193,8 @@ class TraineeFacadeTest {
     }
 
     @Test
+    @Transactional
     void changeTraineePasswordGivenValidThenSuccess() {
-        Optional<Trainee> testTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(testTraineeOptional.isPresent());
-        testTrainee = testTraineeOptional.get();
         authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
 
         String newPassword = "newPassword";
@@ -232,14 +213,20 @@ class TraineeFacadeTest {
     }
 
     @Test
+    @Transactional
     void activateTraineeGivenValidThenSuccess() {
-        testTrainee.setIsActive(false);
-        Optional<Trainee> testTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(testTraineeOptional.isPresent());
-        testTrainee = testTraineeOptional.get();
+        String delim = "1";
+        Trainee customTrainee = Trainee.builder()
+                .firstName(testTrainee.getFirstName() + delim)
+                .lastName(testTrainee.getLastName() + delim)
+                .password(testTrainee.getPassword() + delim)
+                .isActive(false)
+                .build();
+
+        customTrainee = facade.createTrainee(customTrainee).orElseThrow();
         authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
 
-        Optional<Trainee> activatedTrainee = facade.activateTrainee(testTrainee.getUsername());
+        Optional<Trainee> activatedTrainee = facade.activateTrainee(customTrainee.getUsername());
 
         assertTrue(activatedTrainee.isPresent());
         assertTrue(activatedTrainee.get().getIsActive());
@@ -247,38 +234,15 @@ class TraineeFacadeTest {
 
     @Test
     void getTraineeTrainingsByTraineeTrainingDTOGivenValidThenSuccess() {
-        Optional<Trainee> testTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(testTraineeOptional.isPresent());
-        testTrainee = testTraineeOptional.get();
-        testTrainingType = trainingTypeDao.create(testTrainingType);
-
-        testTrainer.setSpecialization(testTrainingType);
-        testTrainer = trainerDao.create(testTrainer);
         authenticationService.authenticateUser(testTrainer.getUsername(), testTrainer.getPassword(), false);
 
-        testTraining.setTrainingType(testTrainingType);
-        testTraining.setTrainee(testTrainee);
-        testTraining.setTrainer(testTrainer);
-        testTraining = trainingDao.create(testTraining);
-
-        Training training2 = Training.builder()
-                .trainee(testTrainee)
-                .trainer(testTrainer)
-                .trainingName("TRAINING_NAME")
-                .trainingType(testTrainingType)
-                .trainingDate(LocalDate.of(2020, 10, 10))
-                .trainingDuration(10L)
-                .build();
-        training2 = trainingDao.create(training2);
-
         TraineeTrainingDTO traineeTrainingDTO = new TraineeTrainingDTO(testTraining.getTrainingDate(),
-                testTraining.getTrainingDate(), testTrainee.getUsername(), testTrainingType.getTrainingTypeName());
+                testTraining.getTrainingDate().plusDays(1), testTrainee.getUsername(), testTrainingType.getTrainingTypeName());
         List<Training> trainings = facade.getTraineeTrainingsByTraineeTrainingDTO(traineeTrainingDTO);
 
         assertNotNull(trainings);
         assertEquals(2, trainings.size());
-        assertTrue(trainings.contains(testTraining));
-        assertTrue(trainings.contains(training2));
+        assertEquals(trainings, trainingDao.getAll());
     }
 
     @Test
@@ -287,15 +251,8 @@ class TraineeFacadeTest {
     }
 
     @Test
+    @Transactional
     void updateTraineeTrainersGivenValidThenSuccess() {
-        Optional<Trainee> testTraineeOptional = facade.createTrainee(testTrainee);
-        assertTrue(testTraineeOptional.isPresent());
-        testTrainee = testTraineeOptional.get();
-
-        testTrainingType = trainingTypeDao.create(testTrainingType);
-        testTrainer.setSpecialization(testTrainingType);
-        testTrainer = trainerDao.create(testTrainer);
-
         authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
         assertDoesNotThrow(() -> facade.updateTraineeTrainers(testTrainee.getId(), List.of(testTrainer.getId())));
 
@@ -307,22 +264,6 @@ class TraineeFacadeTest {
 
     @AfterEach
     public void setAfter() {
-        for (Training training : trainingDao.getAll()) {
-            trainingDao.deleteById(training.getId());
-        }
-
-        for (Trainer trainer : trainerDao.getAll()) {
-            trainerDao.deleteById(trainer.getId());
-        }
-
-        for (Trainee trainee : traineeDao.getAll()) {
-            traineeDao.deleteById(trainee.getId());
-        }
-
-        for (TrainingType trainingType : trainingTypeDao.getAll()) {
-            trainingTypeDao.deleteById(trainingType.getId());
-        }
-
         try {
             authenticationService.logOut();
         } catch (IllegalArgumentException ignored) {

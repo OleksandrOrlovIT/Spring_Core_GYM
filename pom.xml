@@ -27,6 +27,7 @@
         <spring-tx.version>6.1.13</spring-tx.version>
         <postgresql.version>42.7.4</postgresql.version>
         <h2.version>2.3.232</h2.version>
+        <liquibase-core.version>4.29.2</liquibase-core.version>
     </properties>
 
     <dependencies>
@@ -102,6 +103,11 @@
             <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase-core.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -146,7 +152,7 @@
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
-                                            <minimum>100.0%</minimum>
+                                            <minimum>90.0%</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

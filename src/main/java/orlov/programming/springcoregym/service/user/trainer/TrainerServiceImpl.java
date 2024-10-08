@@ -9,6 +9,7 @@ import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.util.PasswordGenerator;
+import orlov.programming.springcoregym.util.model.Pageable;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -146,11 +147,11 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername) {
+    public List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername, Pageable pageable) {
         Trainee trainee = traineeDao.getByUsername(traineeUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + traineeUsername));
 
-        return trainerDAO.getTrainersWithoutPassedTrainee(trainee);
+        return trainerDAO.getTrainersWithoutPassedTrainee(trainee, pageable);
     }
 
     @Override

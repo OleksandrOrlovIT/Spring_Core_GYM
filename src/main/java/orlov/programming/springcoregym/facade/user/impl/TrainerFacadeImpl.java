@@ -8,6 +8,7 @@ import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.service.authentication.AuthenticationService;
 import orlov.programming.springcoregym.service.user.trainer.TrainerService;
+import orlov.programming.springcoregym.util.model.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -101,8 +102,8 @@ public class TrainerFacadeImpl implements TrainerFacade {
     }
 
     @Override
-    public List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername) {
+    public List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername, Pageable pageable) {
         authenticationService.isUserLogged();
-        return trainerService.getTrainersWithoutPassedTrainee(traineeUsername);
+        return trainerService.getTrainersWithoutPassedTrainee(traineeUsername, pageable);
     }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import orlov.programming.springcoregym.TestConfig;
 import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
@@ -25,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
+@Sql(scripts = "/sql/training/populate_trainings.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 class TrainingFacadeTest {
 
     @Autowired
@@ -52,26 +55,14 @@ class TrainingFacadeTest {
 
     @BeforeEach
     void setFacade() {
-        testTrainingType = TrainingType.builder()
-                .trainingTypeName("testTrainingType1")
-                .build();
+        assertEquals(1, traineeDao.getAll().size());
+        assertEquals(1, trainingTypeDao.getAll().size());
+        assertEquals(1, trainerDao.getAll().size());
+        assertEquals(2, trainingDao.getAll().size());
 
-        testTrainee = Trainee.builder()
-                .username("testTrainee")
-                .firstName("First1Trainee")
-                .lastName("Last1Trainee")
-                .password("pass1")
-                .isActive(true)
-                .build();
-
-        testTrainer = Trainer.builder()
-                .username("testTrainer")
-                .firstName("First1Trainer")
-                .lastName("Last1Trainer")
-                .password("pass1")
-                .isActive(true)
-                .specialization(testTrainingType)
-                .build();
+        testTrainingType = trainingTypeDao.getAll().get(0);
+        testTrainee = traineeDao.getAll().get(0);
+        testTrainer = trainerDao.getAll().get(0);
 
         testTraining = Training.builder()
                 .trainee(testTrainee)
@@ -85,15 +76,6 @@ class TrainingFacadeTest {
 
     @Test
     void addTraining() {
-        testTrainingType = trainingTypeDao.create(testTrainingType);
-        testTrainer.setSpecialization(testTrainingType);
-        testTrainer = trainerDao.create(testTrainer);
-        testTrainee = traineeDao.create(testTrainee);
-
-        testTraining.setTrainingType(testTrainingType);
-        testTraining.setTrainer(testTrainer);
-        testTraining.setTrainee(testTrainee);
-
         authenticationService.authenticateUser(testTrainee.getUsername(), testTrainee.getPassword(), true);
         Training savedTraining = facade.addTraining(testTraining);
         assertEquals(testTraining, savedTraining);
@@ -101,22 +83,6 @@ class TrainingFacadeTest {
 
     @AfterEach
     public void setAfter() {
-        for (Training training : trainingDao.getAll()) {
-            trainingDao.deleteById(training.getId());
-        }
-
-        for (Trainer trainer : trainerDao.getAll()) {
-            trainerDao.deleteById(trainer.getId());
-        }
-
-        for (Trainee trainee : traineeDao.getAll()) {
-            traineeDao.deleteById(trainee.getId());
-        }
-
-        for (TrainingType trainingType : trainingTypeDao.getAll()) {
-            trainingTypeDao.deleteById(trainingType.getId());
-        }
-
         try {
             authenticationService.logOut();
         } catch (IllegalArgumentException ignored) {

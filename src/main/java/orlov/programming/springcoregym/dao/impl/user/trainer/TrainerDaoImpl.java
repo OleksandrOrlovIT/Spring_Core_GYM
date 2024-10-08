@@ -8,6 +8,7 @@ import orlov.programming.springcoregym.dao.AbstractDao;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
+import orlov.programming.springcoregym.util.model.Pageable;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -65,9 +66,11 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
     }
 
     @Override
-    public List<Trainer> getTrainersWithoutPassedTrainee(Trainee trainee) {
+    public List<Trainer> getTrainersWithoutPassedTrainee(Trainee trainee, Pageable pageable) {
         TypedQuery<Trainer> query = getEntityManager().createQuery(GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY, Trainer.class);
         query.setParameter("trainee", trainee);
+        query.setFirstResult(pageable.getPageNumber());
+        query.setMaxResults(pageable.getPageSize());
         return query.getResultList();
     }
 

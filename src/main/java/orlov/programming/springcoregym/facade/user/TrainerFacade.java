@@ -2,6 +2,7 @@ package orlov.programming.springcoregym.facade.user;
 
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainer;
+import orlov.programming.springcoregym.util.model.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,5 +23,5 @@ public interface TrainerFacade {
 
     List<Training> getTrainingsByDateTrainerName(LocalDate startDate, LocalDate endDate, String trainerName);
 
-    List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername);
+    List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername, Pageable pageable);
 }

@@ -12,6 +12,7 @@ import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.service.user.trainer.TrainerServiceImpl;
 import orlov.programming.springcoregym.util.PasswordGenerator;
+import orlov.programming.springcoregym.util.model.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -395,7 +396,9 @@ class TrainerServiceImplTest {
     void getTrainersWithoutPassedTraineeGivenNotFoundThenException() {
         when(traineeDao.getByUsername(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(IllegalArgumentException.class, () -> trainerService.getTrainersWithoutPassedTrainee(FIRST_NAME));
+        Pageable pageable = new Pageable(0, 2);
+        var e = assertThrows(IllegalArgumentException.class,
+                () -> trainerService.getTrainersWithoutPassedTrainee(FIRST_NAME, pageable));
 
         assertEquals("Trainee not found " + FIRST_NAME, e.getMessage());
         verify(traineeDao, times(1)).getByUsername(any());
@@ -406,12 +409,12 @@ class TrainerServiceImplTest {
         List<Trainer> trainers = List.of(new Trainer(), new Trainer());
 
         when(traineeDao.getByUsername(any())).thenReturn(Optional.of(new Trainee()));
-        when(trainerDAO.getTrainersWithoutPassedTrainee(any())).thenReturn(trainers);
+        when(trainerDAO.getTrainersWithoutPassedTrainee(any(), any())).thenReturn(trainers);
 
-        List<Trainer> foundTrainers = trainerService.getTrainersWithoutPassedTrainee(FIRST_NAME);
+        List<Trainer> foundTrainers = trainerService.getTrainersWithoutPassedTrainee(FIRST_NAME, new Pageable(0, 2));
         assertEquals(trainers, foundTrainers);
         verify(traineeDao, times(1)).getByUsername(any());
-        verify(trainerDAO, times(1)).getTrainersWithoutPassedTrainee(any());
+        verify(trainerDAO, times(1)).getTrainersWithoutPassedTrainee(any(), any());
     }
 
     @Test
