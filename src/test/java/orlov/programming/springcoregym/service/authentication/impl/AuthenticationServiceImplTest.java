@@ -1,5 +1,6 @@
 package orlov.programming.springcoregym.service.authentication.impl;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
+@Transactional
 class AuthenticationServiceImplTest {
     @Autowired
     private AuthenticationService authenticationService;

@@ -154,6 +154,33 @@ class TraineeServiceImplTest {
     }
 
     @Test
+    void updateGivenValidWithPasswordSameLengthThenOldPassword() {
+        String updatedPassword = "2222222222";
+        Trainee oldTrainee = Trainee.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).isActive(true).build();
+        Trainee inputtedTrainee = Trainee.builder().username(USERNAME).id(ID)
+                .firstName(FIRST_NAME).lastName(LAST_NAME).password(updatedPassword).isActive(true).build();
+        Trainee updatedTrainee = Trainee.builder().username(USERNAME).id(ID)
+                .firstName(FIRST_NAME).lastName(LAST_NAME).password(updatedPassword).isActive(true).build();
+
+        when(traineeDAO.getByUsername(any()))
+                .thenReturn(Optional.ofNullable(Trainee.builder()
+                        .username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME)
+                        .password(updatedPassword).isActive(true).build()));
+        when(traineeDAO.getById(any())).thenReturn(Optional.of(oldTrainee));
+        when(traineeDAO.update(any())).thenReturn(updatedTrainee);
+        when(passwordGenerator.getPasswordLength()).thenReturn(updatedPassword.length());
+
+        Trainee resultTrainee = traineeServiceImpl.update(inputtedTrainee);
+        assertEquals(updatedPassword, resultTrainee.getPassword());
+        assertEquals(USERNAME, resultTrainee.getUsername());
+
+        verify(traineeDAO, times(1)).getByUsername(any());
+        verify(traineeDAO, times(1)).getById(any());
+        verify(traineeDAO, times(1)).update(any());
+        verify(passwordGenerator, times(1)).getPasswordLength();
+    }
+
+    @Test
     void createGivenNullThenException() {
         var e = assertThrows(NullPointerException.class, () -> traineeServiceImpl.create(null));
         assertEquals("Trainee can't be null", e.getMessage());

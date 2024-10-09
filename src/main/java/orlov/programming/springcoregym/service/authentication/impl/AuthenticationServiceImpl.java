@@ -1,6 +1,7 @@
 package orlov.programming.springcoregym.service.authentication.impl;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import orlov.programming.springcoregym.model.user.User;
 import orlov.programming.springcoregym.service.authentication.AuthenticationService;
@@ -14,11 +15,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
 
-    private static ThreadLocal<User> loggedUser = ThreadLocal.withInitial(() -> null);
+    private ThreadLocal<User> loggedUser;
 
+    @Autowired
     public AuthenticationServiceImpl(TraineeService traineeService, TrainerService trainerService) {
         this.traineeService = traineeService;
         this.trainerService = trainerService;
+        loggedUser = new ThreadLocal<>();
     }
 
     @Override
@@ -39,12 +42,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logOut() {
         isUserLogged();
-        loggedUser = ThreadLocal.withInitial(() -> null);
+        loggedUser.remove();
     }
 
     @Override
     public void isUserLogged() {
-        if (loggedUser == null || loggedUser.get() == null) {
+        if (loggedUser.get() == null) {
             throw new IllegalArgumentException("You are not logged in");
         }
     }
