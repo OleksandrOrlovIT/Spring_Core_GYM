@@ -17,10 +17,13 @@ public class PasswordGeneratorImpl implements PasswordGenerator {
         StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
         while (sb.length() < PASSWORD_LENGTH) {
             char nextChar = CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length()));
-            if (sb.indexOf(String.valueOf(nextChar)) == -1) {
-                sb.append(nextChar);
-            }
+            sb.append(nextChar);
         }
         return sb.toString();
+    }
+
+    @Override
+    public Integer getPasswordLength() {
+        return PASSWORD_LENGTH;
     }
 }

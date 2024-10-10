@@ -5,10 +5,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import orlov.programming.springcoregym.dao.Dao;
 import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.model.training.Training;
+import orlov.programming.springcoregym.model.training.TrainingType;
+import orlov.programming.springcoregym.model.user.Trainee;
+import orlov.programming.springcoregym.model.user.Trainer;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -26,8 +30,91 @@ class TrainingServiceImplTest {
     private TrainingServiceImpl trainingServiceImpl;
 
     @Test
-    void givenTraining_whenCreate_thenSuccess(){
-        Training training = new Training();
+    void createGivenTrainingNullThenException() {
+        Training training = null;
+
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        assertEquals("Training can't be null", e.getMessage());
+    }
+
+    @Test
+    void createGivenTrainingTraineeNullThenException() {
+        Training training = Training.builder().build();
+
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        assertEquals("Training.trainee can't be null", e.getMessage());
+    }
+
+    @Test
+    void createGivenTrainingTrainerNullThenException() {
+        Training training = Training.builder()
+                .trainee(new Trainee())
+                .build();
+
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        assertEquals("Training.trainer can't be null", e.getMessage());
+    }
+
+    @Test
+    void createGivenTrainingNameNullThenException() {
+        Training training = Training.builder()
+                .trainee(new Trainee())
+                .trainer(new Trainer())
+                .build();
+
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        assertEquals("Training.trainingName can't be null", e.getMessage());
+    }
+
+    @Test
+    void createGivenTrainingTypeNullThenException() {
+        Training training = Training.builder()
+                .trainee(new Trainee())
+                .trainer(new Trainer())
+                .trainingName("TRAINING NAME")
+                .build();
+
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        assertEquals("Training.trainingType can't be null", e.getMessage());
+    }
+
+    @Test
+    void createGivenTrainingDateNullThenException() {
+        Training training = Training.builder()
+                .trainee(new Trainee())
+                .trainer(new Trainer())
+                .trainingName("TRAINING NAME")
+                .trainingType(new TrainingType())
+                .build();
+
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        assertEquals("Training.trainingDate can't be null", e.getMessage());
+    }
+
+    @Test
+    void createGivenTrainingDurationNullThenException() {
+        Training training = Training.builder()
+                .trainee(new Trainee())
+                .trainer(new Trainer())
+                .trainingName("TRAINING NAME")
+                .trainingType(new TrainingType())
+                .trainingDate(LocalDate.MIN)
+                .build();
+
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        assertEquals("Training.trainingDuration can't be null", e.getMessage());
+    }
+
+    @Test
+    void createGivenTrainingThenSuccess() {
+        Training training = Training.builder()
+                .trainee(new Trainee())
+                .trainer(new Trainer())
+                .trainingName("TRAINING NAME")
+                .trainingType(new TrainingType())
+                .trainingDate(LocalDate.MIN)
+                .trainingDuration(10L)
+                .build();
 
         when(trainingDao.create(any())).thenReturn(training);
 
@@ -36,24 +123,35 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void givenTraining_whenSelect_thenSuccess(){
+    void selectGivenTrainingThenSuccess() {
         Training training = new Training();
 
-        when(trainingDao.findByObject(any())).thenReturn(Optional.of(training));
+        when(trainingDao.getById(any())).thenReturn(Optional.of(training));
 
-        assertEquals(training, trainingServiceImpl.select(training));
-        verify(trainingDao, times(1)).findByObject(any());
+        assertEquals(training, trainingServiceImpl.select(1L));
+        verify(trainingDao, times(1)).getById(any());
     }
 
     @Test
-    void givenNotFoundTraining_whenSelect_thenFail(){
+    void selectGivenNotFoundTrainingThenFail() {
         Training training = new Training();
 
-        when(trainingDao.findByObject(any())).thenReturn(Optional.empty());
+        when(trainingDao.getById(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.select(training));
+        var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.select(training.getId()));
 
-        assertEquals("Training not found " + training, e.getMessage());
-        verify(trainingDao, times(1)).findByObject(any());
+        assertEquals("Training not found with id = " + training.getId(), e.getMessage());
+        verify(trainingDao, times(1)).getById(any());
+    }
+
+    @Test
+    void getAllGivenValidThenSuccess() {
+        when(trainingDao.getAll()).thenReturn(List.of(new Training(), new Training()));
+
+        List<Training> trainings = trainingServiceImpl.getAll();
+
+        assertNotNull(trainings);
+        assertEquals(2, trainings.size());
+        verify(trainingDao, times(1)).getAll();
     }
 }

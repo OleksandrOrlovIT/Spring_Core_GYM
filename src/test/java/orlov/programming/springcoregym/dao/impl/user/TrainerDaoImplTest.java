@@ -1,163 +1,221 @@
 package orlov.programming.springcoregym.dao.impl.user;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDaoImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
+import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
+import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
+import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
+import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
+import orlov.programming.springcoregym.model.training.Training;
+import orlov.programming.springcoregym.model.training.TrainingType;
+import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
-import orlov.programming.springcoregym.storage.Storage;
+import orlov.programming.springcoregym.util.model.Pageable;
 
-import java.util.HashMap;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class TrainerDaoImplTest {
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestDaoConfig.class)
+@Transactional
+@Sql(scripts = "/sql/trainer/populate_trainer.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
+public class TrainerDaoImplTest {
 
-    @Mock
-    private Storage storage;
+    @Autowired
+    private TrainerDao trainerDao;
 
-    @InjectMocks
-    private TrainerDaoImpl trainerDaoImpl;
+    @Autowired
+    private TraineeDao traineeDao;
+
+    @Autowired
+    private TrainingTypeDao trainingTypeDao;
+
+    @Autowired
+    private TrainingDao trainingDao;
+
+    private Trainer testTrainer;
+    private TrainingType testTrainingType;
+
+    private static final String USERNAME = "testUser";
+    private static final String FIRST_NAME = "firstName";
+    private static final String LAST_NAME = "lastName";
+    private static final String PASSWORD = "pass";
+    private static final String SPECIALIZATION = "specialization";
+    private static final boolean IS_ACTIVE = true;
 
     @BeforeEach
     void setUp() {
-        when(storage.getStorage(Trainer.class)).thenReturn(new HashMap<>());
-        when(storage.getNextId(Trainer.class)).thenReturn(1L);
-        trainerDaoImpl = new TrainerDaoImpl(storage);
+        assertEquals(1, trainingTypeDao.getAll().size());
+        assertEquals(2, trainerDao.getAll().size());
+        assertEquals(1, traineeDao.getAll().size());
+        assertEquals(2, trainingDao.getAll().size());
+
+        testTrainingType = trainingTypeDao.getAll().get(0);
+
+        testTrainer = Trainer.builder()
+                .username(USERNAME)
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .password(PASSWORD)
+                .specialization(testTrainingType)
+                .isActive(IS_ACTIVE)
+                .build();
     }
 
     @Test
-    void givenNull_whenCreate_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> trainerDaoImpl.create(null));
-        assertEquals("Trainer can't be null", e.getMessage());
+    @Transactional
+    void createTrainer() {
+        testTrainer = trainerDao.create(testTrainer);
+
+        assertNotNull(testTrainer);
+        assertNotNull(testTrainer.getId());
     }
 
     @Test
-    void givenTrainerWithId_whenCreate_thenThrowsException() {
-        var e = assertThrows(IllegalArgumentException.class, () -> trainerDaoImpl.create(Trainer.builder().userId(1L).build()));
-        assertEquals("Entity's id has to be null", e.getMessage());
+    void getByIdTrainer() {
+        testTrainer = trainerDao.getAll().get(0);
+        Optional<Trainer> foundTrainer = trainerDao.getById(testTrainer.getId());
+
+        assertTrue(foundTrainer.isPresent());
+        assertEquals(testTrainer, foundTrainer.get());
     }
 
     @Test
-    void givenValid_whenCreate_thenCreate() {
-        Trainer trainer = new Trainer();
+    void getByUsernameTrainer() {
+        Trainer trainer = trainerDao.getAll().get(0);
 
-        Trainer savedTrainer = trainerDaoImpl.create(trainer);
-
-        assertNotNull(savedTrainer);
-        assertEquals(1, savedTrainer.getUserId());
-        assertEquals(1, trainerDaoImpl.findAll().size());
+        Optional<Trainer> found = trainerDao.getByUsername(trainer.getUsername());
+        assertTrue(found.isPresent());
+        assertEquals(trainer, found.get());
     }
 
     @Test
-    void givenNull_whenUpdate_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> trainerDaoImpl.update(null));
-        assertEquals("Trainer can't be null", e.getMessage());
+    @Transactional
+    void deleteTrainer() {
+        Trainer trainer = trainerDao.getAll().get(0);
+
+        trainerDao.deleteById(trainer.getId());
+        Optional<Trainer> deleted = trainerDao.getById(trainer.getId());
+        assertTrue(deleted.isEmpty());
     }
 
     @Test
-    void givenTrainerWithNullId_whenUpdate_thenThrowsException() {
-        Trainer trainer = new Trainer();
-        var e = assertThrows(IllegalArgumentException.class, () -> trainerDaoImpl.update(trainer));
-        assertEquals("Trainer's id can't be null", e.getMessage());
+    void deleteNonExistentTrainer() {
+        assertDoesNotThrow(() -> trainerDao.deleteById(-1L));
     }
 
     @Test
-    void givenNonExistingTrainer_whenUpdate_thenThrowsException() {
-        Trainer trainer = Trainer.builder().userId(1L).build();
-        var e = assertThrows(IllegalArgumentException.class, () -> trainerDaoImpl.update(trainer));
-        assertEquals("Entity does not exist", e.getMessage());
+    @Transactional
+    void updateTrainer() {
+        Trainer savedTrainer = trainerDao.getAll().get(0);
+
+        String delim = "1";
+
+        TrainingType diffTrainingType = TrainingType
+                .builder()
+                .trainingTypeName(SPECIALIZATION + delim)
+                .build();
+
+        diffTrainingType = trainingTypeDao.create(diffTrainingType);
+
+        Trainer diffTrainer = Trainer.builder()
+                .username(savedTrainer.getUsername() + delim)
+                .firstName(savedTrainer.getFirstName() + delim)
+                .lastName(savedTrainer.getLastName() + delim)
+                .password(savedTrainer.getPassword() + delim)
+                .isActive(!savedTrainer.getIsActive())
+                .specialization(diffTrainingType)
+                .build();
+
+        Trainer updated = trainerDao.update(diffTrainer);
+
+        assertNotEquals(savedTrainer, updated);
+        assertEquals(savedTrainer.getUsername() + delim, updated.getUsername());
+        assertEquals(savedTrainer.getFirstName() + delim, updated.getFirstName());
+        assertEquals(savedTrainer.getLastName() + delim, updated.getLastName());
+        assertEquals(savedTrainer.getPassword() + delim, updated.getPassword());
+        assertEquals(!savedTrainer.getIsActive(), updated.getIsActive());
+        assertEquals(diffTrainingType.getTrainingTypeName(),
+                updated.getSpecialization().getTrainingTypeName());
     }
 
     @Test
-    void givenValid_whenUpdate_thenUpdate() {
-        Trainer trainer = trainerDaoImpl.create(new Trainer());
+    void getAllTrainers() {
+        List<Trainer> trainerList = trainerDao.getAll();
 
-        String userName = "UserName";
-        Trainer updatedTrainer = trainerDaoImpl.update(Trainer.builder().userId(1L).username(userName).build());
-
-        assertNotNull(updatedTrainer);
-        assertEquals(trainer.getUserId(), updatedTrainer.getUserId());
-        assertNotEquals(trainer.getUsername(), updatedTrainer.getUsername());
-        assertEquals(userName, updatedTrainer.getUsername());
+        assertNotNull(trainerList);
+        assertEquals(2, trainerList.size());
     }
 
     @Test
-    void givenNull_whenDelete_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> trainerDaoImpl.delete(null));
-        assertEquals("Trainer can't be null", e.getMessage());
+    void getByUsernameThenException() {
+        Optional<Trainer> optionalTrainer = trainerDao.getByUsername("");
+
+        assertTrue(optionalTrainer.isEmpty());
     }
 
     @Test
-    void givenTrainerWithNullId_whenDelete_thenThrowsException() {
-        Trainer trainer = new Trainer();
-        var e = assertThrows(IllegalArgumentException.class, () -> trainerDaoImpl.delete(trainer));
-        assertEquals("Trainer's id can't be null", e.getMessage());
+    void getTrainingsByDateThenReturnTrainingsAndUsername() {
+        testTrainingType = trainingTypeDao.getAll().get(0);
+        testTrainer = trainerDao.getAll().get(0);
+        LocalDate date = LocalDate.of(2024, 10, 1);
+
+        List<Training> foundTrainings =
+                trainerDao.getTrainingsByDateAndUsername(date, date.plusDays(2), testTrainer.getUsername());
+
+        assertNotNull(foundTrainings);
+        assertEquals(2, foundTrainings.size());
     }
 
     @Test
-    void givenValid_whenDelete_thenDelete() {
-        trainerDaoImpl.create(new Trainer());
-        Trainer trainer2 = trainerDaoImpl.create(new Trainer());
+    void getTrainersWithoutPassedTraineeGiven2TrainerWithoutTraineesThenSuccess() {
+        testTrainer = trainerDao.getAll().get(0);
+        Trainer testTrainer2 = trainerDao.getAll().get(1);
+        Trainee testTrainee = traineeDao.getAll().get(0);
 
-        trainerDaoImpl.delete(trainer2);
+        List<Trainer> trainers = trainerDao.getTrainersWithoutPassedTrainee(testTrainee, new Pageable(0, 2));
 
-        assertEquals(1, trainerDaoImpl.findAll().size());
+        assertNotNull(trainers);
+        assertEquals(2, trainers.size());
+        assertTrue(trainers.contains(testTrainer));
+        assertTrue(trainers.contains(testTrainer2));
     }
 
     @Test
-    void given2Entities_whenFindAll_thenFindAll() {
-        trainerDaoImpl.create(new Trainer());
-        trainerDaoImpl.create(new Trainer());
+    void getByIdsGiven2TrainersThenSuccess() {
+        List<Trainer> trainers = trainerDao.getAll();
 
-        assertEquals(2, trainerDaoImpl.findAll().size());
+        List<Long> ids = List.of(trainers.get(0).getId(), trainers.get(1).getId());
+
+        List<Trainer> foundTrainers = trainerDao.getByIds(ids);
+
+        assertNotNull(trainers);
+        assertEquals(2, trainers.size());
+        assertEquals(trainers, foundTrainers);
     }
 
     @Test
-    void givenNull_whenFindByObject_thenThrowsException() {
-        var e = assertThrows(NullPointerException.class, () -> trainerDaoImpl.findByObject(null));
-        assertEquals("Trainer can't be null", e.getMessage());
+    void getByIdsGivenNullIdsThenException() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> trainerDao.getByIds(null));
+        assertEquals("Ids can't be null", e.getMessage());
     }
 
     @Test
-    void givenTrainerWithNullId_whenfindByObject_thenThrowsException() {
-        Trainer trainer = new Trainer();
-        var e = assertThrows(IllegalArgumentException.class, () -> trainerDaoImpl.findByObject(trainer));
-        assertEquals("Trainer's id can't be null", e.getMessage());
-    }
+    void getByIdsGivenEmptyIdsThenEmptyList() {
+        List<Trainer> trainers = trainerDao.getByIds(List.of());
 
-    @Test
-    void givenValid_whenFindByObject_thenFindByObject() {
-        Trainer trainer = trainerDaoImpl.create(new Trainer());
-
-        assertEquals(Optional.of(trainer), trainerDaoImpl.findByObject(trainer));
-    }
-
-    @Test
-    void givenNull_whenFindByUsername_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> trainerDaoImpl.findByUsername(null));
-        assertEquals("Username can't be null", e.getMessage());
-    }
-
-    @Test
-    void given0Entity_whenFindByUsername_thenNull(){
-        trainerDaoImpl.create(new Trainer());
-        assertEquals(Optional.empty(), trainerDaoImpl.findByUsername("someUserName"));
-    }
-
-    @Test
-    void givenEntity_whenFindByUsername_thenFound(){
-        String username = "UserName";
-        Trainer trainer = Trainer.builder().username(username).build();
-
-        trainer = trainerDaoImpl.create(trainer);
-
-        assertEquals(Optional.of(trainer), trainerDaoImpl.findByUsername(username));
+        assertNotNull(trainers);
+        assertEquals(0, trainers.size());
     }
 }

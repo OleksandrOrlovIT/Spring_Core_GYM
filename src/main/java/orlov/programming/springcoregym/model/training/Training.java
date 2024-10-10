@@ -1,22 +1,47 @@
 package orlov.programming.springcoregym.model.training;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Data
 @NoArgsConstructor
 @SuperBuilder
+@Entity
 public class Training {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne
+    @JoinColumn(name = "trainee_id", nullable = false)
     private Trainee trainee;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne
+    @JoinColumn(name = "trainer_id", nullable = false)
     private Trainer trainer;
+
+    @Column(nullable = false)
     private String trainingName;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne
+    @JoinColumn(name = "training_type_id", nullable = false)
     private TrainingType trainingType;
+
+    @Column(nullable = false)
     private LocalDate trainingDate;
-    private LocalTime trainingDuration;
+
+    @Column(nullable = false)
+    private Long trainingDuration;
 }

@@ -1,155 +1,167 @@
 package orlov.programming.springcoregym.dao.impl.training;
 
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import orlov.programming.springcoregym.dao.impl.TestDaoConfig;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
 import orlov.programming.springcoregym.model.training.Training;
+import orlov.programming.springcoregym.model.training.TrainingType;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
-import orlov.programming.springcoregym.storage.Storage;
 
-import java.util.HashMap;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestDaoConfig.class)
+@Transactional
+@Sql(scripts = "/sql/training/populate_trainings.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 class TrainingDaoImplTest {
-    private static final String TRAINING_NULL_ERROR = "Training can't be null";
-    private static final String TRAINING_NOT_FOUND_ERROR_MESSAGE = "Training is not found for ";
-    private static final String TRAINEE_NOT_FOUND_ERROR_MESSAGE = "Trainee is not found for ";
-    private static final String TRAINER_NOT_FOUND_ERROR_MESSAGE = "Trainer is not found for ";
 
-    @Mock
-    private TraineeDao traineeDAO;
+    @Autowired
+    private TrainingDao trainingDao;
 
-    @Mock
-    private TrainerDao trainerDAO;
+    @Autowired
+    private TrainingTypeDao trainingTypeDao;
 
-    @Mock
-    private Storage storage;
+    @Autowired
+    private TrainerDao trainerDao;
 
-    @InjectMocks
-    private TrainingDaoImpl trainingDaoImpl;
+    @Autowired
+    private TraineeDao traineeDao;
+
+    private Training testTraining;
+    private TrainingType testTrainingType;
+    private Trainer testTrainer;
+    private Trainee testTrainee;
+
+    private static final String TRAINING_NAME = "testTrainingName";
 
     @BeforeEach
-    void setUp() {
-        when(storage.getStorage(Training.class)).thenReturn(new HashMap<>());
-        when(storage.getNextId(Training.class)).thenReturn(1L);
-        trainingDaoImpl = new TrainingDaoImpl(storage, traineeDAO, trainerDAO);
+    void setUpEntities() {
+        assertEquals(1, traineeDao.getAll().size());
+        assertEquals(1, trainingTypeDao.getAll().size());
+        assertEquals(1, trainerDao.getAll().size());
+        assertEquals(2, trainingDao.getAll().size());
+
+        testTrainingType = trainingTypeDao.getAll().get(0);
+
+        testTrainee = traineeDao.getAll().get(0);
+
+        testTrainer = this.trainerDao.getAll().get(0);
+
+        testTraining = Training.builder()
+                .trainee(testTrainee)
+                .trainer(testTrainer)
+                .trainingName(TRAINING_NAME)
+                .trainingType(testTrainingType)
+                .trainingDate(LocalDate.MIN)
+                .trainingDuration(10L)
+                .build();
     }
 
     @Test
-    void givenNull_whenCreate_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> trainingDaoImpl.create(null));
-        assertEquals(TRAINING_NULL_ERROR, e.getMessage());
+    @Transactional
+    void createTraining() {
+        testTraining = trainingDao.create(testTraining);
+
+        assertNotNull(testTraining);
+        assertNotNull(testTraining.getId());
     }
 
     @Test
-    void givenNotFoundTrainee_whenCreate_thenException(){
-        Training training = new Training();
+    void getByIdTraining() {
+        testTraining = trainingDao.getAll().get(0);
+        Optional<Training> foundTraining = trainingDao.getById(testTraining.getId());
 
-        when(traineeDAO.findByObject(any())).thenReturn(Optional.empty());
-
-        var e = assertThrows(IllegalArgumentException.class, () -> trainingDaoImpl.create(training));
-        assertEquals(e.getMessage(), TRAINEE_NOT_FOUND_ERROR_MESSAGE + training.getTrainee());
-        verify(traineeDAO, times(1)).findByObject(any());
+        assertTrue(foundTraining.isPresent());
+        assertEquals(testTraining, foundTraining.get());
     }
 
     @Test
-    void givenNotFoundTrainer_whenCreate_thenException(){
-        Trainee trainee = new Trainee();
-        Training training = Training.builder().trainee(trainee).build();
+    @Transactional
+    void deleteTraining() {
+        testTraining = trainingDao.create(testTraining);
 
-        when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
-        when(trainerDAO.findByObject(any())).thenReturn(Optional.empty());
-
-        var e = assertThrows(IllegalArgumentException.class, () -> trainingDaoImpl.create(training));
-        assertEquals(e.getMessage(), TRAINER_NOT_FOUND_ERROR_MESSAGE + training.getTrainer());
-        verify(traineeDAO, times(1)).findByObject(any());
-        verify(trainerDAO, times(1)).findByObject(any());
+        trainingDao.deleteById(testTraining.getId());
+        Optional<Training> deleted = trainingDao.getById(testTraining.getId());
+        assertTrue(deleted.isEmpty());
     }
 
     @Test
-    void givenValid_whenCreate_thenSuccess(){
-        Trainee trainee = new Trainee();
-        Trainer trainer = new Trainer();
-        Training training = Training.builder().trainee(trainee).trainer(trainer).build();
-
-        when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
-        when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
-
-        Training result = trainingDaoImpl.create(training);
-        assertNotNull(result);
-        assertEquals(trainee, result.getTrainee());
-        assertEquals(trainer, result.getTrainer());
-        verify(traineeDAO, times(1)).findByObject(any());
-        verify(trainerDAO, times(1)).findByObject(any());
+    void deleteNonExistentTraining() {
+        assertDoesNotThrow(() -> trainingDao.deleteById(-1L));
     }
 
     @Test
-    void given2Trainings_whenFindAll_thenSuccess(){
-        Trainee trainee = new Trainee();
-        Trainer trainer = new Trainer();
-        Training training1 = Training.builder().trainee(trainee).trainer(trainer).trainingName("1").build();
-        Training training2 = Training.builder().trainee(trainee).trainer(trainer).trainingName("2").build();
+    @Transactional
+    void updateTraining() {
+        Training savedTraining = trainingDao.getAll().get(0);
 
-        when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
-        when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
+        String delim = "1";
 
-        trainingDaoImpl.create(training1);
-        trainingDaoImpl.create(training2);
+        TrainingType testTrainingTypeForUpdate = TrainingType.builder()
+                .trainingTypeName(testTrainingType.getTrainingTypeName() + delim)
+                .build();
 
-        assertEquals(2, trainingDaoImpl.findAll().size());
-        verify(traineeDAO, times(2)).findByObject(any());
-        verify(trainerDAO, times(2)).findByObject(any());
+        Trainer testTrainerForUpdate = Trainer.builder()
+                .username(testTrainer.getUsername() + delim)
+                .firstName(testTrainer.getFirstName() + delim)
+                .lastName(testTrainer.getLastName() + delim)
+                .password(testTrainer.getPassword() + delim)
+                .isActive(!testTrainer.getIsActive())
+                .specialization(testTrainingType)
+                .build();
+
+        Trainee testTraineeForUpdate = Trainee.builder()
+                .username(testTrainee.getUsername() + delim)
+                .firstName(testTrainee.getFirstName() + delim)
+                .lastName(testTrainee.getLastName() + delim)
+                .password(testTrainee.getPassword() + delim)
+                .isActive(!testTrainee.getIsActive())
+                .build();
+
+        testTrainingTypeForUpdate = trainingTypeDao.create(testTrainingTypeForUpdate);
+        testTrainerForUpdate = trainerDao.create(testTrainerForUpdate);
+        testTraineeForUpdate = traineeDao.create(testTraineeForUpdate);
+
+        Training diffTraining = Training.builder()
+                .id(savedTraining.getId())
+                .trainee(testTraineeForUpdate)
+                .trainer(testTrainerForUpdate)
+                .trainingName(TRAINING_NAME + delim)
+                .trainingType(testTrainingTypeForUpdate)
+                .trainingDate(LocalDate.MIN.plusDays(1))
+                .trainingDuration(10L)
+                .build();
+
+        Training updated = trainingDao.update(diffTraining);
+
+        assertEquals(testTraineeForUpdate, updated.getTrainee());
+        assertEquals(testTrainerForUpdate, updated.getTrainer());
+        assertEquals(testTrainingTypeForUpdate, updated.getTrainingType());
+        assertEquals(TRAINING_NAME + delim, updated.getTrainingName());
+        assertEquals(LocalDate.MIN.plusDays(1), updated.getTrainingDate());
+        assertEquals(10L, updated.getTrainingDuration());
     }
 
     @Test
-    void givenNull_whenFindByObject_thenException(){
-        var e = assertThrows(NullPointerException.class, () -> trainingDaoImpl.findByObject(null));
-        assertEquals(TRAINING_NULL_ERROR, e.getMessage());
-    }
+    void getAllTrainings() {
+        List<Training> trainingList = trainingDao.getAll();
 
-    @Test
-    void givenTraining_findByObject_thenException(){
-        Trainee trainee = new Trainee();
-        Trainer trainer = new Trainer();
-        Training training = Training.builder().trainee(trainee).trainer(trainer).trainingName("1").build();
-
-        when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
-        when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
-
-        trainingDaoImpl.create(training);
-
-        Training searchedTraining = new Training();
-
-        var e = assertThrows(IllegalArgumentException.class, () -> trainingDaoImpl.findByObject(searchedTraining));
-        assertEquals(TRAINING_NOT_FOUND_ERROR_MESSAGE + searchedTraining, e.getMessage());
-        verify(traineeDAO, times(1)).findByObject(any());
-        verify(trainerDAO, times(1)).findByObject(any());
-    }
-
-    @Test
-    void givenTraining_findByObject_thenSuccess(){
-        Trainee trainee = new Trainee();
-        Trainer trainer = new Trainer();
-        Training training = Training.builder().trainee(trainee).trainer(trainer).trainingName("1").build();
-
-        when(traineeDAO.findByObject(any())).thenReturn(Optional.of(trainee));
-        when(trainerDAO.findByObject(any())).thenReturn(Optional.of(trainer));
-
-        training = trainingDaoImpl.create(training);
-
-        assertEquals(Optional.of(training), trainingDaoImpl.findByObject(training));
-        verify(traineeDAO, times(1)).findByObject(any());
-        verify(trainerDAO, times(1)).findByObject(any());
+        assertNotNull(trainingList);
+        assertEquals(2, trainingList.size());
     }
 }
