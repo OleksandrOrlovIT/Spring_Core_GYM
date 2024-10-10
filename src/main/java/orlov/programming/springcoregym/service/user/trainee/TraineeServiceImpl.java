@@ -7,7 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
-import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
+import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;

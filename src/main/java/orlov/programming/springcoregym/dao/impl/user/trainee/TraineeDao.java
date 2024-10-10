@@ -1,7 +1,7 @@
 package orlov.programming.springcoregym.dao.impl.user.trainee;
 
 import orlov.programming.springcoregym.dao.DaoUsernameFindable;
-import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
+import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 

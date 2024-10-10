@@ -7,6 +7,7 @@
     <groupId>orlov.programming</groupId>
     <artifactId>Spring_Core_GYM</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
     <name>Spring_Core_GYM</name>
     <description>Spring Core Gym Application</description>
 
@@ -18,23 +19,23 @@
         <log4j-core.version>2.23.1</log4j-core.version>
         <mockito-core.version>5.13.0</mockito-core.version>
         <mockito-junit-jupiter.version>5.13.0</mockito-junit-jupiter.version>
-        <spring-test.version>6.1.12</spring-test.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
         <hibernate-core.version>6.6.1.Final</hibernate-core.version>
-        <spring-orm.version>6.1.13</spring-orm.version>
-        <spring-tx.version>6.1.13</spring-tx.version>
         <postgresql.version>42.7.4</postgresql.version>
         <h2.version>2.3.232</h2.version>
         <liquibase-core.version>4.29.2</liquibase-core.version>
+        <spring.version>6.1.13</spring.version>
+        <jackson-databind.version>2.18.0</jackson-databind.version>
+        <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>6.1.12</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
@@ -74,7 +75,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>${spring-test.version}</version>
+            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -90,12 +91,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>${spring-orm.version}</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-            <version>${spring-tx.version}</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -108,21 +109,26 @@
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase-core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${jakarta.servlet-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -200,6 +206,26 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.3</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <warName>SpringCoreGym</warName>
+                </configuration>
             </plugin>
         </plugins>
     </build>

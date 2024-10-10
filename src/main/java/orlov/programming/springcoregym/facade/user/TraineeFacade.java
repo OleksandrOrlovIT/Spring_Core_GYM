@@ -1,6 +1,6 @@
 package orlov.programming.springcoregym.facade.user;
 
-import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
+import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 

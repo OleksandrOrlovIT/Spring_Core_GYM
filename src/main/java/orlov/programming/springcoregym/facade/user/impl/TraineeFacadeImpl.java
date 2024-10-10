@@ -3,7 +3,7 @@ package orlov.programming.springcoregym.facade.user.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
-import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
+import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.facade.user.TraineeFacade;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;

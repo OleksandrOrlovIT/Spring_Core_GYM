@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Repository;
 import orlov.programming.springcoregym.dao.AbstractDao;
-import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
+import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
 

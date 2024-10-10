@@ -14,7 +14,7 @@ import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
-import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
+import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.facade.user.TraineeFacade;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.training.TrainingType;

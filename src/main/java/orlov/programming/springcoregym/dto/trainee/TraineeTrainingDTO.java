@@ -1,4 +1,4 @@
-package orlov.programming.springcoregym.dto;
+package orlov.programming.springcoregym.dto.trainee;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

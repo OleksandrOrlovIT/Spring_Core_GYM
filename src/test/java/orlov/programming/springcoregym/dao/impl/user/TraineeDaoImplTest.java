@@ -1,8 +1,6 @@
 package orlov.programming.springcoregym.dao.impl.user;
 
 import jakarta.transaction.Transactional;
-import org.checkerframework.checker.units.qual.A;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,11 +13,10 @@ import orlov.programming.springcoregym.dao.impl.training.TrainingDao;
 import orlov.programming.springcoregym.dao.impl.training.TrainingTypeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainee.TraineeDao;
 import orlov.programming.springcoregym.dao.impl.user.trainer.TrainerDao;
-import orlov.programming.springcoregym.dto.TraineeTrainingDTO;
+import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.training.TrainingType;
 import orlov.programming.springcoregym.model.user.Trainee;
-import orlov.programming.springcoregym.model.user.Trainer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
