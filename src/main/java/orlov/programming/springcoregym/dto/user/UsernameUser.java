@@ -10,11 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsernamePasswordUser {
-
+public class UsernameUser {
     @NotBlank(message = "username is required.")
     private String username;
-
-    @NotBlank(message = "password is required.")
-    private String password;
 }

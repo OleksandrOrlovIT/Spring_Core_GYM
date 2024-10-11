@@ -58,7 +58,7 @@ public class TrainerDaoImplTest {
     void setUp() {
         assertEquals(1, trainingTypeDao.getAll().size());
         assertEquals(2, trainerDao.getAll().size());
-        assertEquals(1, traineeDao.getAll().size());
+        assertEquals(2, traineeDao.getAll().size());
         assertEquals(2, trainingDao.getAll().size());
 
         testTrainingType = trainingTypeDao.getAll().get(0);
@@ -179,17 +179,17 @@ public class TrainerDaoImplTest {
     }
 
     @Test
+    @Transactional
     void getTrainersWithoutPassedTraineeGiven2TrainerWithoutTraineesThenSuccess() {
-        testTrainer = trainerDao.getAll().get(0);
-        Trainer testTrainer2 = trainerDao.getAll().get(1);
-        Trainee testTrainee = traineeDao.getAll().get(0);
+        List<Trainer> trainerList = trainerDao.getAll();
+
+        Trainee testTrainee = traineeDao.getAll().get(1);
 
         List<Trainer> trainers = trainerDao.getTrainersWithoutPassedTrainee(testTrainee, new Pageable(0, 2));
 
         assertNotNull(trainers);
         assertEquals(2, trainers.size());
-        assertTrue(trainers.contains(testTrainer));
-        assertTrue(trainers.contains(testTrainer2));
+        assertEquals(trainerList, trainers);
     }
 
     @Test
@@ -217,5 +217,18 @@ public class TrainerDaoImplTest {
 
         assertNotNull(trainers);
         assertEquals(0, trainers.size());
+    }
+
+    @Test
+    void getTraineesByTrainerUsernameThenSuccess() {
+        Trainee trainee = traineeDao.getAll().get(0);
+
+        Trainer trainer = trainerDao.getAll().get(0);
+
+        List<Trainee> trainees = trainerDao.getTraineesByTrainerUsername(trainer.getUsername());
+
+        assertNotNull(trainees);
+        assertEquals(1, trainees.size());
+        assertEquals(trainee, trainees.get(0));
     }
 }

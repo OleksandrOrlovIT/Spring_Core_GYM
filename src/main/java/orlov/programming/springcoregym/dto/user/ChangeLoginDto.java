@@ -10,11 +10,14 @@ import jakarta.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsernamePasswordUser {
+public class ChangeLoginDto {
 
     @NotBlank(message = "username is required.")
     private String username;
 
-    @NotBlank(message = "password is required.")
-    private String password;
+    @NotBlank(message = "oldPassword is required.")
+    private String oldPassword;
+
+    @NotBlank(message = "newPassword is required.")
+    private String newPassword;
 }

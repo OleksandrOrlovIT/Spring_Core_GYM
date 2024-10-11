@@ -40,4 +40,6 @@ public interface TrainerDao extends DaoUsernameFindable<Trainer, Long> {
      * @return a list of matching {@link Trainer} entities
      */
     List<Trainer> getByIds(List<Long> trainerIds);
+
+    List<Trainee> getTraineesByTrainerUsername(String username);
 }

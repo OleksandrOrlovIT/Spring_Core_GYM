@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
 @Transactional
-class AuthenticationServiceImplTest {
+class AuthenticationControllerImplTest {
     @Autowired
     private AuthenticationService authenticationService;
 

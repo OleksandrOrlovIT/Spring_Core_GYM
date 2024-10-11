@@ -8,13 +8,21 @@ import orlov.programming.springcoregym.model.user.User;
 public interface AuthenticationService {
 
     /**
+     * Authenticates a user based on their username, password.
+     *
+     * @param userName  the username of the user
+     * @param password  the user's password
+     */
+    boolean authenticateUser(String userName, String password);
+
+    /**
      * Authenticates a user based on their username, password, and role (trainee or trainer).
      *
      * @param userName  the username of the user
      * @param password  the user's password
      * @param isTrainee whether the user is a trainee (if false, the user is considered a trainer)
      */
-    void authenticateUser(String userName, String password, boolean isTrainee);
+    boolean authenticateUser(String userName, String password, boolean isTrainee);
 
     /**
      * Logs out the currently authenticated user.
@@ -35,4 +43,6 @@ public interface AuthenticationService {
      * @throws IllegalArgumentException if no user is logged in
      */
     User getLoggedUser();
+
+    boolean changeLogin(String userName, String oldPassword, String newPassword);
 }

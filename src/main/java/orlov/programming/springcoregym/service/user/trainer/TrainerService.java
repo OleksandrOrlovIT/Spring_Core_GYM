@@ -1,6 +1,7 @@
 package orlov.programming.springcoregym.service.user.trainer;
 
 import orlov.programming.springcoregym.model.training.Training;
+import orlov.programming.springcoregym.model.user.Trainee;
 import orlov.programming.springcoregym.model.user.Trainer;
 import orlov.programming.springcoregym.util.model.Pageable;
 
@@ -122,4 +123,6 @@ public interface TrainerService {
      * @throws java.lang.IllegalArgumentException if no trainer is found with the provided username
      */
     Trainer getByUsername(String trainerUserName);
+
+    Trainer getByUserNameWithTrainees(String trainerUsername);
 }

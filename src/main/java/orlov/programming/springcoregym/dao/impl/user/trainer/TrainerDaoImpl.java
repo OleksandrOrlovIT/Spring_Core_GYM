@@ -23,6 +23,7 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
     private static String GET_TRAININGS_BY_DATE_AND_USERNAME_QUERY;
     private static String GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY;
     private static String FIND_BY_IDS_QUERY;
+    private static String GET_TRAINEES_BY_TRAINER_USERNAME_QUERY;
 
     public TrainerDaoImpl() {
         FIND_BY_USERNAME_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
@@ -34,6 +35,12 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
                 """;
         GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY = "SELECT tr FROM Trainer tr WHERE :trainee NOT MEMBER OF tr.trainees";
         FIND_BY_IDS_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.id IN :ids";
+        GET_TRAINEES_BY_TRAINER_USERNAME_QUERY = """
+        SELECT tr FROM Trainer t
+        JOIN t.trainees tr
+        WHERE t.username = :username
+        """;
+
     }
 
     @Override
@@ -86,6 +93,14 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
 
         TypedQuery<Trainer> query = getEntityManager().createQuery(FIND_BY_IDS_QUERY, Trainer.class);
         query.setParameter("ids", ids);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Trainee> getTraineesByTrainerUsername(String username) {
+        TypedQuery<Trainee> query = getEntityManager().createQuery(GET_TRAINEES_BY_TRAINER_USERNAME_QUERY, Trainee.class);
+        query.setParameter("username", username);
 
         return query.getResultList();
     }

@@ -13,14 +13,18 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestControllerAdvice
 @Log4j2
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseBody
+    public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException ex) {
+        logException("NoSuchElementException occurred", ex);
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage());
+    }
 
     @ExceptionHandler(EntityExistsException.class)
     @ResponseBody

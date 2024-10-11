@@ -10,6 +10,7 @@ import orlov.programming.springcoregym.dao.AbstractDao;
 import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
+import orlov.programming.springcoregym.model.user.Trainer;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
     private static String FIND_BY_USERNAME_QUERY;
     private static String GET_TRAININGS_BY_DATE_USERNAME_TRAINING_TYPE_QUERY;
     private static String DELETE_BY_USERNAME_QUERY;
+    private static String GET_TRAINERS_BY_TRAINEE_USERNAME_QUERY;
 
     public TraineeDaoImpl() {
         FIND_BY_USERNAME_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
@@ -33,6 +35,11 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
                 AND tr.trainingDate BETWEEN :startDate AND :endDate
                 """;
         DELETE_BY_USERNAME_QUERY = "DELETE FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
+        GET_TRAINERS_BY_TRAINEE_USERNAME_QUERY = """
+        SELECT tr FROM Trainee t
+        JOIN t.trainers tr
+        WHERE t.username = :username
+        """;
     }
 
     @Override
@@ -72,5 +79,13 @@ public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements Traine
         Query query = getEntityManager().createQuery(DELETE_BY_USERNAME_QUERY);
         query.setParameter("username", username);
         query.executeUpdate();
+    }
+
+    @Override
+    public List<Trainer> getTrainersByTraineeUsername(String username) {
+        TypedQuery<Trainer> query = getEntityManager().createQuery(GET_TRAINERS_BY_TRAINEE_USERNAME_QUERY, Trainer.class);
+        query.setParameter("username", username);
+
+        return query.getResultList();
     }
 }

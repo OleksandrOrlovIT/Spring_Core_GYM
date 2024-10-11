@@ -47,7 +47,8 @@ public class TraineeFacadeImpl implements TraineeFacade {
     public Optional<Trainee> updateTrainee(Trainee trainee) {
         try {
             authenticationService.isUserLogged();
-            return Optional.ofNullable(traineeService.update(trainee));
+            Trainee updatedTrainee = traineeService.update(trainee);
+            return Optional.of(traineeService.getByUserNameWithTrainers(updatedTrainee.getUsername()));
         } catch (Exception e) {
             log.error(e);
         }
@@ -65,7 +66,7 @@ public class TraineeFacadeImpl implements TraineeFacade {
     public Optional<Trainee> selectTrainee(String username) {
         try {
             authenticationService.isUserLogged();
-            return Optional.ofNullable(traineeService.getByUsername(username));
+            return Optional.ofNullable(traineeService.getByUserNameWithTrainers(username));
         } catch (Exception e) {
             log.error(e);
         }

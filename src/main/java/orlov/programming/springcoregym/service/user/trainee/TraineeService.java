@@ -125,4 +125,6 @@ public interface TraineeService {
      * @throws jakarta.persistence.EntityNotFoundException if no trainers are found with the provided IDs
      */
     void updateTraineeTrainers(Long traineeId, List<Long> trainerIds);
+
+    Trainee getByUserNameWithTrainers(String traineeUsername);
 }

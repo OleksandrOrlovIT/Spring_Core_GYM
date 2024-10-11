@@ -4,23 +4,26 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.validation.constraints.NotBlank;
+import orlov.programming.springcoregym.dto.trainer.TrainerResponse;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TraineeRegister {
+public class TraineeFullResponse {
 
-    @NotBlank(message = "First name is required.")
     private String firstName;
 
-    @NotBlank(message = "Last name is required.")
     private String lastName;
 
     private LocalDate dateOfBirth;
 
     private String address;
+
+    private boolean isActive;
+
+    private List<TrainerResponse> trainers;
 }

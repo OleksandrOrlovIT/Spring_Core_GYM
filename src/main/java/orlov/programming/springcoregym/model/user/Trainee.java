@@ -1,9 +1,6 @@
 package orlov.programming.springcoregym.model.user;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import orlov.programming.springcoregym.model.training.Training;

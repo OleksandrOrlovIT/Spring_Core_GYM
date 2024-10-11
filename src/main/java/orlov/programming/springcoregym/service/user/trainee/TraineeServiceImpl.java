@@ -33,11 +33,12 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Trainee update(Trainee trainee) {
+        Trainee foundTrainee = getByUsername(trainee.getUsername());
+        trainee.setId(foundTrainee.getId());
+
         trainee.setUsername(constructTraineeUsername(trainee));
 
         checkAvailableUserName(trainee);
-
-        Trainee foundTrainee = select(trainee.getId());
 
         if (trainee.getPassword() == null || trainee.getPassword().length() != passwordGenerator.getPasswordLength()) {
             trainee.setPassword(passwordGenerator.generatePassword());
@@ -59,7 +60,9 @@ public class TraineeServiceImpl implements TraineeService {
 
         checkAvailableUserName(trainee);
 
-        Objects.requireNonNull(trainee.getIsActive(), "Trainee's isActive field can't be null");
+        if(trainee.getIsActive() == null){
+            trainee.setIsActive(false);
+        }
 
         if (trainee.getPassword() == null || trainee.getPassword().length() != passwordGenerator.getPasswordLength()) {
             trainee.setPassword(passwordGenerator.generatePassword());
@@ -82,6 +85,11 @@ public class TraineeServiceImpl implements TraineeService {
                     } else {
                         trainee.setUsername(foundTrainee.getUsername());
                     }
+                });
+
+        trainerDAO.getByUsername(trainee.getUsername())
+                .ifPresent(foundTrainer -> {
+                    trainee.setUsername(trainee.getUsername() + UUID.randomUUID());
                 });
     }
 
@@ -198,5 +206,14 @@ public class TraineeServiceImpl implements TraineeService {
         }
 
         traineeDAO.update(trainee);
+    }
+
+    @Override
+    public Trainee getByUserNameWithTrainers(String traineeUsername) {
+        Trainee trainee = getByUsername(traineeUsername);
+
+        trainee.setTrainers(traineeDAO.getTrainersByTraineeUsername(traineeUsername));
+
+        return trainee;
     }
 }

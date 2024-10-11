@@ -4,6 +4,7 @@ import orlov.programming.springcoregym.dao.DaoUsernameFindable;
 import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.user.Trainee;
+import orlov.programming.springcoregym.model.user.Trainer;
 
 import java.util.List;
 
@@ -27,4 +28,6 @@ public interface TraineeDao extends DaoUsernameFindable<Trainee, Long> {
      * @param username the username of the trainee to delete
      */
     void deleteByUsername(String username);
+
+    List<Trainer> getTrainersByTraineeUsername(String username);
 }

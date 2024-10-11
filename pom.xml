@@ -29,6 +29,9 @@
         <spring.version>6.1.13</spring.version>
         <jackson-databind.version>2.18.0</jackson-databind.version>
         <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
+        <jackson-datatype-jsr310.version>2.18.0</jackson-datatype-jsr310.version>
+        <validation-api.version>2.0.1.Final</validation-api.version>
+        <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
     </properties>
 
     <dependencies>
@@ -125,6 +128,21 @@
             <version>${jakarta.servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-datatype-jsr310.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${validation-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -177,7 +195,7 @@
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
-                                            <minimum>80.0%</minimum>
+                                            <minimum>90.0%</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -17,6 +17,7 @@ import orlov.programming.springcoregym.dto.trainee.TraineeTrainingDTO;
 import orlov.programming.springcoregym.model.training.Training;
 import orlov.programming.springcoregym.model.training.TrainingType;
 import orlov.programming.springcoregym.model.user.Trainee;
+import orlov.programming.springcoregym.model.user.Trainer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -182,5 +183,18 @@ class TraineeDaoImplTest {
         assertDoesNotThrow(() -> traineeDao.deleteByUsername(USERNAME));
 
         assertTrue(traineeDao.getByUsername(USERNAME).isEmpty());
+    }
+
+    @Test
+    void getTrainersByTraineeUsernameThenSuccess() {
+        Trainee trainee = traineeDao.getAll().get(0);
+
+        Trainer trainer = trainerDao.getAll().get(0);
+
+        List<Trainer> trainers = traineeDao.getTrainersByTraineeUsername(trainee.getUsername());
+
+        assertNotNull(trainers);
+        assertEquals(1, trainers.size());
+        assertEquals(trainer, trainers.get(0));
     }
 }

@@ -23,15 +23,16 @@ public class TrainerServiceImpl implements TrainerService {
 
     private final PasswordGenerator passwordGenerator;
 
-    private final TraineeDao traineeDao;
+    private final TraineeDao traineeDAO;
 
     @Override
     public Trainer update(Trainer trainer) {
+        Trainer foundTrainer = getByUsername(trainer.getUsername());
+        trainer.setId(foundTrainer.getId());
+
         trainer.setUsername(constructTrainerUsername(trainer));
 
         checkAvailableUserName(trainer);
-
-        Trainer foundTrainer = select(trainer.getId());
 
         if (trainer.getPassword() == null || trainer.getPassword().length() != passwordGenerator.getPasswordLength()) {
             trainer.setPassword(passwordGenerator.generatePassword());
@@ -56,7 +57,9 @@ public class TrainerServiceImpl implements TrainerService {
             trainer.setPassword(passwordGenerator.generatePassword());
         }
 
-        Objects.requireNonNull(trainer.getIsActive(), "Trainer's isActive field can't be null");
+        if(trainer.getIsActive() == null){
+            trainer.setIsActive(false);
+        }
 
         return trainerDAO.create(trainer);
     }
@@ -75,6 +78,11 @@ public class TrainerServiceImpl implements TrainerService {
                     } else {
                         trainer.setUsername(foundTrainee.getUsername());
                     }
+                });
+
+        traineeDAO.getByUsername(trainer.getUsername())
+                .ifPresent(foundTrainee -> {
+                    trainer.setUsername(trainer.getUsername() + UUID.randomUUID());
                 });
     }
 
@@ -148,7 +156,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername, Pageable pageable) {
-        Trainee trainee = traineeDao.getByUsername(traineeUsername)
+        Trainee trainee = traineeDAO.getByUsername(traineeUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + traineeUsername));
 
         return trainerDAO.getTrainersWithoutPassedTrainee(trainee, pageable);
@@ -175,5 +183,14 @@ public class TrainerServiceImpl implements TrainerService {
     public Trainer getByUsername(String trainerUserName) {
         return trainerDAO.getByUsername(trainerUserName)
                 .orElseThrow(() -> new IllegalArgumentException("Trainer not found " + trainerUserName));
+    }
+
+    @Override
+    public Trainer getByUserNameWithTrainees(String trainerUsername) {
+        Trainer trainer = getByUsername(trainerUsername);
+
+        trainer.setTrainees(trainerDAO.getTraineesByTrainerUsername(trainer.getUsername()));
+
+        return trainer;
     }
 }

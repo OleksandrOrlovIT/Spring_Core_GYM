@@ -49,7 +49,8 @@ public class TrainerFacadeImpl implements TrainerFacade {
     public Optional<Trainer> updateTrainer(Trainer trainer) {
         try {
             authenticationService.isUserLogged();
-            return Optional.ofNullable(trainerService.update(trainer));
+            Trainer updatedTrainer = trainerService.update(trainer);
+            return Optional.ofNullable(trainerService.getByUserNameWithTrainees(updatedTrainer.getUsername()));
         } catch (Exception e) {
             log.error(e);
         }
@@ -61,7 +62,7 @@ public class TrainerFacadeImpl implements TrainerFacade {
     public Optional<Trainer> selectTrainer(String username) {
         try {
             authenticationService.isUserLogged();
-            return Optional.ofNullable(trainerService.getByUsername(username));
+            return Optional.ofNullable(trainerService.getByUserNameWithTrainees(username));
         } catch (Exception e) {
             log.error(e);
         }
