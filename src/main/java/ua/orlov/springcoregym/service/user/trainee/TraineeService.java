@@ -123,4 +123,6 @@ public interface TraineeService {
     List<Trainer> updateTraineeTrainers(String traineeUsername, List<String> trainerUserNames);
 
     Trainee getByUserNameWithTrainers(String traineeUsername);
+
+    void activateDeactivateTrainee(String traineeUsername, boolean isActive);
 }

@@ -10,15 +10,6 @@ import java.util.List;
 public interface TrainingTypeService {
 
     /**
-     * Creates a new {@link TrainingType} entity.
-     *
-     * @param trainingType the training type entity to create
-     * @return the created {@link TrainingType} entity
-     * @throws java.lang.NullPointerException if the training type or its name is null
-     */
-    TrainingType create(TrainingType trainingType);
-
-    /**
      * Retrieves a {@link TrainingType} entity by its ID.
      *
      * @param id the ID of the training type

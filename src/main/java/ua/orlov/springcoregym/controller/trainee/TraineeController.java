@@ -5,10 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.orlov.springcoregym.dto.trainee.*;
+import ua.orlov.springcoregym.dto.trainer.TrainerResponse;
+import ua.orlov.springcoregym.dto.user.UsernameIsActiveUser;
 import ua.orlov.springcoregym.dto.user.UsernamePasswordUser;
 import ua.orlov.springcoregym.dto.user.UsernameUser;
 import ua.orlov.springcoregym.mapper.trainee.TraineeMapper;
 import ua.orlov.springcoregym.mapper.traineetrainer.TraineeTrainerMapper;
+import ua.orlov.springcoregym.mapper.trainer.TrainerMapper;
 import ua.orlov.springcoregym.mapper.user.UserMapper;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
@@ -25,15 +28,16 @@ public class TraineeController {
     private final TraineeMapper traineeMapper;
     private final TraineeTrainerMapper traineeTrainerMapper;
     private final UserMapper userMapper;
+    private final TrainerMapper trainerMapper;
 
-    @PostMapping("/sign-up")
+    @PostMapping
     public ResponseEntity<UsernamePasswordUser> registerTrainee(@Validated @RequestBody TraineeRegister traineeRegister) {
         Trainee trainee = traineeService.create(traineeMapper.traineeRegisterToTrainee(traineeRegister));
         UsernamePasswordUser user = traineeMapper.traineeToUsernamePasswordUser(trainee);
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/get-by-username")
+    @GetMapping("/username")
     public ResponseEntity<TraineeFullResponse> getTraineeByUsername(@RequestBody @Validated UsernameUser usernameUser) {
         Trainee trainee = traineeService.getByUserNameWithTrainers(usernameUser.getUsername());
 
@@ -53,10 +57,19 @@ public class TraineeController {
 
         return ResponseEntity.noContent().build();
     }
-        //changereturn value
+
     @PutMapping("/trainers")
-    public List<Trainer> updateTraineeTrainersList(@RequestBody @Validated UpdateTraineeTrainersListRequest request) {
-        return traineeService.updateTraineeTrainers(request.getUsername(),
+    public List<TrainerResponse> updateTraineeTrainersList(@RequestBody @Validated UpdateTraineeTrainersListRequest request) {
+        List<Trainer> trainers = traineeService.updateTraineeTrainers(request.getUsername(),
                 userMapper.mapUsernameUserListToStringList(request.getTrainers()));
+
+        return trainerMapper.trainersListToTrainerResponseList(trainers);
+    }
+
+    @PatchMapping("/active")
+    public ResponseEntity<?> activateDeactivateTrainee(@RequestBody @Validated UsernameIsActiveUser request){
+        traineeService.activateDeactivateTrainee(request.getUsername(), request.getIsActive());
+
+        return ResponseEntity.ok().build();
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.orlov.springcoregym.dto.trainer.*;
 import ua.orlov.springcoregym.dto.trainer.*;
+import ua.orlov.springcoregym.dto.user.UsernameIsActiveUser;
 import ua.orlov.springcoregym.dto.user.UsernamePasswordUser;
 import ua.orlov.springcoregym.dto.user.UsernameUser;
 import ua.orlov.springcoregym.mapper.traineetrainer.TraineeTrainerMapper;
@@ -28,7 +29,7 @@ public class TrainerController {
     private final TrainerMapper trainerMapper;
     private final TraineeTrainerMapper traineeTrainerMapper;
 
-    @PostMapping("/sign-up")
+    @PostMapping
     public ResponseEntity<UsernamePasswordUser> registerTrainer(@Validated @RequestBody TrainerRegister trainerRegister) {
         Trainer trainer = trainerService.create(trainerMapper.trainerRegisterToTrainer(trainerRegister));
 
@@ -36,7 +37,7 @@ public class TrainerController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/get-by-username")
+    @GetMapping("/username")
     public ResponseEntity<TrainerFullResponse> getTrainerByUsername(@RequestBody @Validated UsernameUser usernameUser) {
         Trainer trainer = trainerService.getByUserNameWithTrainees(usernameUser.getUsername());
 
@@ -56,5 +57,12 @@ public class TrainerController {
                 .getTrainersWithoutPassedTrainee(usernameUser.getUsername(), new Pageable(0, 10));
 
         return trainerMapper.trainersListToTrainerResponseList(foundTrainers);
+    }
+
+    @PatchMapping("/active")
+    public ResponseEntity<?> activateDeactivateTrainee(@RequestBody @Validated UsernameIsActiveUser request){
+        trainerService.activateDeactivateTrainer(request.getUsername(), request.getIsActive());
+
+        return ResponseEntity.ok().build();
     }
 }

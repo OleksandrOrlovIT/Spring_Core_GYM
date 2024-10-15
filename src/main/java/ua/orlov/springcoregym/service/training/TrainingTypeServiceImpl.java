@@ -16,14 +16,6 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     private final TrainingTypeDao trainingTypeDao;
 
     @Override
-    public TrainingType create(TrainingType trainingType) {
-        Objects.requireNonNull(trainingType, "TrainingType must not be null");
-        Objects.requireNonNull(trainingType.getTrainingTypeName(), "TrainingType name must not be null");
-
-        return trainingTypeDao.create(trainingType);
-    }
-
-    @Override
     public TrainingType select(Long id) {
         Objects.requireNonNull(id, "TrainingType id must not be null");
 

@@ -12,6 +12,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ua.orlov.springcoregym.dao.impl.TestDaoConfig;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
+import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
+import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
@@ -163,5 +165,32 @@ class TrainingDaoImplTest {
 
         assertNotNull(trainingList);
         assertEquals(2, trainingList.size());
+    }
+
+    @Test
+    void getTrainingsByCriteriaTraineeTrainingsRequestThenSuccess(){
+        TraineeTrainingsRequest traineeTrainingsRequest = new TraineeTrainingsRequest();
+        traineeTrainingsRequest.setUsername("testtrainee");
+        traineeTrainingsRequest.setStartDate(LocalDate.parse("2024-10-01"));
+        traineeTrainingsRequest.setEndDate(LocalDate.parse("2024-10-31"));
+        traineeTrainingsRequest.setTrainerUsername("testtrainer");
+        traineeTrainingsRequest.setTrainingTypeId(trainingTypeDao.getAll().get(0).getId());
+
+        List<Training> trainings = trainingDao.getTrainingsByCriteria(traineeTrainingsRequest);
+        assertNotNull(trainings);
+        assertEquals(2, trainings.size());
+    }
+
+    @Test
+    void getTrainingsByCriteriaTrainerTrainingsRequestThenSuccess(){
+        TrainerTrainingRequest trainerTrainingRequest = new TrainerTrainingRequest();
+        trainerTrainingRequest.setUsername("testtrainer");
+        trainerTrainingRequest.setStartDate(LocalDate.parse("2024-10-01"));
+        trainerTrainingRequest.setEndDate(LocalDate.parse("2024-10-31"));
+        trainerTrainingRequest.setTraineeUsername("testtrainee");
+
+        List<Training> trainings = trainingDao.getTrainingsByCriteria(trainerTrainingRequest);
+        assertNotNull(trainings);
+        assertEquals(2, trainings.size());
     }
 }

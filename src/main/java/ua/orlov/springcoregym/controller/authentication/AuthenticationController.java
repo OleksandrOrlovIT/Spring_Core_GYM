@@ -17,8 +17,8 @@ public class AuthenticationController {
 
     private final UserService userService;
 
-    @GetMapping("/login")
-    public ResponseEntity<String> registerTrainee(@RequestBody @Validated UsernamePasswordUser userNamePasswordUser) {
+    @GetMapping("/session")
+    public ResponseEntity<String> login(@RequestBody @Validated UsernamePasswordUser userNamePasswordUser) {
         if(userService.isUserNameMatchPassword(userNamePasswordUser.getUsername(), userNamePasswordUser.getPassword())){
             return ResponseEntity.ok("You are logged in");
         }
@@ -26,7 +26,7 @@ public class AuthenticationController {
         return ResponseEntity.badRequest().body("You aren't logged in");
     }
 
-    @PutMapping("/change-login")
+    @PutMapping("/password")
     public ResponseEntity<String> changeLogin(@RequestBody @Validated ChangeLoginDto changeLoginDto) {
         if(userService.changeUserPassword(changeLoginDto.getUsername(), changeLoginDto.getOldPassword(),
                 changeLoginDto.getNewPassword())) {

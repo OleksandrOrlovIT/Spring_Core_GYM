@@ -49,12 +49,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>${log4j-api.version}</version>
@@ -63,6 +57,12 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>${log4j-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -216,7 +216,8 @@
                 <configuration>
                     <excludes>
                         <exclude>org/apache/logging/log4j2/**</exclude>
-                        <exclude>orlov/programming/springcoregym/model/**</exclude>
+                        <exclude>ua/orlov/springcoregym/model/**</exclude>
+                        <exclude>ua/orlov/springcoregym/configuration/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

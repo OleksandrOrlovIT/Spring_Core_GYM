@@ -2,6 +2,8 @@ package ua.orlov.springcoregym.service.training;
 
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
+import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
+import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.model.training.Training;
 
 import java.util.List;
@@ -39,5 +41,15 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     public List<Training> getAll() {
         return trainingDAO.getAll();
+    }
+
+    @Override
+    public List<Training> getTrainingsByCriteria(TraineeTrainingsRequest request) {
+        return trainingDAO.getTrainingsByCriteria(request);
+    }
+
+    @Override
+    public List<Training> getTrainingsByCriteria(TrainerTrainingRequest request) {
+        return trainingDAO.getTrainingsByCriteria(request);
     }
 }

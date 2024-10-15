@@ -30,12 +30,10 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public Trainer update(Trainer trainer) {
+        checkNames(trainer);
+
         Trainer foundTrainer = getByUsername(trainer.getUsername());
         trainer.setId(foundTrainer.getId());
-
-        trainer.setUsername(constructTrainerUsername(trainer));
-
-        checkAvailableUserName(trainer);
 
         if (trainer.getPassword() == null || trainer.getPassword().length() != passwordGenerator.getPasswordLength()) {
             trainer.setPassword(passwordGenerator.generatePassword());
@@ -98,6 +96,11 @@ public class TrainerServiceImpl implements TrainerService {
         Objects.requireNonNull(trainer.getLastName(), "Trainer's lastName can't be null");
     }
 
+    private void checkNames(Trainer trainer){
+        checkFirstLastNames(trainer);
+        Objects.requireNonNull(trainer.getUsername(), "Trainer.username can't be null");
+    }
+
     @Override
     public boolean isUserNameMatchPassword(String username, String password) {
         Trainer foundTrainer = trainerDAO.getByUsername(username)
@@ -144,7 +147,7 @@ public class TrainerServiceImpl implements TrainerService {
             throw new IllegalArgumentException("Trainer is already deactivated " + foundTrainer);
         }
 
-        foundTrainer.setIsActive(true);
+        foundTrainer.setIsActive(false);
 
         return trainerDAO.update(foundTrainer);
     }
@@ -182,7 +185,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public Trainer getByUsername(String trainerUserName) {
         return trainerDAO.getByUsername(trainerUserName)
-                .orElseThrow(() -> new IllegalArgumentException("Trainer not found " + trainerUserName));
+                .orElseThrow(() -> new NoSuchElementException("Trainer not found " + trainerUserName));
     }
 
     @Override
@@ -192,5 +195,16 @@ public class TrainerServiceImpl implements TrainerService {
         trainer.setTrainees(trainerDAO.getTraineesByTrainerUsername(trainer.getUsername()));
 
         return trainer;
+    }
+
+    @Override
+    public void activateDeactivateTrainer(String trainerUsername, boolean isActive) {
+        Trainer trainer = getByUsername(trainerUsername);
+
+        if(isActive) {
+            deactivateTrainer(trainer.getId());
+        } else {
+            activateTrainer(trainer.getId());
+        }
     }
 }

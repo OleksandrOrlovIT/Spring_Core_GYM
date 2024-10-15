@@ -26,33 +26,6 @@ class TrainingTypeServiceImplTest {
     private TrainingTypeServiceImpl trainingTypeService;
 
     @Test
-    void createGivenNullThenException() {
-        TrainingType trainingType = null;
-
-        var e = assertThrows(NullPointerException.class, () -> trainingTypeService.create(trainingType));
-        assertEquals("TrainingType must not be null", e.getMessage());
-    }
-
-    @Test
-    void createGivenNameNullThenException() {
-        TrainingType trainingType = TrainingType.builder().build();
-
-        var e = assertThrows(NullPointerException.class, () -> trainingTypeService.create(trainingType));
-        assertEquals("TrainingType name must not be null", e.getMessage());
-    }
-
-    @Test
-    void createGivenValidThenSuccess() {
-        TrainingType trainingType = TrainingType.builder().trainingTypeName("name").build();
-
-        when(trainingTypeDao.create(any())).thenReturn(trainingType);
-
-        TrainingType savedTrainingType = trainingTypeService.create(trainingType);
-
-        assertNotNull(savedTrainingType);
-    }
-
-    @Test
     void selectGivenNullIdThenException() {
         var e = assertThrows(NullPointerException.class, () -> trainingTypeService.select(null));
 

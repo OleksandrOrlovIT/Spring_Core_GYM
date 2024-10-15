@@ -36,12 +36,10 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Trainee update(Trainee trainee) {
+        checkNames(trainee);
+
         Trainee foundTrainee = getByUsername(trainee.getUsername());
         trainee.setId(foundTrainee.getId());
-
-        trainee.setUsername(constructTraineeUsername(trainee));
-
-        checkAvailableUserName(trainee);
 
         if (trainee.getPassword() == null || trainee.getPassword().length() != passwordGenerator.getPasswordLength()) {
             trainee.setPassword(passwordGenerator.generatePassword());
@@ -105,6 +103,11 @@ public class TraineeServiceImpl implements TraineeService {
         Objects.requireNonNull(trainee.getLastName(), "Trainee's lastName can't be null");
     }
 
+    private void checkNames(Trainee trainee){
+        checkFirstLastNames(trainee);
+        Objects.requireNonNull(trainee.getUsername(), "Trainee.username can't be null");
+    }
+
     @Override
     public boolean isUserNameMatchPassword(String username, String password) {
         Trainee foundTrainee = traineeDAO.getByUsername(username)
@@ -151,7 +154,7 @@ public class TraineeServiceImpl implements TraineeService {
             throw new IllegalArgumentException("Trainee is already deactivated " + foundTrainee);
         }
 
-        foundTrainee.setIsActive(true);
+        foundTrainee.setIsActive(false);
 
         return traineeDAO.update(foundTrainee);
     }
@@ -181,7 +184,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public Trainee getByUsername(String traineeUsername) {
         return traineeDAO.getByUsername(traineeUsername)
-                .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + traineeUsername));
+                .orElseThrow(() -> new NoSuchElementException("Trainee not found " + traineeUsername));
     }
 
     @Transactional
@@ -243,5 +246,16 @@ public class TraineeServiceImpl implements TraineeService {
         trainee.setTrainers(traineeDAO.getTrainersByTraineeUsername(traineeUsername));
 
         return trainee;
+    }
+
+    @Override
+    public void activateDeactivateTrainee(String traineeUsername, boolean isActive) {
+        Trainee trainee = getByUsername(traineeUsername);
+
+        if(isActive){
+            deactivateTrainee(trainee.getId());
+        } else {
+            activateTrainee(trainee.getId());
+        }
     }
 }

@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.dao.impl.user.trainee;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;

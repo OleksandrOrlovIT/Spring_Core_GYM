@@ -124,4 +124,6 @@ public interface TrainerService {
     Trainer getByUsername(String trainerUserName);
 
     Trainer getByUserNameWithTrainees(String trainerUsername);
+
+    void activateDeactivateTrainer(String trainerUsername, boolean isActive);
 }

@@ -166,7 +166,6 @@ class TraineeDaoImplTest {
         assertEquals(2, foundTrainings.size());
     }
 
-    //New trainee + old trainee from the database
     @Test
     @Transactional
     void deleteByUsernameThenSuccess() {

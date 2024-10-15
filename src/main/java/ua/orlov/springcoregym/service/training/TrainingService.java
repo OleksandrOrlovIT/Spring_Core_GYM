@@ -1,5 +1,7 @@
 package ua.orlov.springcoregym.service.training;
 
+import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
+import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.model.training.Training;
 
 import java.util.List;
@@ -33,4 +35,8 @@ public interface TrainingService {
      * @return a list of all {@link Training} entities
      */
     List<Training> getAll();
+
+    List<Training> getTrainingsByCriteria(TraineeTrainingsRequest request);
+
+    List<Training> getTrainingsByCriteria(TrainerTrainingRequest request);
 }
