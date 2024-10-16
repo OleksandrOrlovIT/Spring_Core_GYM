@@ -60,7 +60,7 @@ public class TrainerController {
     }
 
     @PatchMapping("/active")
-    public ResponseEntity<?> activateDeactivateTrainee(@RequestBody @Validated UsernameIsActiveUser request){
+    public ResponseEntity<?> activateDeactivateTrainer(@RequestBody @Validated UsernameIsActiveUser request){
         trainerService.activateDeactivateTrainer(request.getUsername(), request.getIsActive());
 
         return ResponseEntity.ok().build();

@@ -1,19 +1,15 @@
 package ua.orlov.springcoregym.mapper.trainee;
 
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import ua.orlov.springcoregym.dto.trainee.TraineeRegister;
 import ua.orlov.springcoregym.dto.user.UsernamePasswordUser;
-import ua.orlov.springcoregym.dto.user.UsernameUser;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.dto.trainee.TraineeNamesResponse;
 import ua.orlov.springcoregym.dto.trainee.UpdateTraineeRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@AllArgsConstructor
 public class TraineeMapper {
 
     public Trainee traineeRegisterToTrainee(TraineeRegister traineeRegister){

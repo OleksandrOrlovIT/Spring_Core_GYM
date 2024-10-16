@@ -182,12 +182,54 @@ class TrainingDaoImplTest {
     }
 
     @Test
+    void getTrainingsByCriteriaTraineeUsernameThenSuccess(){
+        TraineeTrainingsRequest traineeTrainingsRequest = new TraineeTrainingsRequest();
+        traineeTrainingsRequest.setUsername("testtrainee");
+
+        List<Training> trainings = trainingDao.getTrainingsByCriteria(traineeTrainingsRequest);
+        assertNotNull(trainings);
+        assertEquals(2, trainings.size());
+    }
+
+    @Test
+    void getTrainingsByCriteriaTraineeUsernameStartDateThenSuccess(){
+        TraineeTrainingsRequest traineeTrainingsRequest = new TraineeTrainingsRequest();
+        traineeTrainingsRequest.setUsername("testtrainee");
+        traineeTrainingsRequest.setStartDate(LocalDate.parse("2024-10-01"));
+
+        List<Training> trainings = trainingDao.getTrainingsByCriteria(traineeTrainingsRequest);
+        assertNotNull(trainings);
+        assertEquals(2, trainings.size());
+    }
+
+    @Test
     void getTrainingsByCriteriaTrainerTrainingsRequestThenSuccess(){
         TrainerTrainingRequest trainerTrainingRequest = new TrainerTrainingRequest();
         trainerTrainingRequest.setUsername("testtrainer");
         trainerTrainingRequest.setStartDate(LocalDate.parse("2024-10-01"));
         trainerTrainingRequest.setEndDate(LocalDate.parse("2024-10-31"));
         trainerTrainingRequest.setTraineeUsername("testtrainee");
+
+        List<Training> trainings = trainingDao.getTrainingsByCriteria(trainerTrainingRequest);
+        assertNotNull(trainings);
+        assertEquals(2, trainings.size());
+    }
+
+    @Test
+    void getTrainingsByCriteriaTrainerUsernameThenSuccess(){
+        TrainerTrainingRequest trainerTrainingRequest = new TrainerTrainingRequest();
+        trainerTrainingRequest.setUsername("testtrainer");
+
+        List<Training> trainings = trainingDao.getTrainingsByCriteria(trainerTrainingRequest);
+        assertNotNull(trainings);
+        assertEquals(2, trainings.size());
+    }
+
+    @Test
+    void getTrainingsByCriteriaTrainerUsernameStartDateThenSuccess(){
+        TrainerTrainingRequest trainerTrainingRequest = new TrainerTrainingRequest();
+        trainerTrainingRequest.setUsername("testtrainer");
+        trainerTrainingRequest.setStartDate(LocalDate.parse("2024-10-01"));
 
         List<Training> trainings = trainingDao.getTrainingsByCriteria(trainerTrainingRequest);
         assertNotNull(trainings);

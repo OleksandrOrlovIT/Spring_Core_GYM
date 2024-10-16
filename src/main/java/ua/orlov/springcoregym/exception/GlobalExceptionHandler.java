@@ -26,13 +26,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage());
     }
 
-    @ExceptionHandler(EntityExistsException.class)
-    @ResponseBody
-    public ResponseEntity<?> handleEntityExistsException(EntityExistsException ex) {
-        logException("EntityExistsException occurred", ex);
-        return buildErrorResponse(HttpStatus.CONFLICT, "CONFLICT", ex.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseBody
     public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
@@ -80,12 +73,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody
     public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
-        if(ex.getMessage().contains("Access Denied")){
-            return handleAccessDeniedException(new AccessDeniedException(ex.getMessage()));
-        } else {
-            logException("RuntimeException occurred", ex);
-            return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", ex.getMessage());
-        }
+        logException("RuntimeException occurred", ex);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

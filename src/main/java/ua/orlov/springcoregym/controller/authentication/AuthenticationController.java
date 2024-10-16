@@ -33,6 +33,6 @@ public class AuthenticationController {
             return ResponseEntity.ok("You successfully changed password");
         }
 
-        return ResponseEntity.badRequest().body("Password wasn't changed");
+        return ResponseEntity.badRequest().body("Password hasn't been changed");
     }
 }
