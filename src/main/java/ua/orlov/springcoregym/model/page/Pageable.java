@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.util.model;
+package ua.orlov.springcoregym.model.page;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

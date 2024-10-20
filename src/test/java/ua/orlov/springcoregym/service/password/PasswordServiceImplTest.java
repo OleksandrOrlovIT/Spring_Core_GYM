@@ -1,13 +1,14 @@
-package ua.orlov.springcoregym.util.impl;
+package ua.orlov.springcoregym.service.password;
 
 import org.junit.jupiter.api.Test;
+import ua.orlov.springcoregym.service.password.impl.PasswordServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PasswordGeneratorImplTest {
+class PasswordServiceImplTest {
     @Test
     void generatePasswordThenSuccess() {
-        PasswordGeneratorImpl passwordGenerator = new PasswordGeneratorImpl();
+        PasswordServiceImpl passwordGenerator = new PasswordServiceImpl();
         String password = passwordGenerator.generatePassword();
         assertEquals(10, password.length());
     }

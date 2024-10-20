@@ -9,8 +9,8 @@ import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.util.PasswordGenerator;
-import ua.orlov.springcoregym.util.model.Pageable;
+import ua.orlov.springcoregym.service.password.PasswordService;
+import ua.orlov.springcoregym.model.page.Pageable;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -22,7 +22,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     private final TrainerDao trainerDAO;
 
-    private final PasswordGenerator passwordGenerator;
+    private final PasswordService passwordService;
 
     private final TraineeDao traineeDAO;
 
@@ -35,8 +35,8 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer foundTrainer = getByUsername(trainer.getUsername());
         trainer.setId(foundTrainer.getId());
 
-        if (trainer.getPassword() == null || trainer.getPassword().length() != passwordGenerator.getPasswordLength()) {
-            trainer.setPassword(passwordGenerator.generatePassword());
+        if (trainer.getPassword() == null || trainer.getPassword().length() != passwordService.getPasswordLength()) {
+            trainer.setPassword(passwordService.generatePassword());
         }
 
         Objects.requireNonNull(trainer.getIsActive(), "Trainer's isActive field can't be null");
@@ -56,8 +56,8 @@ public class TrainerServiceImpl implements TrainerService {
 
         checkAvailableUserName(trainer);
 
-        if (trainer.getPassword() == null || trainer.getPassword().length() != passwordGenerator.getPasswordLength()) {
-            trainer.setPassword(passwordGenerator.generatePassword());
+        if (trainer.getPassword() == null || trainer.getPassword().length() != passwordService.getPasswordLength()) {
+            trainer.setPassword(passwordService.generatePassword());
         }
 
         if(trainer.getIsActive() == null){

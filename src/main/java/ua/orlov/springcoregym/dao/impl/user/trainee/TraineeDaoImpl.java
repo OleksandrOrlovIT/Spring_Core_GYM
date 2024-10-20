@@ -1,6 +1,5 @@
 package ua.orlov.springcoregym.dao.impl.user.trainee;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -20,10 +19,10 @@ import java.util.Optional;
 @Repository
 public class TraineeDaoImpl extends AbstractDao<Trainee, Long> implements TraineeDao {
 
-    private static String FIND_BY_USERNAME_QUERY;
-    private static String GET_TRAININGS_BY_DATE_USERNAME_TRAINING_TYPE_QUERY;
-    private static String DELETE_BY_USERNAME_QUERY;
-    private static String GET_TRAINERS_BY_TRAINEE_USERNAME_QUERY;
+    private final String FIND_BY_USERNAME_QUERY;
+    private final String GET_TRAININGS_BY_DATE_USERNAME_TRAINING_TYPE_QUERY;
+    private final String DELETE_BY_USERNAME_QUERY;
+    private final String GET_TRAINERS_BY_TRAINEE_USERNAME_QUERY;
 
     public TraineeDaoImpl() {
         FIND_BY_USERNAME_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";

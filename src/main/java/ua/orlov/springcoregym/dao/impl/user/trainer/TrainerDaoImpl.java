@@ -1,6 +1,5 @@
 package ua.orlov.springcoregym.dao.impl.user.trainer;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.log4j.Log4j2;
@@ -9,7 +8,7 @@ import ua.orlov.springcoregym.dao.AbstractDao;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.util.model.Pageable;
+import ua.orlov.springcoregym.model.page.Pageable;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -20,12 +19,12 @@ import java.util.Optional;
 @Repository
 public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements TrainerDao {
 
-    private static String FIND_BY_USERNAME_QUERY;
-    private static String GET_TRAININGS_BY_DATE_AND_USERNAME_QUERY;
-    private static String GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY;
-    private static String FIND_BY_IDS_QUERY;
-    private static String GET_TRAINEES_BY_TRAINER_USERNAME_QUERY;
-    private static String FIND_BY_USERNAMES_QUERY;
+    private final String FIND_BY_USERNAME_QUERY;
+    private final String GET_TRAININGS_BY_DATE_AND_USERNAME_QUERY;
+    private final String GET_TRAINERS_WITHOUT_PASSED_TRAINEE_QUERY;
+    private final String FIND_BY_IDS_QUERY;
+    private final String GET_TRAINEES_BY_TRAINER_USERNAME_QUERY;
+    private final String FIND_BY_USERNAMES_QUERY;
 
     public TrainerDaoImpl() {
         FIND_BY_USERNAME_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";

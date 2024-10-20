@@ -22,5 +22,4 @@ public class TrainerTrainingRequest {
     private LocalDate endDate;
 
     private String traineeUsername;
-
 }

@@ -1,7 +1,6 @@
 package ua.orlov.springcoregym.dto.training;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,5 +32,4 @@ public class CreateTrainingRequest {
 
     @NotNull(message = "trainingDuration is required.")
     private Long trainingTypeId;
-
 }

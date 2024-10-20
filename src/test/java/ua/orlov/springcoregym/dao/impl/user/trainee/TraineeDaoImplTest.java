@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.dao.impl.user;
+package ua.orlov.springcoregym.dao.impl.user.trainee;
 
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -12,7 +12,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ua.orlov.springcoregym.dao.impl.TestDaoConfig;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
 import ua.orlov.springcoregym.dao.impl.training.TrainingTypeDao;
-import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
 import ua.orlov.springcoregym.dto.trainee.TraineeTrainingDTO;
 import ua.orlov.springcoregym.model.training.Training;

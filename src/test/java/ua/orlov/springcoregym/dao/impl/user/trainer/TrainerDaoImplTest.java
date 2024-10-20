@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.dao.impl.user;
+package ua.orlov.springcoregym.dao.impl.user.trainer;
 
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -13,12 +13,11 @@ import ua.orlov.springcoregym.dao.impl.TestDaoConfig;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
 import ua.orlov.springcoregym.dao.impl.training.TrainingTypeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
-import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.util.model.Pageable;
+import ua.orlov.springcoregym.model.page.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;

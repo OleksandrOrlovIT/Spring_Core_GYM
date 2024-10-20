@@ -1,12 +1,12 @@
-package ua.orlov.springcoregym.util.impl;
+package ua.orlov.springcoregym.service.password.impl;
 
 import org.springframework.stereotype.Component;
-import ua.orlov.springcoregym.util.PasswordGenerator;
+import ua.orlov.springcoregym.service.password.PasswordService;
 
 import java.security.SecureRandom;
 
 @Component
-public class PasswordGeneratorImpl implements PasswordGenerator {
+public class PasswordServiceImpl implements PasswordService {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
     private static final SecureRandom RANDOM = new SecureRandom();

@@ -4,7 +4,7 @@ import ua.orlov.springcoregym.dao.DaoUsernameFindable;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.util.model.Pageable;
+import ua.orlov.springcoregym.model.page.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;

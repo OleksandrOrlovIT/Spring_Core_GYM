@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
 
-    private static String IS_USERNAME_PASSWORD_MATCH_QUERY;
-    private static String CHANGE_PASSWORD_QUERY;
-    private static String FIND_BY_USERNAME_QUERY;
+    private final String IS_USERNAME_PASSWORD_MATCH_QUERY;
+    private final String CHANGE_PASSWORD_QUERY;
+    private final String FIND_BY_USERNAME_QUERY;
 
     public UserDaoImpl() {
         IS_USERNAME_PASSWORD_MATCH_QUERY = "SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END " +

@@ -3,13 +3,16 @@ package ua.orlov.springcoregym.dao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
 import java.util.Optional;
 
 public abstract class AbstractDao<T, ID> implements Dao<T, ID> {
 
-    @PersistenceContext
+    @Autowired
+    @Qualifier("entityManager")
     private EntityManager entityManager;
 
     @Override

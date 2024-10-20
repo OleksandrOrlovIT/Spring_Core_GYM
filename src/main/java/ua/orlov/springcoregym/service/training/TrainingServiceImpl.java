@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
@@ -11,13 +12,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Service
+@AllArgsConstructor
 public class TrainingServiceImpl implements TrainingService {
 
     private final TrainingDao trainingDAO;
-
-    public TrainingServiceImpl(TrainingDao trainingDAO) {
-        this.trainingDAO = trainingDAO;
-    }
 
     @Override
     public Training create(Training training) {

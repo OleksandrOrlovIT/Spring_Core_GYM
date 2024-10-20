@@ -1,8 +1,6 @@
 package ua.orlov.springcoregym.dao.impl.training;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Repository;
 import ua.orlov.springcoregym.dao.AbstractDao;
@@ -17,8 +15,8 @@ import java.util.List;
 @Repository
 public class TrainingDaoImpl extends AbstractDao<Training, Long> implements TrainingDao {
 
-    private static String GET_TRAININGS_BY_TRAINEE_TRAININGS_REQUEST;
-    private static String GET_TRAININGS_BY_TRAINER_TRAININGS_REQUEST;
+    private final String GET_TRAININGS_BY_TRAINEE_TRAININGS_REQUEST;
+    private final String GET_TRAININGS_BY_TRAINER_TRAININGS_REQUEST;
 
     public TrainingDaoImpl() {
         GET_TRAININGS_BY_TRAINEE_TRAININGS_REQUEST = "SELECT tr FROM " + getEntityClass().getSimpleName()
@@ -55,7 +53,7 @@ public class TrainingDaoImpl extends AbstractDao<Training, Long> implements Trai
         return query.getResultList();
     }
 
-    private static StringBuilder getTraineeStringBuilder(TraineeTrainingsRequest request) {
+    private StringBuilder getTraineeStringBuilder(TraineeTrainingsRequest request) {
         StringBuilder queryBuilder = new StringBuilder(GET_TRAININGS_BY_TRAINEE_TRAININGS_REQUEST);
 
         if (request.getStartDate() != null && request.getEndDate() != null) {
@@ -92,7 +90,7 @@ public class TrainingDaoImpl extends AbstractDao<Training, Long> implements Trai
         return query.getResultList();
     }
 
-    private static StringBuilder getTrainerStringBuilder(TrainerTrainingRequest request) {
+    private StringBuilder getTrainerStringBuilder(TrainerTrainingRequest request) {
         StringBuilder queryBuilder = new StringBuilder(GET_TRAININGS_BY_TRAINER_TRAININGS_REQUEST);
 
         if (request.getStartDate() != null && request.getEndDate() != null) {
