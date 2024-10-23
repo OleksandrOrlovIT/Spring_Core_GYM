@@ -84,10 +84,6 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
 
     @Override
     public List<Trainer> getByIds(List<Long> ids) {
-        if (ids == null) {
-            throw new IllegalArgumentException("Ids can't be null");
-        }
-
         if (ids.isEmpty()) {
             return Collections.emptyList();
         }

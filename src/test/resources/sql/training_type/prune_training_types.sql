@@ -1,1 +1,1 @@
-DELETE FROM trainingtype;
+DELETE FROM training_type;
