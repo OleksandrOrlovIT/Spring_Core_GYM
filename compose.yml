@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:latest
@@ -13,19 +11,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  tomcat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: spring_core_gym_app
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "8080:8080"
-    environment:
-      DB_URL: jdbc:postgresql://postgres:5432/GymDB
-      DB_USERNAME: postgres
-      DB_PASSWORD: master
-    depends_on:
-      - postgres
+      - "9090:9090"
 
 volumes:
   postgres_data:
