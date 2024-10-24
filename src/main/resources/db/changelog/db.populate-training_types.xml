@@ -3,23 +3,23 @@
 
     <changeSet id="1728380065596-17" author="shurl">
         <preConditions onFail="MARK_RAN">
-            <tableIsEmpty tableName="trainingtype"/>
+            <tableIsEmpty tableName="training_type"/>
         </preConditions>
 
-        <insert tableName="trainingtype">
-            <column name="trainingtypename" value="Strength Training"/>
+        <insert tableName="training_type">
+            <column name="training_type_name" value="Strength Training"/>
         </insert>
-        <insert tableName="trainingtype">
-            <column name="trainingtypename" value="Cardio"/>
+        <insert tableName="training_type">
+            <column name="training_type_name" value="Cardio"/>
         </insert>
-        <insert tableName="trainingtype">
-            <column name="trainingtypename" value="Flexibility"/>
+        <insert tableName="training_type">
+            <column name="training_type_name" value="Flexibility"/>
         </insert>
-        <insert tableName="trainingtype">
-            <column name="trainingtypename" value="Endurance"/>
+        <insert tableName="training_type">
+            <column name="training_type_name" value="Endurance"/>
         </insert>
-        <insert tableName="trainingtype">
-            <column name="trainingtypename" value="Balance Training"/>
+        <insert tableName="training_type">
+            <column name="training_type_name" value="Balance Training"/>
         </insert>
     </changeSet>
 

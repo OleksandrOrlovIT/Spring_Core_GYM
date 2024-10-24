@@ -12,4 +12,10 @@ class PasswordServiceImplTest {
         String password = passwordGenerator.generatePassword();
         assertEquals(10, password.length());
     }
+
+    @Test
+    void getPasswordLengthThenSuccess() {
+        PasswordServiceImpl passwordGenerator = new PasswordServiceImpl();
+        assertEquals(10, passwordGenerator.getPasswordLength());
+    }
 }

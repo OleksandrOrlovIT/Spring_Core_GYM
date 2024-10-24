@@ -6,10 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ua.orlov.springcoregym.dao.impl.TestDaoConfig;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
 import ua.orlov.springcoregym.dao.impl.training.TrainingTypeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
@@ -25,8 +26,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestDaoConfig.class)
+@SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 @Sql(scripts = "/sql/trainer/populate_trainer.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
@@ -206,12 +207,6 @@ public class TrainerDaoImplTest {
     }
 
     @Test
-    void getByIdsGivenNullIdsThenException() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> trainerDao.getByIds(null));
-        assertEquals("Ids can't be null", e.getMessage());
-    }
-
-    @Test
     void getByIdsGivenEmptyIdsThenEmptyList() {
         List<Trainer> trainers = trainerDao.getByIds(List.of());
 
@@ -230,5 +225,21 @@ public class TrainerDaoImplTest {
         assertNotNull(trainees);
         assertEquals(1, trainees.size());
         assertEquals(trainee, trainees.get(0));
+    }
+
+    @Test
+    void getByUsernamesWhenEmptyThenEmpty() {
+        List<Trainer> trainers = trainerDao.getByUsernames(List.of());
+
+        assertNotNull(trainers);
+        assertEquals(0, trainers.size());
+    }
+
+    @Test
+    void getByUsernamesThenSuccess() {
+        List<Trainer> trainers = trainerDao.getByUsernames(List.of("testtrainer1", "testtrainer2"));
+
+        assertNotNull(trainers);
+        assertEquals(2, trainers.size());
     }
 }

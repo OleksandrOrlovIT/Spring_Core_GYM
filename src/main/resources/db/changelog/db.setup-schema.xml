@@ -3,14 +3,14 @@
     <changeSet author="shurl (generated)" id="1728380065596-1">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="trainingtype"/>
+                <tableExists tableName="training_type"/>
             </not>
         </preConditions>
-        <createTable tableName="trainingtype">
+        <createTable tableName="training_type">
             <column autoIncrement="true" name="id" type="BIGINT">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="trainingtype_pkey"/>
+                <constraints nullable="false" primaryKey="true" primaryKeyName="training_type_pkey"/>
             </column>
-            <column name="trainingtypename" type="VARCHAR(255)">
+            <column name="training_type_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -26,13 +26,13 @@
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="gym_user_pkey"/>
             </column>
-            <column name="firstname" type="VARCHAR(255)">
+            <column name="first_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="isactive" type="BOOLEAN">
+            <column name="is_active" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column name="lastname" type="VARCHAR(255)">
+            <column name="last_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="password" type="VARCHAR(255)">
@@ -47,10 +47,10 @@
     <changeSet author="shurl (generated)" id="1728380065596-3">
         <preConditions onFail="MARK_RAN">
             <not>
-                <uniqueConstraintExists tableName="trainingtype" constraintName="uk282vkdpqvvowr84vxkw9ir6ad"/>
+                <uniqueConstraintExists tableName="training_type" constraintName="uk282vkdpqvvowr84vxkw9ir6ad"/>
             </not>
         </preConditions>
-        <addUniqueConstraint columnNames="trainingtypename" constraintName="uk282vkdpqvvowr84vxkw9ir6ad" tableName="trainingtype"/>
+        <addUniqueConstraint columnNames="training_type_name" constraintName="uk282vkdpqvvowr84vxkw9ir6ad" tableName="training_type"/>
     </changeSet>
 
     <changeSet author="shurl (generated)" id="1728380065596-4">
@@ -70,7 +70,7 @@
         </preConditions>
         <createTable tableName="trainee">
             <column name="address" type="VARCHAR(255)"/>
-            <column name="dateofbirth" type="date"/>
+            <column name="date_of_birth" type="date"/>
             <column name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="trainee_pkey"/>
             </column>
@@ -119,13 +119,13 @@
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="training_pkey"/>
             </column>
-            <column name="trainingdate" type="date">
+            <column name="training_date" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="trainingduration" type="BIGINT">
+            <column name="training_duration" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="trainingname" type="VARCHAR(255)">
+            <column name="training_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="trainee_id" type="BIGINT">
@@ -191,7 +191,7 @@
                 <uniqueConstraintExists tableName="trainer" constraintName="fke783s0ahdh8ss6o20xdw970s"/>
             </not>
         </preConditions>
-        <addForeignKeyConstraint baseColumnNames="training_type_id" baseTableName="trainer" constraintName="fke783s0ahdh8ss6o20xdw970s" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="trainingtype" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="training_type_id" baseTableName="trainer" constraintName="fke783s0ahdh8ss6o20xdw970s" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="training_type" validate="true"/>
     </changeSet>
 
     <changeSet author="shurl (generated)" id="1728380065596-15">
@@ -209,6 +209,6 @@
                 <uniqueConstraintExists tableName="training" constraintName="fkjjkm0pmex365mb3cr5yv1eyqu"/>
             </not>
         </preConditions>
-        <addForeignKeyConstraint baseColumnNames="training_type_id" baseTableName="training" constraintName="fkjjkm0pmex365mb3cr5yv1eyqu" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="trainingtype" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="training_type_id" baseTableName="training" constraintName="fkjjkm0pmex365mb3cr5yv1eyqu" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="training_type" validate="true"/>
     </changeSet>
 </databaseChangeLog>

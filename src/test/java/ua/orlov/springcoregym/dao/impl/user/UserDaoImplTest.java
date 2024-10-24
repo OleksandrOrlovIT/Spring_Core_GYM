@@ -4,15 +4,19 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ua.orlov.springcoregym.dao.impl.TestDaoConfig;
+import ua.orlov.springcoregym.model.user.User;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Optional;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestDaoConfig.class)
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 @Sql(scripts = "/sql/user/populate_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
@@ -21,20 +25,49 @@ public class UserDaoImplTest {
     @Autowired
     private UserDao userDao;
 
+    private static final String USERNAME = "testUser";
+
     @Test
-    void isUserNameMatchPassword_thenSuccess(){
-        String userName = "testUser";
+    void isUserNameMatchPasswordThenSuccess() {
         String password = "password";
 
-        assertTrue(userDao.isUserNameMatchPassword(userName, password));
+        assertTrue(userDao.isUserNameMatchPassword(USERNAME, password));
     }
 
     @Test
-    void changeUserPassword_thenSuccess(){
-        String userName = "testUser";
+    void isUserNameMatchPasswordThenFalse() {
+        String password = "password";
+
+        assertFalse(userDao.isUserNameMatchPassword(USERNAME + "ASDASD", password));
+    }
+
+    @Test
+    void changeUserPasswordThenSuccess() {
         String oldPassword = "password";
         String newPassword = "newPassword";
 
-        assertTrue(userDao.changeUserPassword(userName, oldPassword, newPassword));
+        assertTrue(userDao.changeUserPassword(USERNAME, oldPassword, newPassword));
+    }
+
+    @Test
+    void changeUserPasswordThenFailure() {
+        String password = "password";
+
+        assertFalse(userDao.changeUserPassword(USERNAME, password + "asd", password));
+    }
+
+    @Test
+    void getByUsernameThenSuccess() {
+        Optional<User> user = userDao.getByUsername(USERNAME);
+
+        assertTrue(user.isPresent());
+        assertEquals(USERNAME, user.get().getUsername());
+    }
+
+    @Test
+    void getByUsernameThenEmpty() {
+        Optional<User> user = userDao.getByUsername(USERNAME + "ASD");
+
+        assertTrue(user.isEmpty());
     }
 }

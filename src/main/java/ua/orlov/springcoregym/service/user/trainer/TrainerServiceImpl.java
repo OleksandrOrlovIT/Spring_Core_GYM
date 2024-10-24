@@ -60,7 +60,7 @@ public class TrainerServiceImpl implements TrainerService {
             trainer.setPassword(passwordService.generatePassword());
         }
 
-        if(trainer.getIsActive() == null){
+        if (trainer.getIsActive() == null) {
             trainer.setIsActive(false);
         }
 
@@ -76,11 +76,7 @@ public class TrainerServiceImpl implements TrainerService {
     private void checkAvailableUserName(Trainer trainer) {
         userDao.getByUsername(trainer.getUsername())
                 .ifPresent(foundTrainee -> {
-                    if (!foundTrainee.getId().equals(trainer.getId())) {
-                        trainer.setUsername(trainer.getUsername() + UUID.randomUUID());
-                    } else {
-                        trainer.setUsername(foundTrainee.getUsername());
-                    }
+                    trainer.setUsername(trainer.getUsername() + UUID.randomUUID());
                 });
     }
 
@@ -96,7 +92,7 @@ public class TrainerServiceImpl implements TrainerService {
         Objects.requireNonNull(trainer.getLastName(), "Trainer's lastName can't be null");
     }
 
-    private void checkNames(Trainer trainer){
+    private void checkNames(Trainer trainer) {
         checkFirstLastNames(trainer);
         Objects.requireNonNull(trainer.getUsername(), "Trainer.username can't be null");
     }
@@ -201,7 +197,7 @@ public class TrainerServiceImpl implements TrainerService {
     public void activateDeactivateTrainer(String trainerUsername, boolean isActive) {
         Trainer trainer = getByUsername(trainerUsername);
 
-        if(isActive) {
+        if (isActive) {
             deactivateTrainer(trainer.getId());
         } else {
             activateTrainer(trainer.getId());

@@ -37,11 +37,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
                 .setParameter("username", username)
                 .setParameter("password", password);
 
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException e) {
-            return false;
-        }
+        return query.getSingleResult();
     }
 
     @Transactional

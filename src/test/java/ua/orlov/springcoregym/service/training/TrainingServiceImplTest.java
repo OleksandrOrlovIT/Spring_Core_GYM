@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
+import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
+import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
@@ -154,5 +156,21 @@ class TrainingServiceImplTest {
         assertNotNull(trainings);
         assertEquals(2, trainings.size());
         verify(trainingDao, times(1)).getAll();
+    }
+
+    @Test
+    void getTrainingsByCriteriaTraineeThenSuccess() {
+        when(trainingDao.getTrainingsByCriteria(any(TraineeTrainingsRequest.class)))
+                .thenReturn(List.of(new Training(), new Training()));
+
+        assertEquals(2, trainingServiceImpl.getTrainingsByCriteria(new TraineeTrainingsRequest()).size());
+    }
+
+    @Test
+    void getTrainingsByCriteriaTrainerThenSuccess() {
+        when(trainingDao.getTrainingsByCriteria(any(TrainerTrainingRequest.class)))
+                .thenReturn(List.of(new Training(), new Training()));
+
+        assertEquals(2, trainingServiceImpl.getTrainingsByCriteria(new TrainerTrainingRequest()).size());
     }
 }

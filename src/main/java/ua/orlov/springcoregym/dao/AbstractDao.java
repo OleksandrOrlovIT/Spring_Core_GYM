@@ -12,7 +12,6 @@ import java.util.Optional;
 public abstract class AbstractDao<T, ID> implements Dao<T, ID> {
 
     @Autowired
-    @Qualifier("entityManager")
     private EntityManager entityManager;
 
     @Override
