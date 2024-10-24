@@ -226,4 +226,20 @@ public class TrainerDaoImplTest {
         assertEquals(1, trainees.size());
         assertEquals(trainee, trainees.get(0));
     }
+
+    @Test
+    void getByUsernamesWhenEmptyThenEmpty() {
+        List<Trainer> trainers = trainerDao.getByUsernames(List.of());
+
+        assertNotNull(trainers);
+        assertEquals(0, trainers.size());
+    }
+
+    @Test
+    void getByUsernamesThenSuccess() {
+        List<Trainer> trainers = trainerDao.getByUsernames(List.of("testtrainer1", "testtrainer2"));
+
+        assertNotNull(trainers);
+        assertEquals(2, trainers.size());
+    }
 }

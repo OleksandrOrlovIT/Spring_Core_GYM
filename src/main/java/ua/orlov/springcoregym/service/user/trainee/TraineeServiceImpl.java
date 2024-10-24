@@ -83,11 +83,7 @@ public class TraineeServiceImpl implements TraineeService {
     private void checkAvailableUserName(Trainee trainee) {
         userDao.getByUsername(trainee.getUsername())
                 .ifPresent(foundTrainee -> {
-                    if (!foundTrainee.getId().equals(trainee.getId())) {
-                        trainee.setUsername(trainee.getUsername() + UUID.randomUUID());
-                    } else {
-                        trainee.setUsername(foundTrainee.getUsername());
-                    }
+                    trainee.setUsername(trainee.getUsername() + UUID.randomUUID());
                 });
     }
 

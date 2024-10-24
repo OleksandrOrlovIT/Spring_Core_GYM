@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.annotation.Rollback;
 import ua.orlov.springcoregym.dao.impl.user.UserDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
@@ -13,9 +14,11 @@ import ua.orlov.springcoregym.dto.trainee.TraineeTrainingDTO;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
+import ua.orlov.springcoregym.model.user.User;
 import ua.orlov.springcoregym.service.password.PasswordService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -214,7 +217,7 @@ class TraineeServiceImplTest {
 
     @Test
     void createGivenValidThenSuccess() {
-        Trainee trainee = Trainee.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
+        Trainee trainee = Trainee.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).build();
         Trainee createdTrainee = Trainee.builder().firstName(FIRST_NAME).lastName(LAST_NAME).build();
 
         when(passwordService.generatePassword()).thenReturn(PASSWORD);
@@ -530,6 +533,86 @@ class TraineeServiceImplTest {
 
         verify(traineeDAO, times(1)).getById(any());
         verify(trainerDAO, times(1)).getByIds(any());
+        verify(traineeDAO, times(1)).update(any());
+    }
+
+    @Test
+    void updateTraineeTrainersByTrainerUsernamesThenTrainersEmpty() {
+        when(traineeDAO.getByUsername(any())).thenReturn(Optional.of(new Trainee()));
+        when(trainerDAO.getByUsernames(any())).thenReturn(new ArrayList<>());
+
+        var e = assertThrows(EntityNotFoundException.class,
+                () -> traineeServiceImpl.updateTraineeTrainers(USERNAME, new ArrayList<>()));
+
+        assertEquals("No trainers found with the provided userNames", e.getMessage());
+        verify(traineeDAO, times(1)).getByUsername(any());
+        verify(trainerDAO, times(1)).getByUsernames(any());
+    }
+
+    @Test
+    void updateTraineeTrainersByTrainerUsernamesThenSuccess() {
+        when(traineeDAO.getByUsername(any())).thenReturn(Optional.of(new Trainee()));
+        when(trainerDAO.getByUsernames(any())).thenReturn(List.of(new Trainer()));
+        when(traineeDAO.update(any())).thenReturn(new Trainee());
+        when(traineeDAO.getTrainersByTraineeUsername(any())).thenReturn(new ArrayList<>());
+
+        List<Trainer> trainers = traineeServiceImpl.updateTraineeTrainers(USERNAME, List.of("user1", "user2"));
+
+        assertEquals(0, trainers.size());
+        verify(traineeDAO, times(1)).getByUsername(any());
+        verify(trainerDAO, times(1)).getByUsernames(any());
+        verify(traineeDAO, times(1)).update(any());
+        verify(traineeDAO, times(1)).getTrainersByTraineeUsername(any());
+    }
+
+    @Test
+    void updateTraineeTrainersByTrainerUsernamesWithAdditionalInputThenSuccess() {
+        Trainee trainee = Trainee.builder()
+                .username(USERNAME)
+                .build();
+
+        Trainer trainer = Trainer.builder()
+                .username("Trainer" + USERNAME)
+                .trainees(List.of(trainee))
+                .build();
+
+        when(traineeDAO.getByUsername(any())).thenReturn(Optional.of(trainee));
+        when(trainerDAO.getByUsernames(any())).thenReturn(List.of(trainer));
+        when(traineeDAO.update(any())).thenReturn(trainee);
+        when(traineeDAO.getTrainersByTraineeUsername(any())).thenReturn(List.of(trainer));
+
+        List<Trainer> trainers = traineeServiceImpl.updateTraineeTrainers(USERNAME, List.of("Trainer" + USERNAME));
+
+        assertEquals(1, trainers.size());
+        verify(traineeDAO, times(1)).getByUsername(any());
+        verify(trainerDAO, times(1)).getByUsernames(any());
+        verify(traineeDAO, times(1)).update(any());
+        verify(traineeDAO, times(1)).getTrainersByTraineeUsername(any());
+    }
+
+    @Test
+    void activateDeactivateTraineeThenDeActivated() {
+        when(traineeDAO.getByUsername(any())).thenReturn(Optional.of(Trainee.builder().isActive(true).build()));
+        when(traineeDAO.getById(any())).thenReturn(Optional.of(Trainee.builder().isActive(true).build()));
+        when(traineeDAO.update(any())).thenReturn(new Trainee());
+
+        traineeServiceImpl.activateDeactivateTrainee("someName", true);
+
+        verify(traineeDAO, times(1)).getByUsername(any());
+        verify(traineeDAO, times(1)).getById(any());
+        verify(traineeDAO, times(1)).update(any());
+    }
+
+    @Test
+    void activateDeactivateTraineeThenActivated() {
+        when(traineeDAO.getByUsername(any())).thenReturn(Optional.of(Trainee.builder().isActive(false).build()));
+        when(traineeDAO.getById(any())).thenReturn(Optional.of(Trainee.builder().isActive(false).build()));
+        when(traineeDAO.update(any())).thenReturn(new Trainee());
+
+        traineeServiceImpl.activateDeactivateTrainee("someName", false);
+
+        verify(traineeDAO, times(1)).getByUsername(any());
+        verify(traineeDAO, times(1)).getById(any());
         verify(traineeDAO, times(1)).update(any());
     }
 }

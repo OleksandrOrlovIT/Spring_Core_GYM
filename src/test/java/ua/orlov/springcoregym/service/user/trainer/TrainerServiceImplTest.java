@@ -207,10 +207,8 @@ class TrainerServiceImplTest {
 
     @Test
     void createGivenValidThenSuccess() {
-        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
-        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).isActive(true).build();
-        Optional<Trainer> foundTrainer =
-                Optional.ofNullable(Trainer.builder().id(ID + 1).username(FIRST_NAME + "." + LAST_NAME).build());
+        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).build();
+        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).isActive(false).build();
 
         when(passwordService.generatePassword()).thenReturn(PASSWORD);
         when(userDao.getByUsername(any()))
@@ -517,5 +515,31 @@ class TrainerServiceImplTest {
 
         assertNotNull(trainer);
         verify(trainerDao, times(1)).getByUsername(any());
+    }
+
+    @Test
+    void activateDeactivateTrainerThenDeActivate() {
+        when(trainerDao.getByUsername(any())).thenReturn(Optional.of(Trainer.builder().isActive(true).build()));
+        when(trainerDao.getById(any())).thenReturn(Optional.of(Trainer.builder().isActive(true).build()));
+        when(trainerDao.update(any())).thenReturn(new Trainer());
+
+        trainerService.activateDeactivateTrainer("someName", true);
+
+        verify(trainerDao, times(1)).getByUsername(any());
+        verify(trainerDao, times(1)).getById(any());
+        verify(trainerDao, times(1)).update(any());
+    }
+
+    @Test
+    void activateDeactivateTrainerThenActivated() {
+        when(trainerDao.getByUsername(any())).thenReturn(Optional.of(Trainer.builder().isActive(false).build()));
+        when(trainerDao.getById(any())).thenReturn(Optional.of(Trainer.builder().isActive(false).build()));
+        when(trainerDao.update(any())).thenReturn(new Trainer());
+
+        trainerService.activateDeactivateTrainer("someName", false);
+
+        verify(trainerDao, times(1)).getByUsername(any());
+        verify(trainerDao, times(1)).getById(any());
+        verify(trainerDao, times(1)).update(any());
     }
 }

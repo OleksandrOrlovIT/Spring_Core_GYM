@@ -104,10 +104,6 @@ public class TrainerDaoImpl extends AbstractDao<Trainer, Long> implements Traine
 
     @Override
     public List<Trainer> getByUsernames(List<String> trainerUsernames) {
-        if (trainerUsernames == null) {
-            throw new IllegalArgumentException("Usernames can't be null");
-        }
-
         if (trainerUsernames.isEmpty()) {
             return Collections.emptyList();
         }

@@ -9,8 +9,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ua.orlov.springcoregym.model.user.User;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -22,20 +25,49 @@ public class UserDaoImplTest {
     @Autowired
     private UserDao userDao;
 
+    private static final String USERNAME = "testUser";
+
     @Test
-    void isUserNameMatchPassword_thenSuccess(){
-        String userName = "testUser";
+    void isUserNameMatchPasswordThenSuccess() {
         String password = "password";
 
-        assertTrue(userDao.isUserNameMatchPassword(userName, password));
+        assertTrue(userDao.isUserNameMatchPassword(USERNAME, password));
     }
 
     @Test
-    void changeUserPassword_thenSuccess(){
-        String userName = "testUser";
+    void isUserNameMatchPasswordThenFalse() {
+        String password = "password";
+
+        assertFalse(userDao.isUserNameMatchPassword(USERNAME + "ASDASD", password));
+    }
+
+    @Test
+    void changeUserPasswordThenSuccess() {
         String oldPassword = "password";
         String newPassword = "newPassword";
 
-        assertTrue(userDao.changeUserPassword(userName, oldPassword, newPassword));
+        assertTrue(userDao.changeUserPassword(USERNAME, oldPassword, newPassword));
+    }
+
+    @Test
+    void changeUserPasswordThenFailure() {
+        String password = "password";
+
+        assertFalse(userDao.changeUserPassword(USERNAME, password + "asd", password));
+    }
+
+    @Test
+    void getByUsernameThenSuccess() {
+        Optional<User> user = userDao.getByUsername(USERNAME);
+
+        assertTrue(user.isPresent());
+        assertEquals(USERNAME, user.get().getUsername());
+    }
+
+    @Test
+    void getByUsernameThenEmpty() {
+        Optional<User> user = userDao.getByUsername(USERNAME + "ASD");
+
+        assertTrue(user.isEmpty());
     }
 }
