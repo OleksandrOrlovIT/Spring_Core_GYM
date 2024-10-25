@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/training")
+@RequestMapping("/api/v1/training")
 @AllArgsConstructor
 public class TrainingController {
 

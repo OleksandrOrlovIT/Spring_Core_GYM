@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/trainee")
+@RequestMapping("/api/v1/trainee")
 @AllArgsConstructor
 public class TraineeController {
 

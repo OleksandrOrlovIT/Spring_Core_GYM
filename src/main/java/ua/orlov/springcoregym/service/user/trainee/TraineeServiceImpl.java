@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dao.impl.user.UserDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
@@ -29,6 +30,8 @@ public class TraineeServiceImpl implements TraineeService {
 
     private final UserDao userDao;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Override
     public void deleteByUsername(String userName) {
         traineeDAO.deleteByUsername(userName);
@@ -43,6 +46,12 @@ public class TraineeServiceImpl implements TraineeService {
 
         if (trainee.getPassword() == null || trainee.getPassword().length() != passwordService.getPasswordLength()) {
             trainee.setPassword(passwordService.generatePassword());
+        }
+
+        if (!passwordEncoder.matches(trainee.getPassword(), foundTrainee.getPassword())) {
+            trainee.setPassword(passwordEncoder.encode(trainee.getPassword()));
+        } else {
+            trainee.setPassword(foundTrainee.getPassword());
         }
 
         Objects.requireNonNull(trainee.getIsActive(), "Trainee's isActive field can't be null");
@@ -63,15 +72,21 @@ public class TraineeServiceImpl implements TraineeService {
 
         checkAvailableUserName(trainee);
 
-        if(trainee.getIsActive() == null){
-            trainee.setIsActive(false);
-        }
-
         if (trainee.getPassword() == null || trainee.getPassword().length() != passwordService.getPasswordLength()) {
             trainee.setPassword(passwordService.generatePassword());
         }
 
-        return traineeDAO.create(trainee);
+        String oldPassword = trainee.getPassword();
+        trainee.setPassword(passwordEncoder.encode(trainee.getPassword()));
+
+        if(trainee.getIsActive() == null){
+            trainee.setIsActive(false);
+        }
+
+        Trainee createdTrainee = traineeDAO.create(trainee);
+        createdTrainee.setPassword(oldPassword);
+
+        return createdTrainee;
     }
 
     @Override

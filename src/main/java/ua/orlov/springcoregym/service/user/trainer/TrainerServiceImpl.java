@@ -2,6 +2,7 @@ package ua.orlov.springcoregym.service.user.trainer;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dao.impl.user.UserDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
@@ -28,6 +29,8 @@ public class TrainerServiceImpl implements TrainerService {
 
     private final UserDao userDao;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Override
     public Trainer update(Trainer trainer) {
         checkNames(trainer);
@@ -37,6 +40,12 @@ public class TrainerServiceImpl implements TrainerService {
 
         if (trainer.getPassword() == null || trainer.getPassword().length() != passwordService.getPasswordLength()) {
             trainer.setPassword(passwordService.generatePassword());
+        }
+
+        if (!passwordEncoder.matches(trainer.getPassword(), foundTrainer.getPassword())) {
+            trainer.setPassword(passwordEncoder.encode(trainer.getPassword()));
+        } else {
+            trainer.setPassword(foundTrainer.getPassword());
         }
 
         Objects.requireNonNull(trainer.getIsActive(), "Trainer's isActive field can't be null");
@@ -60,11 +69,17 @@ public class TrainerServiceImpl implements TrainerService {
             trainer.setPassword(passwordService.generatePassword());
         }
 
+        String oldPassword = trainer.getPassword();
+        trainer.setPassword(passwordEncoder.encode(trainer.getPassword()));
+
         if (trainer.getIsActive() == null) {
             trainer.setIsActive(false);
         }
 
-        return trainerDAO.create(trainer);
+        Trainer savedTrainer = trainerDAO.create(trainer);
+        savedTrainer.setPassword(oldPassword);
+
+        return savedTrainer;
     }
 
     @Override

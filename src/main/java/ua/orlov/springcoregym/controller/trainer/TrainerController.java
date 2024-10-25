@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/trainer")
+@RequestMapping("/api/v1/trainer")
 @AllArgsConstructor
 public class TrainerController {
 

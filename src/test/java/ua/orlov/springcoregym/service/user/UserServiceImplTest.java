@@ -8,7 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ua.orlov.springcoregym.dao.impl.user.UserDao;
+import ua.orlov.springcoregym.service.security.JwtService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +33,9 @@ class UserServiceImplTest {
     @Mock
     private Counter changePasswordCounter;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -39,7 +45,7 @@ class UserServiceImplTest {
                 .thenReturn(matchPasswordCounter);
         when(meterRegistry.counter("userService.changeUserPassword.count"))
                 .thenReturn(changePasswordCounter);
-        userService = new UserServiceImpl(userDao, meterRegistry);
+        userService = new UserServiceImpl(userDao, meterRegistry, passwordEncoder);
     }
 
     @Test
