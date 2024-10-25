@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import ua.orlov.springcoregym.exception.TooManyAttemptsException;
 import ua.orlov.springcoregym.service.user.UserService;
 
 @Service
@@ -15,17 +16,20 @@ public class AuthenticationService {
     private final UserService userService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final LoginAttemptService loginAttemptService;
 
     public String login(String username, String password) {
         try {
-            if(!userService.isUserNameMatchPassword(username, password)){
-                throw new IllegalArgumentException("Invalid username or password");
+            if (loginAttemptService.isBlocked()) {
+                throw new TooManyAttemptsException("Too many attempts");
             }
 
             UsernamePasswordAuthenticationToken authenticationToken
                     = new UsernamePasswordAuthenticationToken(username, password);
 
             authenticationManager.authenticate(authenticationToken);
+
+            loginAttemptService.loginSucceeded(loginAttemptService.getClientIP());
 
             return jwtService.generateToken(userService.getByUsername(username));
 
