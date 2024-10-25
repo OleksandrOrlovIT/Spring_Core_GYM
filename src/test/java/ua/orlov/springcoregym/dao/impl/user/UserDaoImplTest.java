@@ -43,17 +43,14 @@ public class UserDaoImplTest {
 
     @Test
     void changeUserPasswordThenSuccess() {
-        String oldPassword = "password";
         String newPassword = "newPassword";
 
-        assertTrue(userDao.changeUserPassword(USERNAME, oldPassword, newPassword));
+        assertTrue(userDao.changeUserPassword(USERNAME, newPassword));
     }
 
     @Test
     void changeUserPasswordThenFailure() {
-        String password = "password";
-
-        assertFalse(userDao.changeUserPassword(USERNAME, password + "asd", password));
+        assertFalse(userDao.changeUserPassword(USERNAME, null));
     }
 
     @Test

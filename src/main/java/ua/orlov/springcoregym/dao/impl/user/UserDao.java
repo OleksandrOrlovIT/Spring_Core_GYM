@@ -7,5 +7,5 @@ public interface UserDao extends DaoUsernameFindable<User, Long> {
 
     boolean isUserNameMatchPassword(String username, String password);
 
-    boolean changeUserPassword(String username, String oldPassword, String newPassword);
+    boolean changeUserPassword(String username, String newPassword);
 }

@@ -20,6 +20,7 @@ import ua.orlov.springcoregym.mapper.trainer.TrainerMapper;
 import ua.orlov.springcoregym.mapper.user.UserMapper;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
+import ua.orlov.springcoregym.security.annotations.user.IsSelf;
 import ua.orlov.springcoregym.service.user.trainee.TraineeService;
 
 import java.util.List;
@@ -64,9 +65,10 @@ public class TraineeController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
-    @GetMapping("/username")
-    public ResponseEntity<TraineeFullResponse> getTraineeByUsername(@RequestBody @Validated UsernameUser usernameUser) {
-        Trainee trainee = traineeService.getByUserNameWithTrainers(usernameUser.getUsername());
+    @IsSelf
+    @GetMapping
+    public ResponseEntity<TraineeFullResponse> getTraineeByUsername(@RequestBody @Validated UsernameUser request) {
+        Trainee trainee = traineeService.getByUserNameWithTrainers(request.getUsername());
 
         return ResponseEntity.ok(traineeTrainerMapper.traineeToTraineeFullResponse(trainee));
     }
@@ -82,6 +84,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
+    @IsSelf
     @PutMapping
     public ResponseEntity<TraineeFullUsernameResponse> updateTrainee(@RequestBody @Validated UpdateTraineeRequest request) {
         Trainee trainee = traineeService.update(traineeMapper.updateTraineeRequestToTrainee(request));
@@ -100,9 +103,10 @@ public class TraineeController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
+    @IsSelf
     @DeleteMapping
-    public ResponseEntity<?> deleteTraineeByUsername(@RequestBody @Validated UsernameUser usernameUser) {
-        traineeService.deleteByUsername(usernameUser.getUsername());
+    public ResponseEntity<?> deleteTraineeByUsername(@RequestBody @Validated UsernameUser request) {
+        traineeService.deleteByUsername(request.getUsername());
 
         return ResponseEntity.noContent().build();
     }
@@ -119,6 +123,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
+    @IsSelf
     @PutMapping("/trainers")
     public List<TrainerResponse> updateTraineeTrainersList(@RequestBody @Validated UpdateTraineeTrainersListRequest request) {
         List<Trainer> trainers = traineeService.updateTraineeTrainers(request.getUsername(),
@@ -137,6 +142,7 @@ public class TraineeController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
+    @IsSelf
     @PatchMapping("/active")
     public ResponseEntity<?> activateDeactivateTrainee(@RequestBody @Validated UsernameIsActiveUser request){
         traineeService.activateDeactivateTrainee(request.getUsername(), request.getIsActive());

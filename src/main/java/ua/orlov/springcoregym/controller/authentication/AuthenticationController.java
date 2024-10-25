@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import ua.orlov.springcoregym.dto.jwt.JwtAuthenticationResponse;
 import ua.orlov.springcoregym.dto.user.ChangeLoginDto;
 import ua.orlov.springcoregym.dto.user.UsernamePasswordUser;
+import ua.orlov.springcoregym.security.annotations.user.IsSelf;
 import ua.orlov.springcoregym.service.security.AuthenticationService;
 import ua.orlov.springcoregym.service.user.UserService;
 
@@ -55,10 +56,10 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
+    @IsSelf
     @PutMapping("/password")
-    public ResponseEntity<String> changeLogin(@RequestBody @Validated ChangeLoginDto changeLoginDto) {
-        if(userService.changeUserPassword(changeLoginDto.getUsername(), changeLoginDto.getOldPassword(),
-                changeLoginDto.getNewPassword())) {
+    public ResponseEntity<String> changeLogin(@RequestBody @Validated ChangeLoginDto request) {
+        if(userService.changeUserPassword(request.getUsername(), request.getOldPassword(), request.getNewPassword())) {
             return ResponseEntity.ok("You successfully changed password");
         }
 
