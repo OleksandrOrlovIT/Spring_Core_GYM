@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@trainingSecurity.TrainingRequestHasLoggedUser(#request.traineeUsername, #request.trainerUsername)")
+@PreAuthorize("@trainingSecurity.trainingRequestHasLoggedUser(#request.traineeUsername, #request.trainerUsername)")
 public @interface TrainingRequestHasLoggedUser {}

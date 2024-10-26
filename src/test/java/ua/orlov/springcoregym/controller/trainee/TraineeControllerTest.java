@@ -83,7 +83,7 @@ class TraineeControllerTest {
         when(traineeService.create(any())).thenReturn(returnTrainee);
         when(traineeMapper.traineeToUsernamePasswordUser(any())).thenReturn(response);
 
-        mockMvc.perform(post("/trainee")
+        mockMvc.perform(post("/api/v1/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(traineeRegister)))
                 .andExpect(status().isOk())
@@ -101,7 +101,7 @@ class TraineeControllerTest {
         when(traineeService.getByUserNameWithTrainers(any())).thenReturn(new Trainee());
         when(traineeTrainerMapper.traineeToTraineeFullResponse(any())).thenReturn(new TraineeFullResponse());
 
-        mockMvc.perform(get("/trainee/username")
+        mockMvc.perform(get("/api/v1/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usernameUser)))
                 .andExpect(status().isOk())
@@ -125,7 +125,7 @@ class TraineeControllerTest {
         when(traineeService.update(any())).thenReturn(new Trainee());
         when(traineeTrainerMapper.traineeToTraineeFullUsernameResponse(any())).thenReturn(new TraineeFullUsernameResponse());
 
-        mockMvc.perform(put("/trainee")
+        mockMvc.perform(put("/api/v1/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -140,7 +140,7 @@ class TraineeControllerTest {
     void deleteTraineeByUsernameThenSuccess() throws Exception {
         UsernameUser usernameUser = new UsernameUser("username");
 
-        mockMvc.perform(delete("/trainee")
+        mockMvc.perform(delete("/api/v1/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usernameUser)))
                 .andExpect(status().isNoContent())
@@ -159,7 +159,7 @@ class TraineeControllerTest {
         when(traineeService.updateTraineeTrainers(any(String.class), anyList())).thenReturn(new ArrayList<>());
         when(trainerMapper.trainersListToTrainerResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(put("/trainee/trainers")
+        mockMvc.perform(put("/api/v1/trainee/trainers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -176,7 +176,7 @@ class TraineeControllerTest {
         request.setUsername("username");
         request.setIsActive(true);
 
-        mockMvc.perform(patch("/trainee/active")
+        mockMvc.perform(patch("/api/v1/trainee/active")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

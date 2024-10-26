@@ -10,11 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ua.orlov.springcoregym.service.security.AuthenticationService;
 import ua.orlov.springcoregym.service.user.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,6 +24,9 @@ class AuthenticationControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private AuthenticationService authenticationService;
 
     @InjectMocks
     private AuthenticationController authenticationController;
@@ -36,9 +40,9 @@ class AuthenticationControllerTest {
 
     @Test
     void loginThenSuccess() throws Exception {
-        when(userService.isUserNameMatchPassword(any(), any())).thenReturn(true);
+        when(authenticationService.login(any(), any())).thenReturn("");
 
-        MvcResult result = mockMvc.perform(get("/session")
+        MvcResult result = mockMvc.perform(get("/api/v1/session")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"username\", \"password\":\"password\"}"))
                 .andExpect(status().isOk())
@@ -46,29 +50,14 @@ class AuthenticationControllerTest {
 
         String responseBody = result.getResponse().getContentAsString();
 
-        assertEquals("You are logged in", responseBody);
-    }
-
-    @Test
-    void loginThenFailure() throws Exception {
-        when(userService.isUserNameMatchPassword(any(), any())).thenReturn(false);
-
-        MvcResult result = mockMvc.perform(get("/session")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"username\", \"password\":\"password\"}"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String responseBody = result.getResponse().getContentAsString();
-
-        assertEquals("You aren't logged in", responseBody);
+        assertEquals("{\"token\":\"\"}", responseBody);
     }
 
     @Test
     void changeLoginThenSuccess() throws Exception {
         when(userService.changeUserPassword(any(), any(), any())).thenReturn(true);
 
-        MvcResult result = mockMvc.perform(put("/password")
+        MvcResult result = mockMvc.perform(put("/api/v1/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"username\", \"oldPassword\":\"password\", \"newPassword\":\"password\"}"))
                 .andExpect(status().isOk())
@@ -84,7 +73,7 @@ class AuthenticationControllerTest {
     void changeLoginThenFailure() throws Exception {
         when(userService.changeUserPassword(any(), any(), any())).thenReturn(false);
 
-        MvcResult result = mockMvc.perform(put("/password")
+        MvcResult result = mockMvc.perform(put("/api/v1/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"username\", \"oldPassword\":\"password\", \"newPassword\":\"password\"}"))
                 .andExpect(status().isBadRequest())
@@ -93,6 +82,22 @@ class AuthenticationControllerTest {
         String responseBody = result.getResponse().getContentAsString();
 
         assertEquals("Password hasn't been changed", responseBody);
+    }
+
+    @Test
+    void logoutThenSuccess() throws Exception {
+        String mockToken = "Bearer mock_jwt_token";
+
+        MvcResult result = mockMvc.perform(post("/api/v1/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", mockToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+
+        assertEquals("Logged out successfully.", responseBody);
+        verify(authenticationService, times(1)).logout(any());
     }
 
 }

@@ -65,4 +65,10 @@ public class AuthenticationController {
 
         return ResponseEntity.badRequest().body("Password hasn't been changed");
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+        authenticationService.logout(token);
+        return ResponseEntity.ok("Logged out successfully.");
+    }
 }

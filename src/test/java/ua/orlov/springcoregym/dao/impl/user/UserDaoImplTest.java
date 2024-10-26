@@ -50,7 +50,9 @@ public class UserDaoImplTest {
 
     @Test
     void changeUserPasswordThenFailure() {
-        assertFalse(userDao.changeUserPassword(USERNAME, null));
+        String newPassword = "newPassword";
+
+        assertFalse(userDao.changeUserPassword(USERNAME + "ASDSDA", newPassword));
     }
 
     @Test

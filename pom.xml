@@ -213,6 +213,7 @@
                         <exclude>ua/orlov/springcoregym/model/**</exclude>
                         <exclude>ua/orlov/springcoregym/configuration/**</exclude>
                         <exclude>ua/orlov/springcoregym/SpringCoreGymApplication.class</exclude>
+                        <exclude>ua/orlov/springcoregym/service/security/LoginAttemptService.class</exclude>
                     </excludes>
                 </configuration>
             </plugin>

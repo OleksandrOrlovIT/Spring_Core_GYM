@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ua.orlov.springcoregym.dao.impl.user.UserDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
@@ -44,6 +45,9 @@ class TrainerServiceImplTest {
 
     @Mock
     private UserDao userDao;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private TrainerServiceImpl trainerService;
@@ -88,6 +92,7 @@ class TrainerServiceImplTest {
 
         when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
         when(passwordService.generatePassword()).thenReturn(PASSWORD);
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
 
         Trainer resultTrainer = trainerService.update(trainer);
@@ -96,6 +101,7 @@ class TrainerServiceImplTest {
 
         verify(trainerDao, times(2)).getByUsername(any());
         verify(passwordService, times(1)).generatePassword();
+        verify(passwordEncoder, times(1)).matches(any(), any());
         verify(trainerDao, times(1)).update(any());
     }
 
@@ -108,6 +114,8 @@ class TrainerServiceImplTest {
 
         when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
         when(passwordService.generatePassword()).thenReturn(PASSWORD);
+        when(passwordEncoder.matches(any(), any())).thenReturn(false);
+        when(passwordEncoder.encode(any())).thenReturn(PASSWORD);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
 
         Trainer resultTrainer = trainerService.update(trainer);
@@ -116,6 +124,8 @@ class TrainerServiceImplTest {
 
         verify(trainerDao, times(2)).getByUsername(any());
         verify(passwordService, times(1)).generatePassword();
+        verify(passwordEncoder, times(1)).matches(any(), any());
+        verify(passwordEncoder, times(1)).encode(any());
         verify(trainerDao, times(1)).update(any());
     }
 
@@ -128,6 +138,7 @@ class TrainerServiceImplTest {
                 .password(password2).isActive(true).build();
 
         when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
+        when(passwordEncoder.matches(any(), any())).thenReturn(false);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
         when(passwordService.getPasswordLength()).thenReturn(password2.length() + 1);
 
@@ -137,6 +148,7 @@ class TrainerServiceImplTest {
 
         verify(trainerDao, times(2)).getByUsername(any());
         verify(trainerDao, times(1)).update(any());
+        verify(passwordEncoder, times(1)).matches(any(), any());
         verify(passwordService, times(1)).generatePassword();
     }
 
@@ -149,7 +161,9 @@ class TrainerServiceImplTest {
                 .password(password2).isActive(true).build();
 
         when(trainerDao.getByUsername(any()))
-                .thenReturn(Optional.ofNullable(Trainer.builder().username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build()));
+                .thenReturn(Optional.ofNullable(Trainer.builder().username(USERNAME).id(ID).firstName(FIRST_NAME)
+                        .lastName(LAST_NAME).password(password2).isActive(true).build()));
+        when(passwordEncoder.matches(any(), any())).thenReturn(false);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
 
         Trainer resultTrainer = trainerService.update(trainer);
@@ -157,13 +171,13 @@ class TrainerServiceImplTest {
         assertEquals(USERNAME, resultTrainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());
+        verify(passwordEncoder, times(1)).matches(any(), any());
         verify(trainerDao, times(1)).update(any());
     }
 
     @Test
     void updateGivenValidWithPasswordSameLengthThenOldPassword() {
         String updatedPassword = "2222222222";
-        Trainer oldTrainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME).password(PASSWORD).isActive(true).build();
         Trainer inputtedTrainer = Trainer.builder().username(USERNAME).id(ID)
                 .firstName(FIRST_NAME).lastName(LAST_NAME).password(updatedPassword).isActive(true).build();
         Trainer updatedTrainer = Trainer.builder().username(USERNAME).id(ID)
@@ -173,6 +187,7 @@ class TrainerServiceImplTest {
                 .thenReturn(Optional.ofNullable(Trainer.builder()
                         .username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME)
                         .password(updatedPassword).isActive(true).build()));
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
         when(passwordService.getPasswordLength()).thenReturn(updatedPassword.length());
 
@@ -181,6 +196,7 @@ class TrainerServiceImplTest {
         assertEquals(USERNAME, resultTrainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());
+        verify(passwordEncoder, times(1)).matches(any(), any());
         verify(trainerDao, times(1)).update(any());
         verify(passwordService, times(1)).getPasswordLength();
     }
@@ -213,6 +229,7 @@ class TrainerServiceImplTest {
         when(passwordService.generatePassword()).thenReturn(PASSWORD);
         when(userDao.getByUsername(any()))
                 .thenReturn(Optional.of(User.builder().id(ID + 1).username(FIRST_NAME + "." + LAST_NAME).build()));
+        when(passwordEncoder.encode(any())).thenReturn(PASSWORD);
         when(trainerDao.create(any())).thenReturn(createdTrainer);
 
         trainerService.create(trainer);
@@ -221,6 +238,7 @@ class TrainerServiceImplTest {
         assertEquals(46, trainer.getUsername().length());
 
         verify(passwordService, times(1)).generatePassword();
+        verify(passwordEncoder, times(1)).encode(any());
         verify(userDao, times(1)).getByUsername(any());
         verify(trainerDao, times(1)).create(any());
     }
@@ -232,6 +250,7 @@ class TrainerServiceImplTest {
 
         when(passwordService.generatePassword()).thenReturn(PASSWORD);
         when(userDao.getByUsername(any())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(any())).thenReturn(PASSWORD);
         when(trainerDao.create(any())).thenReturn(createdTrainer);
 
         trainerService.create(trainer);
@@ -240,6 +259,7 @@ class TrainerServiceImplTest {
         assertEquals(10, trainer.getUsername().length());
 
         verify(passwordService, times(1)).generatePassword();
+        verify(passwordEncoder, times(1)).encode(any());
         verify(userDao, times(1)).getByUsername(any());
         verify(trainerDao, times(1)).create(any());
     }
@@ -247,19 +267,23 @@ class TrainerServiceImplTest {
     @Test
     void createGivenPasswordThenSuccess() {
         String password2 = "2222222222";
-        Trainer trainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
-        Trainer createdTrainer = Trainer.builder().firstName(FIRST_NAME).lastName(LAST_NAME).password(password2).isActive(true).build();
+        Trainer trainer = Trainer.builder().username(USERNAME).firstName(FIRST_NAME).lastName(LAST_NAME)
+                .password(password2).isActive(true).build();
+        Trainer createdTrainer = Trainer.builder().username(USERNAME).firstName(FIRST_NAME).lastName(LAST_NAME)
+                .password(password2).isActive(true).build();
 
         when(userDao.getByUsername(any())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(any())).thenReturn(PASSWORD);
         when(trainerDao.create(any())).thenReturn(createdTrainer);
         when(passwordService.getPasswordLength()).thenReturn(10);
 
         trainerService.create(trainer);
         assertNotEquals(createdTrainer, trainer);
-        assertEquals(password2, trainer.getPassword());
-        assertEquals(10, trainer.getUsername().length());
+        assertEquals(password2, createdTrainer.getPassword());
+        assertEquals(8, createdTrainer.getUsername().length());
 
         verify(userDao, times(1)).getByUsername(any());
+        verify(passwordEncoder, times(1)).encode(any());
         verify(trainerDao, times(1)).create(any());
         verify(passwordService, times(1)).getPasswordLength();
     }

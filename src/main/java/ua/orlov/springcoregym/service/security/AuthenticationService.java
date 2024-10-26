@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.exception.TooManyAttemptsException;
+import ua.orlov.springcoregym.service.token.InvalidTokenService;
 import ua.orlov.springcoregym.service.user.UserService;
 
 @Service
@@ -17,6 +18,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final LoginAttemptService loginAttemptService;
+    private final InvalidTokenService invalidTokenService;
 
     public String login(String username, String password) {
         try {
@@ -38,4 +40,11 @@ public class AuthenticationService {
             throw ex;
         }
     }
+
+    public void logout(String token) {
+        String jwt = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+        invalidTokenService.invalidateToken(jwt);
+    }
+
 }

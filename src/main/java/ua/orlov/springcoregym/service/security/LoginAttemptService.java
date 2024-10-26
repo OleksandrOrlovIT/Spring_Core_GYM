@@ -22,12 +22,7 @@ public class LoginAttemptService {
         this.request = request;
         this.attemptsCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(LOCKOUT_DURATION_MINUTES, TimeUnit.MINUTES)
-                .build(new CacheLoader<>() {
-                    @Override
-                    public Integer load(final String key) {
-                        return 0;
-                    }
-                });
+                .build(CacheLoader.from(key -> 0));
     }
 
     public void loginFailed(final String key) {
