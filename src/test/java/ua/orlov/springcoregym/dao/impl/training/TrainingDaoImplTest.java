@@ -124,7 +124,7 @@ class TrainingDaoImplTest {
                 .firstName(testTrainer.getFirstName() + delim)
                 .lastName(testTrainer.getLastName() + delim)
                 .password(testTrainer.getPassword() + delim)
-                .isActive(!testTrainer.getIsActive())
+                .isActive(!testTrainer.isActive())
                 .specialization(testTrainingType)
                 .build();
 
@@ -133,7 +133,7 @@ class TrainingDaoImplTest {
                 .firstName(testTrainee.getFirstName() + delim)
                 .lastName(testTrainee.getLastName() + delim)
                 .password(testTrainee.getPassword() + delim)
-                .isActive(!testTrainee.getIsActive())
+                .isActive(!testTrainee.isActive())
                 .build();
 
         testTrainingTypeForUpdate = trainingTypeDao.create(testTrainingTypeForUpdate);

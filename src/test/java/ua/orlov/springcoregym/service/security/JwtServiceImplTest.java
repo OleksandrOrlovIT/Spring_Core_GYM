@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import ua.orlov.springcoregym.model.user.User;
+import ua.orlov.springcoregym.service.security.impl.JwtServiceImpl;
 import ua.orlov.springcoregym.service.token.InvalidTokenService;
 
 import java.lang.reflect.Field;
@@ -25,32 +25,29 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class JwtServiceTest {
-
-    @InjectMocks
-    private JwtService jwtService;
+class JwtServiceImplTest {
 
     @Mock
     private InvalidTokenService invalidTokenService;
 
-    private final String testSigningKey = "63B74F4E1D5F0B2C4A3F2E685F7A1C534D7E357E1D7F5C3B495C734B64327844";
+    private JwtServiceImpl jwtServiceImpl;
 
     private UserDetails userDetails;
 
     @BeforeEach
-    void setUp() throws Exception {
-        Field signingKeyField = JwtService.class.getDeclaredField("jwtSigningKey");
-        signingKeyField.setAccessible(true);
-        signingKeyField.set(jwtService, testSigningKey);
+    void setUp() {
+        userDetails = mock(User.class);
 
-        userDetails = mock(UserDetails.class);
+        String testSigningKey = "63B74F4E1D5F0B2C4A3F2E685F7A1C534D7E357E1D7F5C3B495C734B64327844";
+        int expirationTime = 900000;
+        jwtServiceImpl = new JwtServiceImpl(testSigningKey, expirationTime, invalidTokenService);
     }
 
     @Test
     void extractUserName() {
         when(userDetails.getUsername()).thenReturn("testUser");
-        String token = jwtService.generateToken(userDetails);
-        String extractedUsername = jwtService.extractUserName(token);
+        String token = jwtServiceImpl.generateToken(userDetails);
+        String extractedUsername = jwtServiceImpl.extractUserName(token);
 
         assertEquals("testUser", extractedUsername, "The extracted username should match the userDetails username.");
     }
@@ -58,53 +55,53 @@ class JwtServiceTest {
     @Test
     void generateToken() {
         when(userDetails.getUsername()).thenReturn("testUser");
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtServiceImpl.generateToken(userDetails);
 
         assertNotNull(token, "Token should not be null.");
         assertTrue(token.startsWith("ey"), "Token should be a valid JWT format.");
 
-        Claims claims = Jwts.parser().setSigningKey(jwtService.getSigningKey()).build().parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey(jwtServiceImpl.getSigningKey()).build().parseClaimsJws(token).getBody();
         assertEquals("testUser", claims.getSubject(), "The subject in the token should match the username.");
     }
 
     @Test
     void isTokenValid() {
         when(userDetails.getUsername()).thenReturn("testUser");
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtServiceImpl.generateToken(userDetails);
 
         when(invalidTokenService.isTokenBlacklisted(token)).thenReturn(false);
 
-        assertTrue(jwtService.isTokenValid(token, userDetails), "Token should be valid for matching username and not expired.");
+        assertTrue(jwtServiceImpl.isTokenValid(token, userDetails), "Token should be valid for matching username and not expired.");
 
         when(invalidTokenService.isTokenBlacklisted(token)).thenReturn(true);
-        assertFalse(jwtService.isTokenValid(token, userDetails), "Token should be invalid if blacklisted.");
+        assertFalse(jwtServiceImpl.isTokenValid(token, userDetails), "Token should be invalid if blacklisted.");
     }
 
     @Test
     void isTokenExpired() {
         when(userDetails.getUsername()).thenReturn("testUser");
         Map<String, Object> claims = new HashMap<>();
-        String validToken = jwtService.generateToken(claims, userDetails);
+        String validToken = jwtServiceImpl.generateToken(claims, userDetails);
 
-        assertFalse(jwtService.isTokenExpired(validToken), "Token should not be expired immediately after generation.");
+        assertFalse(jwtServiceImpl.isTokenExpired(validToken), "Token should not be expired immediately after generation.");
 
         String expiredToken = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() - 1000))
-                .signWith(jwtService.getSigningKey())
+                .signWith(jwtServiceImpl.getSigningKey())
                 .compact();
 
         assertThrows(ExpiredJwtException.class,
-                () -> jwtService.isTokenExpired(expiredToken), "Token with past expiration date should be expired.");
+                () -> jwtServiceImpl.isTokenExpired(expiredToken), "Token with past expiration date should be expired.");
     }
 
     @Test
     void extractExpiration() {
         when(userDetails.getUsername()).thenReturn("testUser");
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtServiceImpl.generateToken(userDetails);
 
-        Date expiration = jwtService.extractExpiration(token);
+        Date expiration = jwtServiceImpl.extractExpiration(token);
 
         assertNotNull(expiration, "The expiration date should not be null.");
         assertTrue(expiration.after(new Date()), "The expiration date should be in the future.");
@@ -113,9 +110,9 @@ class JwtServiceTest {
     @Test
     void extractAllClaims() {
         when(userDetails.getUsername()).thenReturn("testUser");
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtServiceImpl.generateToken(userDetails);
 
-        Claims claims = jwtService.extractAllClaims(token);
+        Claims claims = jwtServiceImpl.extractAllClaims(token);
 
         assertNotNull(claims, "Claims should not be null.");
         assertEquals("testUser", claims.getSubject(), "Claims should contain the username as subject.");
@@ -123,7 +120,7 @@ class JwtServiceTest {
 
     @Test
     void getSigningKey() {
-        Key signingKey = jwtService.getSigningKey();
+        Key signingKey = jwtServiceImpl.getSigningKey();
 
         assertNotNull(signingKey, "Signing key should not be null.");
     }
@@ -135,7 +132,7 @@ class JwtServiceTest {
                 .username("us")
                 .build();
 
-        assertNotNull(jwtService.generateToken(user));
+        assertNotNull(jwtServiceImpl.generateToken(user));
     }
 
     @Test
@@ -145,14 +142,14 @@ class JwtServiceTest {
                 .username("us")
                 .build();
 
-        String token = jwtService.generateToken(user);
+        String token = jwtServiceImpl.generateToken(user);
 
         User user1 = User.builder()
                 .id(1L)
                 .username("usasd")
                 .build();
 
-        assertFalse(jwtService.isTokenValid(token, user1));
+        assertFalse(jwtServiceImpl.isTokenValid(token, user1));
     }
 
     @Test
@@ -166,11 +163,11 @@ class JwtServiceTest {
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 100))
-                .signWith(jwtService.getSigningKey(), SignatureAlgorithm.HS256)
+                .signWith(jwtServiceImpl.getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
 
         Thread.sleep(150);
 
-        assertThrows(ExpiredJwtException.class, () -> jwtService.isTokenValid(token, user));
+        assertThrows(ExpiredJwtException.class, () -> jwtServiceImpl.isTokenValid(token, user));
     }
 }

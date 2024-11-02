@@ -135,7 +135,7 @@ public class TrainerDaoImplTest {
                 .firstName(savedTrainer.getFirstName() + delim)
                 .lastName(savedTrainer.getLastName() + delim)
                 .password(savedTrainer.getPassword() + delim)
-                .isActive(!savedTrainer.getIsActive())
+                .isActive(!savedTrainer.isActive())
                 .specialization(diffTrainingType)
                 .build();
 
@@ -146,7 +146,7 @@ public class TrainerDaoImplTest {
         assertEquals(savedTrainer.getFirstName() + delim, updated.getFirstName());
         assertEquals(savedTrainer.getLastName() + delim, updated.getLastName());
         assertEquals(savedTrainer.getPassword() + delim, updated.getPassword());
-        assertEquals(!savedTrainer.getIsActive(), updated.getIsActive());
+        assertEquals(!savedTrainer.isActive(), updated.isActive());
         Assertions.assertEquals(diffTrainingType.getTrainingTypeName(),
                 updated.getSpecialization().getTrainingTypeName());
     }

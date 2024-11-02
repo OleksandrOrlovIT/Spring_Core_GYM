@@ -52,7 +52,7 @@ public class TrainerMapper {
         trainer.setFirstName(request.getFirstName());
         trainer.setLastName(request.getLastName());
         trainer.setSpecialization(trainingTypeService.select(request.getSpecializationId()));
-        trainer.setIsActive(request.getIsActive());
+        trainer.setActive(request.getIsActive());
         return trainer;
     }
 }

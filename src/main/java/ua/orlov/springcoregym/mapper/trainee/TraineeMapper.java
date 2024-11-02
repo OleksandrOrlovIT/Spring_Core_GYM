@@ -32,7 +32,7 @@ public class TraineeMapper {
         trainee.setLastName(request.getLastName());
         trainee.setDateOfBirth(request.getDateOfBirth());
         trainee.setAddress(request.getAddress());
-        trainee.setIsActive(request.getIsActive());
+        trainee.setActive(request.getIsActive());
         return trainee;
     }
 

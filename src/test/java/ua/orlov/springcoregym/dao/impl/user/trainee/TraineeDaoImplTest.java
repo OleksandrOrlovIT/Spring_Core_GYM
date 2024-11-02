@@ -124,7 +124,7 @@ class TraineeDaoImplTest {
                 .firstName(savedTrainee.getFirstName() + delim)
                 .lastName(savedTrainee.getLastName() + delim)
                 .password(savedTrainee.getPassword() + delim)
-                .isActive(!savedTrainee.getIsActive())
+                .isActive(!savedTrainee.isActive())
                 .build();
 
         Trainee updated = traineeDao.update(diffTrainee);
@@ -134,7 +134,7 @@ class TraineeDaoImplTest {
         assertEquals(updated.getFirstName(), savedTrainee.getFirstName() + delim);
         assertEquals(updated.getLastName(), savedTrainee.getLastName() + delim);
         assertEquals(updated.getPassword(), savedTrainee.getPassword() + delim);
-        assertEquals(updated.getIsActive(), !savedTrainee.getIsActive());
+        assertEquals(updated.isActive(), !savedTrainee.isActive());
     }
 
     @Test

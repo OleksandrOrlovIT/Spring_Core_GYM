@@ -37,7 +37,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.requiresChannel(channel -> channel
+                        .anyRequest()
+                        .requiresSecure())
+                .csrf(AbstractHttpConfigurer::disable)
                 .headers(httpSecurityHeadersConfigurer -> {
                     httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable);
                 })
@@ -50,7 +53,8 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/session").permitAll()
+                        .requestMatchers("/api/v1/session", "/actuator/**", "/swagger-ui/**",
+                                "/v3/api-docs/swagger-config", "/v3/api-docs").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/trainee", "/api/v1/trainer").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -65,7 +69,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService.userDetailsService());
+        authProvider.setUserDetailsService(userService);
         authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
