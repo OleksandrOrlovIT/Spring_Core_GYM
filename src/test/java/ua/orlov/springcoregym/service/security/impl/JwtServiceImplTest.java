@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.service.security;
+package ua.orlov.springcoregym.service.security.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -7,15 +7,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import ua.orlov.springcoregym.model.user.User;
-import ua.orlov.springcoregym.service.security.impl.JwtServiceImpl;
 import ua.orlov.springcoregym.service.token.InvalidTokenService;
 
-import java.lang.reflect.Field;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;

@@ -3,6 +3,7 @@ package ua.orlov.springcoregym.service.security.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.exception.TooManyAttemptsException;
@@ -24,24 +25,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final InvalidTokenService invalidTokenService;
 
     public String login(String username, String password) {
-        try {
-            if (loginAttemptService.isBlocked()) {
-                throw new TooManyAttemptsException("Too many attempts");
-            }
-
-            UsernamePasswordAuthenticationToken authenticationToken
-                    = new UsernamePasswordAuthenticationToken(username, password);
-
-            authenticationManager.authenticate(authenticationToken);
-
-            loginAttemptService.loginSucceeded(loginAttemptService.getClientIP());
-
-            return jwtService.generateToken(userService.getByUsername(username));
-
-        } catch (Exception ex) {
-            log.error("Authentication failed: {}", ex.getMessage());
-            throw ex;
+        if (loginAttemptService.isBlocked()) {
+            throw new TooManyAttemptsException("Too many attempts");
         }
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(username, password);
+
+        authenticationManager.authenticate(authenticationToken);
+
+        loginAttemptService.loginSucceeded(loginAttemptService.getClientIP());
+        return jwtService.generateToken(userService.getByUsername(username));
     }
 
     public void logout(String token) {

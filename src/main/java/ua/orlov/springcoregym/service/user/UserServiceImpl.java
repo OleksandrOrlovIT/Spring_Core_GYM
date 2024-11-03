@@ -76,6 +76,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return getByUsername(username);
+        try {
+            return getByUsername(username);
+        } catch (EntityNotFoundException e) {
+            throw new UsernameNotFoundException("User not found with username = " + username);
+        }
     }
 }

@@ -39,8 +39,8 @@ public class TrainingController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list of training types",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            @ApiResponse(responseCode = "403", description = "AccessDenied",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
     })
     @GetMapping("/types")
     public List<TrainingTypeResponse> getTrainingTypes() {

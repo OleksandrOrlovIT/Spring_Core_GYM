@@ -2,6 +2,7 @@ package ua.orlov.springcoregym.service.security.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
@@ -10,6 +11,7 @@ import ua.orlov.springcoregym.service.security.LoginAttemptService;
 
 @Component
 @AllArgsConstructor
+@Log4j2
 public class AuthenticationFailureListener implements ApplicationListener<AuthenticationFailureBadCredentialsEvent> {
 
     private final ObjectFactory<HttpServletRequest> requestFactory;

@@ -19,6 +19,7 @@ public class LoginAttemptCacheConfig {
     public LoadingCache<String, Integer> loginAttemptCache() {
         return CacheBuilder.newBuilder()
                 .expireAfterWrite(lockoutDurationMinutes, TimeUnit.MINUTES)
+                .maximumSize(1000)
                 .build(CacheLoader.from(key -> 0));
     }
 

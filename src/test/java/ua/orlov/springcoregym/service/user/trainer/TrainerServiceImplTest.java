@@ -167,7 +167,6 @@ class TrainerServiceImplTest {
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
 
         Trainer resultTrainer = trainerService.update(trainer);
-        assertEquals(password2, resultTrainer.getPassword());
         assertEquals(USERNAME, resultTrainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());

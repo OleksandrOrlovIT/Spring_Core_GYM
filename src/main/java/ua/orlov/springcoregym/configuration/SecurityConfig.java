@@ -53,9 +53,9 @@ public class SecurityConfig {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/session", "/actuator/**", "/swagger-ui/**",
+                        .requestMatchers("/actuator/**", "/swagger-ui/**",
                                 "/v3/api-docs/swagger-config", "/v3/api-docs").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/trainee", "/api/v1/trainer").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/trainee", "/api/v1/trainer", "/api/v1/session").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

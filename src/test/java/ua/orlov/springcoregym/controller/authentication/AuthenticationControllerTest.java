@@ -42,7 +42,7 @@ class AuthenticationControllerTest {
     void loginThenSuccess() throws Exception {
         when(authenticationService.login(any(), any())).thenReturn("");
 
-        MvcResult result = mockMvc.perform(get("/api/v1/session")
+        MvcResult result = mockMvc.perform(post("/api/v1/session")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"username\", \"password\":\"password\"}"))
                 .andExpect(status().isOk())

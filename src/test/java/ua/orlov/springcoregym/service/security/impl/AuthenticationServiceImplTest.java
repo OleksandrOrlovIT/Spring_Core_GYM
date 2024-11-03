@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.service.security;
+package ua.orlov.springcoregym.service.security.impl;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,9 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import ua.orlov.springcoregym.exception.TooManyAttemptsException;
-import ua.orlov.springcoregym.service.security.impl.AuthenticationServiceImpl;
-import ua.orlov.springcoregym.service.security.impl.JwtServiceImpl;
-import ua.orlov.springcoregym.service.security.impl.LoginAttemptServiceImpl;
 import ua.orlov.springcoregym.service.token.InvalidTokenService;
 import ua.orlov.springcoregym.service.user.UserService;
 

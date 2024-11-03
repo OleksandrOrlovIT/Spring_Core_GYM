@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.service.security;
+package ua.orlov.springcoregym.service.security.impl;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
-import ua.orlov.springcoregym.service.security.impl.AuthenticationFailureListener;
-import ua.orlov.springcoregym.service.security.impl.LoginAttemptServiceImpl;
 
 import static org.mockito.Mockito.*;
 
