@@ -34,9 +34,24 @@ public class LoginComponent {
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(200, response.getStatusLine().getStatusCode());
             String responseBody = EntityUtils.toString(response.getEntity());
-
             JsonNode jsonNode = objectMapper.readTree(responseBody);
             return jsonNode.get("token").asText();
+        }
+    }
+
+    public void loginWithBadCredentials(String username, String password) throws Exception {
+        UsernamePasswordUser usernamePasswordUser = new UsernamePasswordUser();
+        usernamePasswordUser.setUsername(username);
+        usernamePasswordUser.setPassword(password);
+
+        String json = objectMapper.writeValueAsString(usernamePasswordUser);
+        StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
+
+        HttpPost post = new HttpPost("https://localhost:8443/api/v1/session");
+        post.setEntity(entity);
+
+        try (CloseableHttpResponse response = httpClient.execute(post)) {
+            assertEquals(401, response.getStatusLine().getStatusCode());
         }
     }
 }

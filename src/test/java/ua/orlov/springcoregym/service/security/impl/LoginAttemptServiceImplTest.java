@@ -86,4 +86,16 @@ class LoginAttemptServiceImplTest {
 
         assertEquals(KEY, loginAttemptService.getClientIP());
     }
+
+    @Test
+    void getClientIPXfHeaderThenSuccess() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        String xfHeaderIp = "192.168.1.1";
+        request.addHeader("X-Forwarded-For", xfHeaderIp);
+        request.setRemoteAddr("10.0.0.1");
+
+        when(requestFactory.getObject()).thenReturn(request);
+
+        assertEquals(xfHeaderIp, loginAttemptService.getClientIP());
+    }
 }

@@ -44,18 +44,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         Trainee foundTrainee = getByUsername(trainee.getUsername());
         trainee.setId(foundTrainee.getId());
-
-        if (trainee.getPassword() == null || trainee.getPassword().length() != passwordService.getPasswordLength()) {
-            trainee.setPassword(passwordService.generatePassword());
-        }
-
-        String oldPassword = trainee.getPassword();
-
-        if (!passwordEncoder.matches(trainee.getPassword(), foundTrainee.getPassword())) {
-            trainee.setPassword(passwordEncoder.encode(trainee.getPassword()));
-        } else {
-            trainee.setPassword(foundTrainee.getPassword());
-        }
+        trainee.setPassword(foundTrainee.getPassword());
 
         if (foundTrainee.isActive() != trainee.isActive()) {
             throw new IllegalArgumentException("IsActive field can't be changed in update");
@@ -63,10 +52,10 @@ public class TraineeServiceImpl implements TraineeService {
 
         trainee.setTrainings(foundTrainee.getTrainings());
 
+
         trainee = traineeDAO.update(trainee);
 
         foundTrainee = getByUserNameWithTrainers(trainee.getUsername());
-        foundTrainee.setPassword(oldPassword);
 
         return foundTrainee;
     }
@@ -268,7 +257,7 @@ public class TraineeServiceImpl implements TraineeService {
     public void activateDeactivateTrainee(String traineeUsername, boolean isActive) {
         Trainee trainee = getByUsername(traineeUsername);
 
-        if(isActive){
+        if(!isActive){
             deactivateTrainee(trainee.getId());
         } else {
             activateTrainee(trainee.getId());

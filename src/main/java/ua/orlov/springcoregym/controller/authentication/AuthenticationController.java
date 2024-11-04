@@ -32,6 +32,8 @@ public class AuthenticationController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "401", description = "Validation failed or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "429", description = "Too Many wrong Requests",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
     })
     @PostMapping("/session")
     public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody @Validated UsernamePasswordUser userNamePasswordUser) {
@@ -45,6 +47,8 @@ public class AuthenticationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password changed successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "No body inside the request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "401", description = "Validation failed or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",

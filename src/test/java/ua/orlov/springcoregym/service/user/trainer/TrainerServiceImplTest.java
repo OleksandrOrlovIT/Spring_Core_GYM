@@ -91,17 +91,12 @@ class TrainerServiceImplTest {
                 .password(PASSWORD).isActive(true).build();
 
         when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
-        when(passwordService.generatePassword()).thenReturn(PASSWORD);
-        when(passwordEncoder.matches(any(), any())).thenReturn(true);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
 
         Trainer resultTrainer = trainerService.update(trainer);
-        assertEquals(PASSWORD, resultTrainer.getPassword());
         assertEquals(USERNAME, trainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());
-        verify(passwordService, times(1)).generatePassword();
-        verify(passwordEncoder, times(1)).matches(any(), any());
         verify(trainerDao, times(1)).update(any());
     }
 
@@ -113,19 +108,12 @@ class TrainerServiceImplTest {
                 .password(PASSWORD).isActive(true).build();
 
         when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
-        when(passwordService.generatePassword()).thenReturn(PASSWORD);
-        when(passwordEncoder.matches(any(), any())).thenReturn(false);
-        when(passwordEncoder.encode(any())).thenReturn(PASSWORD);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
 
-        Trainer resultTrainer = trainerService.update(trainer);
-        assertEquals(PASSWORD, resultTrainer.getPassword());
+        trainerService.update(trainer);
         assertEquals(USERNAME, trainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());
-        verify(passwordService, times(1)).generatePassword();
-        verify(passwordEncoder, times(1)).matches(any(), any());
-        verify(passwordEncoder, times(1)).encode(any());
         verify(trainerDao, times(1)).update(any());
     }
 
@@ -138,18 +126,14 @@ class TrainerServiceImplTest {
                 .password(password2).isActive(true).build();
 
         when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
-        when(passwordEncoder.matches(any(), any())).thenReturn(false);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
-        when(passwordService.getPasswordLength()).thenReturn(password2.length() + 1);
 
         Trainer resultTrainer = trainerService.update(trainer);
-        assertNotEquals(password2, resultTrainer.getPassword());
+        assertEquals(password2, resultTrainer.getPassword());
         assertEquals(USERNAME, trainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());
         verify(trainerDao, times(1)).update(any());
-        verify(passwordEncoder, times(1)).matches(any(), any());
-        verify(passwordService, times(1)).generatePassword();
     }
 
     @Test
@@ -163,14 +147,12 @@ class TrainerServiceImplTest {
         when(trainerDao.getByUsername(any()))
                 .thenReturn(Optional.ofNullable(Trainer.builder().username(USERNAME).id(ID).firstName(FIRST_NAME)
                         .lastName(LAST_NAME).password(password2).isActive(true).build()));
-        when(passwordEncoder.matches(any(), any())).thenReturn(false);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
 
         Trainer resultTrainer = trainerService.update(trainer);
         assertEquals(USERNAME, resultTrainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());
-        verify(passwordEncoder, times(1)).matches(any(), any());
         verify(trainerDao, times(1)).update(any());
     }
 
@@ -186,18 +168,14 @@ class TrainerServiceImplTest {
                 .thenReturn(Optional.ofNullable(Trainer.builder()
                         .username(USERNAME).id(ID).firstName(FIRST_NAME).lastName(LAST_NAME)
                         .password(updatedPassword).isActive(true).build()));
-        when(passwordEncoder.matches(any(), any())).thenReturn(true);
         when(trainerDao.update(any())).thenReturn(updatedTrainer);
-        when(passwordService.getPasswordLength()).thenReturn(updatedPassword.length());
 
         Trainer resultTrainer = trainerService.update(inputtedTrainer);
         assertEquals(updatedPassword, resultTrainer.getPassword());
         assertEquals(USERNAME, resultTrainer.getUsername());
 
         verify(trainerDao, times(2)).getByUsername(any());
-        verify(passwordEncoder, times(1)).matches(any(), any());
         verify(trainerDao, times(1)).update(any());
-        verify(passwordService, times(1)).getPasswordLength();
     }
 
     @Test
@@ -313,13 +291,11 @@ class TrainerServiceImplTest {
                 .password(PASSWORD + "1").isActive(true).build();
 
         when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
-        when(passwordService.generatePassword()).thenReturn(PASSWORD);
 
         var e = assertThrows(IllegalArgumentException.class, () -> trainerService.update(trainer2));
         assertEquals("IsActive field can't be changed in update", e.getMessage());
 
         verify(trainerDao, times(1)).getByUsername(any());
-        verify(passwordService, times(1)).generatePassword();
     }
 
     @Test
@@ -546,7 +522,7 @@ class TrainerServiceImplTest {
         when(trainerDao.getById(any())).thenReturn(Optional.of(Trainer.builder().isActive(true).build()));
         when(trainerDao.update(any())).thenReturn(new Trainer());
 
-        trainerService.activateDeactivateTrainer("someName", true);
+        trainerService.activateDeactivateTrainer("someName", false);
 
         verify(trainerDao, times(1)).getByUsername(any());
         verify(trainerDao, times(1)).getById(any());
@@ -559,10 +535,22 @@ class TrainerServiceImplTest {
         when(trainerDao.getById(any())).thenReturn(Optional.of(Trainer.builder().isActive(false).build()));
         when(trainerDao.update(any())).thenReturn(new Trainer());
 
-        trainerService.activateDeactivateTrainer("someName", false);
+        trainerService.activateDeactivateTrainer("someName", true);
 
         verify(trainerDao, times(1)).getByUsername(any());
         verify(trainerDao, times(1)).getById(any());
         verify(trainerDao, times(1)).update(any());
+    }
+
+    @Test
+    void isUserNameMatchPasswordGivenWrongPasswordThenFalse() {
+        String wrongPassword = "newPass";
+        Trainer trainer = Trainer.builder().id(ID).firstName(FIRST_NAME).lastName(LAST_NAME)
+                .password(PASSWORD).isActive(false).build();
+
+        when(trainerDao.getByUsername(any())).thenReturn(Optional.of(trainer));
+
+        assertFalse(trainerService.isUserNameMatchPassword(USERNAME, wrongPassword));
+        verify(trainerDao, times(1)).getByUsername(any());
     }
 }

@@ -9,14 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ua.orlov.springcoregym.model.user.User;
 import ua.orlov.springcoregym.service.token.InvalidTokenService;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -150,6 +149,28 @@ class JwtServiceImplTest {
     }
 
     @Test
+    void generateTokenThenException() {
+        UserDetails user = new UserDetails() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return List.of();
+            }
+
+            @Override
+            public String getPassword() {
+                return "";
+            }
+
+            @Override
+            public String getUsername() {
+                return "";
+            }
+        };
+
+        assertThrows(IllegalArgumentException.class, () -> jwtServiceImpl.generateToken(user));
+    }
+
+    @Test
     void isTokenValidThenExpiredToken() throws InterruptedException {
         User user = User.builder()
                 .id(1L)
@@ -158,8 +179,8 @@ class JwtServiceImplTest {
 
         String token = Jwts.builder()
                 .setSubject(user.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 100))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date())
                 .signWith(jwtServiceImpl.getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
 

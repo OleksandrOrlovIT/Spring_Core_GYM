@@ -39,18 +39,7 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer foundTrainer = getByUsername(trainer.getUsername());
         trainer.setId(foundTrainer.getId());
-
-        if (trainer.getPassword() == null || trainer.getPassword().length() != passwordService.getPasswordLength()) {
-            trainer.setPassword(passwordService.generatePassword());
-        }
-
-        String oldPassword = trainer.getPassword();
-
-        if (!passwordEncoder.matches(trainer.getPassword(), foundTrainer.getPassword())) {
-            trainer.setPassword(passwordEncoder.encode(trainer.getPassword()));
-        } else {
-            trainer.setPassword(foundTrainer.getPassword());
-        }
+        trainer.setPassword(foundTrainer.getPassword());
 
         if (foundTrainer.isActive() != trainer.isActive()) {
             throw new IllegalArgumentException("IsActive field can't be changed in update");
@@ -59,7 +48,6 @@ public class TrainerServiceImpl implements TrainerService {
         trainer = trainerDAO.update(trainer);
 
         foundTrainer = getByUserNameWithTrainees(trainer.getUsername());
-        foundTrainer.setPassword(oldPassword);
 
         return foundTrainer;
     }
@@ -216,7 +204,7 @@ public class TrainerServiceImpl implements TrainerService {
     public void activateDeactivateTrainer(String trainerUsername, boolean isActive) {
         Trainer trainer = getByUsername(trainerUsername);
 
-        if (isActive) {
+        if (!isActive) {
             deactivateTrainer(trainer.getId());
         } else {
             activateTrainer(trainer.getId());

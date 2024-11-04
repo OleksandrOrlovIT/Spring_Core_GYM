@@ -23,22 +23,31 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
         this.maxLoginAttempt = maxLoginAttempt;
     }
 
+    @Override
     public void loginFailed(final String key) {
         int attempts = attemptsCache.getUnchecked(key) + 1;
         attemptsCache.put(key, attempts);
     }
 
+    @Override
     public boolean isBlocked() {
         return attemptsCache.getUnchecked(getClientIP()) >= maxLoginAttempt;
     }
 
+    @Override
     public void loginSucceeded(final String key) {
         attemptsCache.invalidate(key);
     }
 
+    @Override
     public String getClientIP() {
         HttpServletRequest request = requestFactory.getObject();
         final String xfHeader = request.getHeader("X-Forwarded-For");
         return xfHeader != null ? xfHeader.split(",")[0] : request.getRemoteAddr();
+    }
+
+    @Override
+    public void clearCache() {
+        attemptsCache.invalidateAll();
     }
 }

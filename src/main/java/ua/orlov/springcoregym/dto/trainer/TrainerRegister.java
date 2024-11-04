@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrainerRegister {
+
     @NotBlank(message = "First name is required.")
     private String firstName;
 
