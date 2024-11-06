@@ -22,7 +22,7 @@ public class HttpClientConfiguration {
 
     @Primary
     @Bean
-    public CloseableHttpClient httpClient() {
+    public CloseableHttpClient httpClient() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         try {
             return HttpClients
                     .custom()
@@ -32,7 +32,7 @@ public class HttpClientConfiguration {
 
         } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
             log.error(e.getMessage());
+            throw e;
         }
-        return null;
     }
 }

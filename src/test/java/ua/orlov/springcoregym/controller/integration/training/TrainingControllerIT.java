@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "/sql/training/populate_trainings_encrypted.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
-public class TrainingControllerIntegrationTest {
+public class TrainingControllerIT {
 
     @Autowired
     private CloseableHttpClient httpClient;

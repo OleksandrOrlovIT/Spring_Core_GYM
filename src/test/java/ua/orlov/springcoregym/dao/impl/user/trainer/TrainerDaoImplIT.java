@@ -4,13 +4,10 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
 import ua.orlov.springcoregym.dao.impl.training.TrainingTypeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
@@ -31,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @Sql(scripts = "/sql/trainer/populate_trainer.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
-public class TrainerDaoImplTest {
+public class TrainerDaoImplIT {
 
     @Autowired
     private TrainerDao trainerDao;
