@@ -1,7 +1,9 @@
 package ua.orlov.springcoregym.service.user.trainer;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dao.impl.user.UserDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
@@ -28,28 +30,29 @@ public class TrainerServiceImpl implements TrainerService {
 
     private final UserDao userDao;
 
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
     @Override
     public Trainer update(Trainer trainer) {
         checkNames(trainer);
 
         Trainer foundTrainer = getByUsername(trainer.getUsername());
         trainer.setId(foundTrainer.getId());
+        trainer.setPassword(foundTrainer.getPassword());
 
-        if (trainer.getPassword() == null || trainer.getPassword().length() != passwordService.getPasswordLength()) {
-            trainer.setPassword(passwordService.generatePassword());
-        }
-
-        Objects.requireNonNull(trainer.getIsActive(), "Trainer's isActive field can't be null");
-
-        if (foundTrainer.getIsActive() != trainer.getIsActive()) {
+        if (foundTrainer.isActive() != trainer.isActive()) {
             throw new IllegalArgumentException("IsActive field can't be changed in update");
         }
 
         trainer = trainerDAO.update(trainer);
 
-        return getByUserNameWithTrainees(trainer.getUsername());
+        foundTrainer = getByUserNameWithTrainees(trainer.getUsername());
+
+        return foundTrainer;
     }
 
+    @Transactional
     @Override
     public Trainer create(Trainer trainer) {
         trainer.setUsername(constructTrainerUsername(trainer));
@@ -60,11 +63,13 @@ public class TrainerServiceImpl implements TrainerService {
             trainer.setPassword(passwordService.generatePassword());
         }
 
-        if (trainer.getIsActive() == null) {
-            trainer.setIsActive(false);
-        }
+        String oldPassword = trainer.getPassword();
+        trainer.setPassword(passwordEncoder.encode(trainer.getPassword()));
 
-        return trainerDAO.create(trainer);
+        Trainer savedTrainer = trainerDAO.create(trainer);
+        savedTrainer.setPassword(oldPassword);
+
+        return savedTrainer;
     }
 
     @Override
@@ -102,13 +107,10 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer foundTrainer = trainerDAO.getByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Trainer not found " + username));
 
-        if (password != null) {
-            return password.equals(foundTrainer.getPassword());
-        }
-
-        return false;
+        return password != null && password.equals(foundTrainer.getPassword());
     }
 
+    @Transactional
     @Override
     public Trainer changePassword(Trainer trainer, String newPassword) {
         Trainer foundTrainer = select(trainer.getId());
@@ -122,28 +124,30 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerDAO.update(foundTrainer);
     }
 
+    @Transactional
     @Override
     public Trainer activateTrainer(Long trainerId) {
         Trainer foundTrainer = select(trainerId);
 
-        if (foundTrainer.getIsActive()) {
+        if (foundTrainer.isActive()) {
             throw new IllegalArgumentException("Trainer is already active " + foundTrainer);
         }
 
-        foundTrainer.setIsActive(true);
+        foundTrainer.setActive(true);
 
         return trainerDAO.update(foundTrainer);
     }
 
+    @Transactional
     @Override
     public Trainer deactivateTrainer(Long trainerId) {
         Trainer foundTrainer = select(trainerId);
 
-        if (!foundTrainer.getIsActive()) {
+        if (!foundTrainer.isActive()) {
             throw new IllegalArgumentException("Trainer is already deactivated " + foundTrainer);
         }
 
-        foundTrainer.setIsActive(false);
+        foundTrainer.setActive(false);
 
         return trainerDAO.update(foundTrainer);
     }
@@ -153,6 +157,7 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerDAO.getTrainingsByDateAndUsername(startDate, endDate, userName);
     }
 
+    @Transactional
     @Override
     public List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername, Pageable pageable) {
         Trainee trainee = traineeDAO.getByUsername(traineeUsername)
@@ -184,6 +189,7 @@ public class TrainerServiceImpl implements TrainerService {
                 .orElseThrow(() -> new NoSuchElementException("Trainer not found " + trainerUserName));
     }
 
+    @Transactional
     @Override
     public Trainer getByUserNameWithTrainees(String trainerUsername) {
         Trainer trainer = getByUsername(trainerUsername);
@@ -193,11 +199,12 @@ public class TrainerServiceImpl implements TrainerService {
         return trainer;
     }
 
+    @Transactional
     @Override
     public void activateDeactivateTrainer(String trainerUsername, boolean isActive) {
         Trainer trainer = getByUsername(trainerUsername);
 
-        if (isActive) {
+        if (!isActive) {
             deactivateTrainer(trainer.getId());
         } else {
             activateTrainer(trainer.getId());

@@ -4,13 +4,10 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
@@ -31,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @Sql(scripts = "/sql/training/populate_trainings.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
-class TrainingDaoImplTest {
+class TrainingDaoImplIT {
 
     @Autowired
     private TrainingDao trainingDao;
@@ -124,7 +121,7 @@ class TrainingDaoImplTest {
                 .firstName(testTrainer.getFirstName() + delim)
                 .lastName(testTrainer.getLastName() + delim)
                 .password(testTrainer.getPassword() + delim)
-                .isActive(!testTrainer.getIsActive())
+                .isActive(!testTrainer.isActive())
                 .specialization(testTrainingType)
                 .build();
 
@@ -133,7 +130,7 @@ class TrainingDaoImplTest {
                 .firstName(testTrainee.getFirstName() + delim)
                 .lastName(testTrainee.getLastName() + delim)
                 .password(testTrainee.getPassword() + delim)
-                .isActive(!testTrainee.getIsActive())
+                .isActive(!testTrainee.isActive())
                 .build();
 
         testTrainingTypeForUpdate = trainingTypeDao.create(testTrainingTypeForUpdate);

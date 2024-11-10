@@ -135,7 +135,7 @@ class TrainerMapperTest {
         assertEquals(request.getUsername(), trainer.getUsername());
         assertEquals(request.getFirstName(), trainer.getFirstName());
         assertEquals(request.getLastName(), trainer.getLastName());
-        assertEquals(request.getIsActive(), trainer.getIsActive());
+        assertEquals(request.getIsActive(), trainer.isActive());
         assertNotNull(trainer.getSpecialization());
 
         verify(trainingTypeService, times(1)).select(anyLong());

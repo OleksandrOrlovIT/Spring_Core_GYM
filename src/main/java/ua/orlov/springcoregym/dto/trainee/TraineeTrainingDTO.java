@@ -10,8 +10,12 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class TraineeTrainingDTO {
+
     LocalDate startDate;
+
     LocalDate endDate;
+
     String userName;
+
     String trainingType;
 }
