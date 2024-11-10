@@ -21,7 +21,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
         IS_USERNAME_PASSWORD_MATCH_QUERY = "SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END " +
                 "FROM " + getEntityClass().getSimpleName() + " u WHERE u.username = :username AND u.password = :password";
         CHANGE_PASSWORD_QUERY = "UPDATE " + getEntityClass().getSimpleName() + " u SET u.password = :newPassword " +
-                "WHERE u.username = :username AND u.password = :oldPassword";
+                "WHERE u.username = :username";
         FIND_BY_USERNAME_QUERY = "SELECT t FROM " + getEntityClass().getSimpleName() + " t WHERE t.username = :username";
     }
 
@@ -37,20 +37,15 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
                 .setParameter("username", username)
                 .setParameter("password", password);
 
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException e) {
-            return false;
-        }
+        return query.getSingleResult();
     }
 
     @Transactional
     @Override
-    public boolean changeUserPassword(String username, String oldPassword, String newPassword) {
+    public boolean changeUserPassword(String username, String newPassword) {
         Query query = getEntityManager()
                 .createQuery(CHANGE_PASSWORD_QUERY)
                 .setParameter("username", username)
-                .setParameter("oldPassword", oldPassword)
                 .setParameter("newPassword", newPassword);
 
         return query.executeUpdate() == 1;

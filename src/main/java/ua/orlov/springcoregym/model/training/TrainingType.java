@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @SuperBuilder
 @NoArgsConstructor
+@Table(name = "training_type")
 public class TrainingType {
 
     @Id

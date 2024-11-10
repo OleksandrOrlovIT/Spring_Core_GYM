@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: GymDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: master
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  spring_boot_gym:
+    image: spring-gym
+    container_name: spring_boot_gym
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/GymDB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: master
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8443:8443"
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+volumes:
+  postgres_data:

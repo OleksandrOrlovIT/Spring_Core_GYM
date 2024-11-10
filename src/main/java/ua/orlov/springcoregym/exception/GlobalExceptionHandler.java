@@ -4,6 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,11 +21,30 @@ import java.util.*;
 @Log4j2
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<?> handleAuthenticationException(AuthenticationException ex) {
+        logException("AuthenticationException occurred", ex);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", ex.getMessage());
+    }
+
+    @ExceptionHandler(TooManyAttemptsException.class)
+    public ResponseEntity<?> handleTooManyAttempts(TooManyAttemptsException ex) {
+        logException("TooManyAttemptsException occurred", ex);
+        return buildErrorResponse(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_REQUESTS", ex.getMessage());
+    }
+
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseBody
     public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException ex) {
         logException("NoSuchElementException occurred", ex);
         return buildErrorResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseBody
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        logException("HttpMessageNotReadableException occurred", ex);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -37,6 +59,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNoResourceFoundException(NoResourceFoundException ex) {
         logException("NoResourceFoundException occurred", ex);
         return buildErrorResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseBody
+    public ResponseEntity<?> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        logException("AuthorizationDeniedException occurred", ex);
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "FORBIDDEN", ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

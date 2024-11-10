@@ -17,6 +17,8 @@ import ua.orlov.springcoregym.dto.trainingtype.TrainingTypeResponse;
 import ua.orlov.springcoregym.mapper.training.TrainingMapper;
 import ua.orlov.springcoregym.mapper.trainingtype.TrainingTypeMapper;
 import ua.orlov.springcoregym.model.training.Training;
+import ua.orlov.springcoregym.security.annotations.training.TrainingRequestHasLoggedUser;
+import ua.orlov.springcoregym.security.annotations.user.IsSelf;
 import ua.orlov.springcoregym.service.training.TrainingService;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
@@ -24,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/training")
+@RequestMapping("/api/v1/training")
 @AllArgsConstructor
 public class TrainingController {
 
@@ -37,8 +39,8 @@ public class TrainingController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list of training types",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            @ApiResponse(responseCode = "403", description = "AccessDenied",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
     })
     @GetMapping("/types")
     public List<TrainingTypeResponse> getTrainingTypes() {
@@ -52,12 +54,13 @@ public class TrainingController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "404", description = "No trainings found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
-    @GetMapping("/trainee")
+    @IsSelf
+    @PostMapping("/trainee")
     public List<TrainingFullResponse> getTrainingsByTraineeAndDate(@Validated @RequestBody TraineeTrainingsRequest request){
         List<Training> trainings = trainingService.getTrainingsByCriteria(request);
 
@@ -71,12 +74,13 @@ public class TrainingController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "404", description = "No trainings found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
-    @GetMapping("/trainer")
+    @IsSelf
+    @PostMapping("/trainer")
     public List<TrainingFullResponse> getTrainingsByTrainerAndDate(@Validated @RequestBody TrainerTrainingRequest request){
         List<Training> trainings = trainingService.getTrainingsByCriteria(request);
 
@@ -89,9 +93,12 @@ public class TrainingController {
             @ApiResponse(responseCode = "200", description = "Training created successfully"),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "404", description = "Not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
     })
+    @TrainingRequestHasLoggedUser
     @PostMapping
     public ResponseEntity<?> createTraining(@RequestBody @Validated CreateTrainingRequest request){
         Training training = trainingMapper.createTrainingRequestToTraining(request);

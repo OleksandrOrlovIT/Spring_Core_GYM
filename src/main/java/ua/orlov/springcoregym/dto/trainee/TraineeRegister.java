@@ -1,10 +1,10 @@
 package ua.orlov.springcoregym.dto.trainee;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 
