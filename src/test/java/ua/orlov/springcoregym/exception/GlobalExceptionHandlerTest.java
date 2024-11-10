@@ -141,4 +141,52 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertEquals("{errors=[username is required.], status=BAD_REQUEST}", responseEntity.getBody().toString());
     }
+
+    @Test
+    void handleAuthorizationDeniedExceptionTest() throws Exception {
+        MvcResult result = mockMvc.perform(get("/access-denied")
+                        .header("Authorization", "Bearer invalid-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertEquals("{\"message\":\"Access denied Exception\",\"status\":\"FORBIDDEN\"}", content);
+    }
+
+    @Test
+    void handleAuthenticationExceptionTest() throws Exception {
+        MvcResult result = mockMvc.perform(get("/authentication-exception")
+                        .header("Authorization", "Bearer expired-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertEquals("{\"message\":\"Authentication failed, invalid credentials\",\"status\":\"UNAUTHORIZED\"}", content);
+    }
+
+    @Test
+    void handleTooManyAttemptsExceptionTest() throws Exception {
+        MvcResult result = mockMvc.perform(get("/too-many-attempts")
+                        .header("Authorization", "Bearer retry-later-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isTooManyRequests())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertEquals("{\"message\":\"Too many attempts, please try again later.\",\"status\":\"TOO_MANY_REQUESTS\"}", content);
+    }
+
+    @Test
+    void handleAuthorizationDeniedException() throws Exception {
+        MvcResult result = mockMvc.perform(get("/authorization-denied-exception")
+                        .header("Authorization", "Bearer retry-later-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertEquals("{\"message\":\"Authorization Denied\",\"status\":\"FORBIDDEN\"}", content);
+    }
 }

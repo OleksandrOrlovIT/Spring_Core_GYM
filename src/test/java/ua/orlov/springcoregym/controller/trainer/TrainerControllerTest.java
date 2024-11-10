@@ -75,7 +75,7 @@ class TrainerControllerTest {
         when(trainerService.create(any())).thenReturn(new Trainer());
         when(trainerMapper.trainerToUsernamePasswordUser(any())).thenReturn(new UsernamePasswordUser());
 
-        mockMvc.perform(post("/trainer")
+        mockMvc.perform(post("/api/v1/trainer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(trainerRegister)))
                 .andExpect(status().isOk())
@@ -93,7 +93,7 @@ class TrainerControllerTest {
         when(trainerService.getByUserNameWithTrainees(any())).thenReturn(new Trainer());
         when(traineeTrainerMapper.trainerToTrainerFullResponse(any())).thenReturn(new TrainerFullResponse());
 
-        mockMvc.perform(get("/trainer/username")
+        mockMvc.perform(get("/api/v1/trainer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usernameUser)))
                 .andExpect(status().isOk())
@@ -116,7 +116,7 @@ class TrainerControllerTest {
         when(trainerService.update(any())).thenReturn(new Trainer());
         when(traineeTrainerMapper.trainerToTrainerFullUsernameResponse(any())).thenReturn(new TrainerFullUsernameResponse());
 
-        mockMvc.perform(put("/trainer")
+        mockMvc.perform(put("/api/v1/trainer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ class TrainerControllerTest {
         when(trainerService.getTrainersWithoutPassedTrainee(any(), any())).thenReturn(new ArrayList<>());
         when(trainerMapper.trainersListToTrainerResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/trainer/without-trainee")
+        mockMvc.perform(get("/api/v1/trainer/without-trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usernameUser)))
                 .andExpect(status().isOk())
@@ -150,7 +150,7 @@ class TrainerControllerTest {
         request.setUsername("username");
         request.setIsActive(true);
 
-        mockMvc.perform(patch("/trainer/active")
+        mockMvc.perform(patch("/api/v1/trainer/active")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

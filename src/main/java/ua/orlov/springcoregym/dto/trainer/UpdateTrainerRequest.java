@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateTrainerRequest {
+
     @NotBlank(message = "username is required.")
     private String username;
 

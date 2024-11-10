@@ -123,7 +123,19 @@ public interface TrainerService {
      */
     Trainer getByUsername(String trainerUserName);
 
+    /**
+     * Retrieves a trainer by username along with their assigned trainees.
+     *
+     * @param trainerUsername the username of the trainer to retrieve
+     * @return the trainer entity with trainees included
+     */
     Trainer getByUserNameWithTrainees(String trainerUsername);
 
+    /**
+     * Activates or deactivates a trainer based on the specified status.
+     *
+     * @param trainerUsername the username of the trainer to update
+     * @param isActive true to activate the trainer; false to deactivate
+     */
     void activateDeactivateTrainer(String trainerUsername, boolean isActive);
 }

@@ -1,41 +1,23 @@
 package ua.orlov.springcoregym.service.security;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
-import ua.orlov.springcoregym.exception.TooManyAttemptsException;
-import ua.orlov.springcoregym.service.user.UserService;
+/**
+ * Service interface for user authentication operations.
+ */
+public interface AuthenticationService {
 
-@Service
-@AllArgsConstructor
-@Slf4j
-public class AuthenticationService {
+    /**
+     * Authenticates the user with the provided username and password, returning a JWT token if successful.
+     *
+     * @param username the username of the user attempting to log in
+     * @param password the password of the user attempting to log in
+     * @return a JWT token representing the authenticated session
+     */
+    String login(String username, String password);
 
-    private final UserService userService;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final LoginAttemptService loginAttemptService;
-
-    public String login(String username, String password) {
-        try {
-            if (loginAttemptService.isBlocked()) {
-                throw new TooManyAttemptsException("Too many attempts");
-            }
-
-            UsernamePasswordAuthenticationToken authenticationToken
-                    = new UsernamePasswordAuthenticationToken(username, password);
-
-            authenticationManager.authenticate(authenticationToken);
-
-            loginAttemptService.loginSucceeded(loginAttemptService.getClientIP());
-
-            return jwtService.generateToken(userService.getByUsername(username));
-
-        } catch (Exception ex) {
-            log.error("Authentication failed: {}", ex.getMessage());
-            throw ex;
-        }
-    }
+    /**
+     * Logs the user out by invalidating the provided token.
+     *
+     * @param token the JWT token to invalidate for logging out
+     */
+    void logout(String token);
 }

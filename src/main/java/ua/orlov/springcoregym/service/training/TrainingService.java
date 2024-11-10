@@ -36,7 +36,19 @@ public interface TrainingService {
      */
     List<Training> getAll();
 
+    /**
+     * Retrieves a list of training sessions based on criteria specified in a {@link TraineeTrainingsRequest}.
+     *
+     * @param request the criteria for retrieving trainings for a trainee
+     * @return a list of trainings that match the specified criteria
+     */
     List<Training> getTrainingsByCriteria(TraineeTrainingsRequest request);
 
+    /**
+     * Retrieves a list of training sessions based on criteria specified in a {@link TrainerTrainingRequest}.
+     *
+     * @param request the criteria for retrieving trainings for a trainer
+     * @return a list of trainings that match the specified criteria
+     */
     List<Training> getTrainingsByCriteria(TrainerTrainingRequest request);
 }

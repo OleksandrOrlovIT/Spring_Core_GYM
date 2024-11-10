@@ -46,7 +46,7 @@ class TraineeTrainerMapperTest {
         trainee.setLastName("lastName");
         trainee.setDateOfBirth(LocalDate.MAX);
         trainee.setAddress("address");
-        trainee.setIsActive(true);
+        trainee.setActive(true);
         trainee.setTrainers(new ArrayList<>());
 
         when(trainerMapper.trainersListToTrainerResponseList(anyList())).thenReturn(new ArrayList<>());
@@ -58,7 +58,7 @@ class TraineeTrainerMapperTest {
         assertEquals(trainee.getLastName(), traineeFullResponse.getLastName());
         assertEquals(trainee.getDateOfBirth(), traineeFullResponse.getDateOfBirth());
         assertEquals(trainee.getAddress(), traineeFullResponse.getAddress());
-        assertEquals(trainee.getIsActive(), traineeFullResponse.isActive());
+        assertEquals(trainee.isActive(), traineeFullResponse.isActive());
         assertEquals(trainee.getTrainers().size(), traineeFullResponse.getTrainers().size());
         verify(trainerMapper, times(1)).trainersListToTrainerResponseList(anyList());
     }
@@ -71,7 +71,7 @@ class TraineeTrainerMapperTest {
         trainee.setLastName("lastName");
         trainee.setDateOfBirth(LocalDate.MAX);
         trainee.setAddress("address");
-        trainee.setIsActive(true);
+        trainee.setActive(true);
         trainee.setTrainers(new ArrayList<>());
 
         when(trainerMapper.trainersListToTrainerResponseList(anyList())).thenReturn(new ArrayList<>());
@@ -85,7 +85,7 @@ class TraineeTrainerMapperTest {
         assertEquals(trainee.getLastName(), traineeFullResponse.getLastName());
         assertEquals(trainee.getDateOfBirth(), traineeFullResponse.getDateOfBirth());
         assertEquals(trainee.getAddress(), traineeFullResponse.getAddress());
-        assertEquals(trainee.getIsActive(), traineeFullResponse.isActive());
+        assertEquals(trainee.isActive(), traineeFullResponse.isActive());
         assertEquals(trainee.getTrainers().size(), traineeFullResponse.getTrainers().size());
         verify(trainerMapper, times(1)).trainersListToTrainerResponseList(anyList());
     }
@@ -96,7 +96,7 @@ class TraineeTrainerMapperTest {
         trainer.setFirstName("firstName");
         trainer.setLastName("lastName");
         trainer.setSpecialization(new TrainingType());
-        trainer.setIsActive(true);
+        trainer.setActive(true);
         trainer.setTrainees(new ArrayList<>());
 
         when(trainingTypeMapper.trainingTypeToTrainingTypeResponse(any())).thenReturn(new TrainingTypeResponse());
@@ -107,7 +107,7 @@ class TraineeTrainerMapperTest {
         assertNotNull(trainerFullResponse);
         assertEquals(trainer.getFirstName(), trainerFullResponse.getFirstName());
         assertEquals(trainer.getLastName(), trainerFullResponse.getLastName());
-        assertEquals(trainer.getIsActive(), trainerFullResponse.getIsActive());
+        assertEquals(trainer.isActive(), trainerFullResponse.getIsActive());
         assertEquals(trainer.getTrainees().size(), trainerFullResponse.getTrainees().size());
         assertNotNull(trainerFullResponse.getSpecialization());
 
@@ -122,7 +122,7 @@ class TraineeTrainerMapperTest {
         trainer.setFirstName("firstName");
         trainer.setLastName("lastName");
         trainer.setSpecialization(new TrainingType());
-        trainer.setIsActive(true);
+        trainer.setActive(true);
         trainer.setTrainees(new ArrayList<>());
 
         when(trainingTypeMapper.trainingTypeToTrainingTypeResponse(any())).thenReturn(new TrainingTypeResponse());
@@ -135,7 +135,7 @@ class TraineeTrainerMapperTest {
         assertEquals(trainer.getUsername(), trainerFullResponse.getUsername());
         assertEquals(trainer.getFirstName(), trainerFullResponse.getFirstName());
         assertEquals(trainer.getLastName(), trainerFullResponse.getLastName());
-        assertEquals(trainer.getIsActive(), trainerFullResponse.getIsActive());
+        assertEquals(trainer.isActive(), trainerFullResponse.getIsActive());
         assertEquals(trainer.getTrainees().size(), trainerFullResponse.getTrainees().size());
         assertNotNull(trainerFullResponse.getSpecialization());
 

@@ -28,7 +28,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: master
       SPRING_PROFILES_ACTIVE: prod
     ports:
-      - "8080:8080"
+      - "8443:8443"
     depends_on:
       - postgres
     build:

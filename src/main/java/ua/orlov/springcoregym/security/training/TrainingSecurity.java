@@ -13,7 +13,7 @@ public class TrainingSecurity {
 
     private final UserService userService;
 
-    public boolean TrainingRequestHasLoggedUser(String traineeUsername, String trainerUsername) {
+    public boolean trainingRequestHasLoggedUser(String traineeUsername, String trainerUsername) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
         User foundTrainee = null, foundTrainer = null;

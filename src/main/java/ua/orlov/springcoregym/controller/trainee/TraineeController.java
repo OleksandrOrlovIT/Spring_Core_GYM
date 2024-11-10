@@ -43,11 +43,9 @@ public class TraineeController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsernamePasswordUser.class))),
             @ApiResponse(responseCode = "400", description = "Validation error or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
-    @PostMapping
-    public ResponseEntity<UsernamePasswordUser> registerTrainee(@Validated @RequestBody TraineeRegister traineeRegister) {
+    @PostMapping("/create")
+    public ResponseEntity<UsernamePasswordUser> registerTrainee(@RequestBody @Validated TraineeRegister traineeRegister) {
         Trainee trainee = traineeService.create(traineeMapper.traineeRegisterToTrainee(traineeRegister));
         UsernamePasswordUser user = traineeMapper.traineeToUsernamePasswordUser(trainee);
         return ResponseEntity.ok(user);
@@ -60,13 +58,13 @@ public class TraineeController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TraineeFullResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "404", description = "Trainee not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
     @IsSelf
-    @GetMapping
+    @PostMapping("/username")
     public ResponseEntity<TraineeFullResponse> getTraineeByUsername(@RequestBody @Validated UsernameUser request) {
         Trainee trainee = traineeService.getByUserNameWithTrainers(request.getUsername());
 
@@ -79,10 +77,10 @@ public class TraineeController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TraineeFullUsernameResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "404", description = "Trainee not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
     @IsSelf
     @PutMapping
@@ -98,10 +96,10 @@ public class TraineeController {
             @ApiResponse(responseCode = "204", description = "Successfully deleted trainee"),
             @ApiResponse(responseCode = "400", description = "Validation error or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "404", description = "Trainee not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
     @IsSelf
     @DeleteMapping
@@ -118,10 +116,10 @@ public class TraineeController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = TrainerResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "404", description = "Trainee or trainer not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
     @IsSelf
     @PutMapping("/trainers")
@@ -137,10 +135,10 @@ public class TraineeController {
             @ApiResponse(responseCode = "200", description = "Trainee account activation/deactivation successful"),
             @ApiResponse(responseCode = "400", description = "Validation error or bad request",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "AccessDenied (e.g., AccessDeniedException)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "404", description = "Trainee not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class)))
     })
     @IsSelf
     @PatchMapping("/active")
