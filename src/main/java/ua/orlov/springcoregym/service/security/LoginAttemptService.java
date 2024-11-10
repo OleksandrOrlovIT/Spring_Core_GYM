@@ -1,58 +1,42 @@
 package ua.orlov.springcoregym.service.security;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Service;
+/**
+ * Service interface for managing login attempts and blocking functionality.
+ */
+public interface LoginAttemptService {
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+    /**
+     * Increments the failed login attempt count for the specified key.
+     *
+     * @param key the key (e.g., IP address) associated with the failed login attempt
+     */
+    void loginFailed(final String key);
 
-@Service
-public class LoginAttemptService {
+    /**
+     * Checks if the client associated with the current IP address is blocked due to
+     * exceeding the maximum number of login attempts.
+     *
+     * @return true if the client is blocked; false otherwise
+     */
+    boolean isBlocked();
 
-    private static final int MAX_ATTEMPT = 3;
-    private static final int LOCKOUT_DURATION_MINUTES = 5;
-    private final LoadingCache<String, Integer> attemptsCache;
+    /**
+     * Resets the login attempt count for the specified key upon successful login.
+     *
+     * @param key the key (e.g., IP address) associated with the successful login attempt
+     */
+    void loginSucceeded(final String key);
 
-    private final HttpServletRequest request;
+    /**
+     * Retrieves the IP address of the client making the request. If the "X-Forwarded-For" header
+     * is present, it will be used; otherwise, the remote address from the request will be returned.
+     *
+     * @return the client's IP address
+     */
+    String getClientIP();
 
-    public LoginAttemptService(HttpServletRequest request) {
-        this.request = request;
-        this.attemptsCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(LOCKOUT_DURATION_MINUTES, TimeUnit.MINUTES)
-                .build(CacheLoader.from(key -> 0));
-    }
-
-    public void loginFailed(final String key) {
-        int attempts;
-        try {
-            attempts = attemptsCache.get(key);
-        } catch (final ExecutionException e) {
-            attempts = 0;
-        }
-        attempts++;
-        attemptsCache.put(key, attempts);
-    }
-
-    public boolean isBlocked() {
-        try {
-            return attemptsCache.get(getClientIP()) >= MAX_ATTEMPT;
-        } catch (final ExecutionException e) {
-            return false;
-        }
-    }
-
-    public void loginSucceeded(final String key) {
-        attemptsCache.invalidate(key);
-    }
-
-    protected String getClientIP() {
-        final String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader != null) {
-            return xfHeader.split(",")[0];
-        }
-        return request.getRemoteAddr();
-    }
+    /**
+     * Clears all entries from the login attempts cache, effectively resetting attempt counts.
+     */
+    void clearCache();
 }

@@ -69,7 +69,7 @@ class TraineeMapperTest {
         assertEquals(request.getLastName(), trainee.getLastName());
         assertEquals(request.getDateOfBirth(), trainee.getDateOfBirth());
         assertEquals(request.getAddress(), trainee.getAddress());
-        assertEquals(request.getIsActive(), trainee.getIsActive());
+        assertEquals(request.getIsActive(), trainee.isActive());
     }
 
     @Test

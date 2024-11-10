@@ -87,7 +87,7 @@ class TrainingControllerTest {
         when(trainingService.getTrainingsByCriteria(any(TraineeTrainingsRequest.class))).thenReturn(new ArrayList<>());
         when(trainingMapper.trainingListToTrainingFullResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/api/v1/training/trainee")
+        mockMvc.perform(post("/api/v1/training/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ class TrainingControllerTest {
         when(trainingService.getTrainingsByCriteria(any(TrainerTrainingRequest.class))).thenReturn(new ArrayList<>());
         when(trainingMapper.trainingListToTrainingFullResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/api/v1/training/trainer")
+        mockMvc.perform(post("/api/v1/training/trainer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

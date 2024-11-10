@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("@userSecurity.isSelf(#request.username)")
-public @interface IsSelf {}
+public @interface IsSelf {
+
+}

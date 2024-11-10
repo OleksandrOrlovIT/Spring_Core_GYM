@@ -46,7 +46,6 @@ class UserServiceImplTest {
     @Mock
     private PasswordService passwordService;
 
-    @InjectMocks
     private UserServiceImpl userService;
 
     @BeforeEach

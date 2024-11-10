@@ -118,11 +118,37 @@ public interface TraineeService {
      */
     Trainee getByUsername(String traineeUsername);
 
+    /**
+     * Updates the list of trainers assigned to a trainee by trainee ID.
+     *
+     * @param traineeId the ID of the trainee to update
+     * @param trainerIds the list of trainer IDs to assign to the trainee
+     * @return the updated list of trainers assigned to the trainee
+     */
     List<Trainer> updateTraineeTrainers(Long traineeId, List<Long> trainerIds);
 
-    List<Trainer> updateTraineeTrainers(String traineeUsername, List<String> trainerUserNames);
+    /**
+     * Updates the list of trainers assigned to a trainee by trainee username.
+     *
+     * @param traineeUsername the username of the trainee to update
+     * @param trainerUsernames the list of trainer usernames to assign to the trainee
+     * @return the updated list of trainers assigned to the trainee
+     */
+    List<Trainer> updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames);
 
+    /**
+     * Retrieves a trainee by username along with their assigned trainers.
+     *
+     * @param traineeUsername the username of the trainee to retrieve
+     * @return the trainee entity with trainers included
+     */
     Trainee getByUserNameWithTrainers(String traineeUsername);
 
+    /**
+     * Activates or deactivates a trainee based on the specified status.
+     *
+     * @param traineeUsername the username of the trainee to update
+     * @param isActive true to activate the trainee; false to deactivate
+     */
     void activateDeactivateTrainee(String traineeUsername, boolean isActive);
 }

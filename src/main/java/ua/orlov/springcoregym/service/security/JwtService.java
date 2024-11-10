@@ -1,85 +1,79 @@
 package ua.orlov.springcoregym.service.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-import ua.orlov.springcoregym.model.user.User;
-import ua.orlov.springcoregym.service.token.InvalidTokenService;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
-@RequiredArgsConstructor
-@Service
-public class JwtService {
+/**
+ * Service interface for managing JWT tokens.
+ */
+public interface JwtService {
 
-    @Value("${token.signing.key}")
-    private String jwtSigningKey;
+    /**
+     * Extracts the username from the provided JWT token.
+     *
+     * @param token the JWT token
+     * @return the username extracted from the token
+     */
+    String extractUserName(String token);
 
-    private final InvalidTokenService invalidTokenService;
+    /**
+     * Generates a JWT token for the specified user details.
+     *
+     * @param userDetails the details of the user for whom to generate the token
+     * @return a JWT token for the user
+     */
+    String generateToken(UserDetails userDetails);
 
-    public String extractUserName(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
+    /**
+     * Validates the token by checking its expiry and matching it with user details.
+     *
+     * @param token the JWT token to validate
+     * @param userDetails the details of the user to verify the token against
+     * @return true if the token is valid; false otherwise
+     */
+    boolean isTokenValid(String token, UserDetails userDetails);
 
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof User customUserDetails) {
-            claims.put("id", customUserDetails.getId());
-            claims.put("userName", customUserDetails.getUsername());
-        }
-        return generateToken(claims, userDetails);
-    }
+    /**
+     * Generates a JWT token with additional claims for the specified user details.
+     *
+     * @param extraClaims additional claims to include in the token
+     * @param userDetails the details of the user for whom to generate the token
+     * @return a JWT token containing the extra claims
+     */
+    String generateToken(Map<String, Object> extraClaims, UserDetails userDetails);
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername()))
-                && !isTokenExpired(token)
-                && !invalidTokenService.isTokenBlacklisted(token);
-    }
+    /**
+     * Checks if the specified token is expired.
+     *
+     * @param token the JWT token
+     * @return true if the token has expired; false otherwise
+     */
+    boolean isTokenExpired(String token);
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolvers.apply(claims);
-    }
+    /**
+     * Extracts the expiration date from the provided JWT token.
+     *
+     * @param token the JWT token
+     * @return the expiration date of the token
+     */
+    Date extractExpiration(String token);
 
+    /**
+     * Extracts all claims from the provided JWT token.
+     *
+     * @param token the JWT token
+     * @return the claims contained in the token
+     */
+    Claims extractAllClaims(String token);
 
-    String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 60 * 15 * 1000))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
-    }
-
-
-    boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-
-    Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-
-    Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(getSigningKey()).build().parseClaimsJws(token)
-                .getBody();
-    }
-
-
-    Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
+    /**
+     * Retrieves the signing key used for JWT token generation and validation.
+     *
+     * @return the signing key
+     */
+    Key getSigningKey();
 }
