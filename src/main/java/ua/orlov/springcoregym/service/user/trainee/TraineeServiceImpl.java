@@ -37,35 +37,30 @@ public class TraineeServiceImpl implements TraineeService {
         traineeDAO.deleteByUsername(userName);
     }
 
+    @Transactional
     @Override
     public Trainee update(Trainee trainee) {
         checkNames(trainee);
 
         Trainee foundTrainee = getByUsername(trainee.getUsername());
         trainee.setId(foundTrainee.getId());
+        trainee.setPassword(foundTrainee.getPassword());
 
-        if (trainee.getPassword() == null || trainee.getPassword().length() != passwordService.getPasswordLength()) {
-            trainee.setPassword(passwordService.generatePassword());
-        }
-
-        if (!passwordEncoder.matches(trainee.getPassword(), foundTrainee.getPassword())) {
-            trainee.setPassword(passwordEncoder.encode(trainee.getPassword()));
-        } else {
-            trainee.setPassword(foundTrainee.getPassword());
-        }
-
-        Objects.requireNonNull(trainee.getIsActive(), "Trainee's isActive field can't be null");
-        if (foundTrainee.getIsActive() != trainee.getIsActive()) {
+        if (foundTrainee.isActive() != trainee.isActive()) {
             throw new IllegalArgumentException("IsActive field can't be changed in update");
         }
 
         trainee.setTrainings(foundTrainee.getTrainings());
 
+
         trainee = traineeDAO.update(trainee);
 
-        return getByUserNameWithTrainers(trainee.getUsername());
+        foundTrainee = getByUserNameWithTrainers(trainee.getUsername());
+
+        return foundTrainee;
     }
 
+    @Transactional
     @Override
     public Trainee create(Trainee trainee) {
         trainee.setUsername(constructTraineeUsername(trainee));
@@ -78,10 +73,6 @@ public class TraineeServiceImpl implements TraineeService {
 
         String oldPassword = trainee.getPassword();
         trainee.setPassword(passwordEncoder.encode(trainee.getPassword()));
-
-        if(trainee.getIsActive() == null){
-            trainee.setIsActive(false);
-        }
 
         Trainee createdTrainee = traineeDAO.create(trainee);
         createdTrainee.setPassword(oldPassword);
@@ -124,13 +115,10 @@ public class TraineeServiceImpl implements TraineeService {
         Trainee foundTrainee = traineeDAO.getByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + username));
 
-        if (password != null) {
-            return password.equals(foundTrainee.getPassword());
-        }
-
-        return false;
+        return password != null && password.equals(foundTrainee.getPassword());
     }
 
+    @Transactional
     @Override
     public Trainee changePassword(Trainee trainee, String newPassword) {
         Trainee foundTrainee = select(trainee.getId());
@@ -144,28 +132,30 @@ public class TraineeServiceImpl implements TraineeService {
         return traineeDAO.update(foundTrainee);
     }
 
+    @Transactional
     @Override
     public Trainee activateTrainee(Long traineeId) {
         Trainee foundTrainee = select(traineeId);
 
-        if (foundTrainee.getIsActive()) {
+        if (foundTrainee.isActive()) {
             throw new IllegalArgumentException("Trainee is already active " + foundTrainee);
         }
 
-        foundTrainee.setIsActive(true);
+        foundTrainee.setActive(true);
 
         return traineeDAO.update(foundTrainee);
     }
 
+    @Transactional
     @Override
     public Trainee deactivateTrainee(Long traineeId) {
         Trainee foundTrainee = select(traineeId);
 
-        if (!foundTrainee.getIsActive()) {
+        if (!foundTrainee.isActive()) {
             throw new IllegalArgumentException("Trainee is already deactivated " + foundTrainee);
         }
 
-        foundTrainee.setIsActive(false);
+        foundTrainee.setActive(false);
 
         return traineeDAO.update(foundTrainee);
     }
@@ -199,6 +189,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Transactional
+    @Override
     public List<Trainer> updateTraineeTrainers(Long traineeId, List<Long> trainerIds) {
         Trainee trainee = select(traineeId);
 
@@ -225,6 +216,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Transactional
+    @Override
     public List<Trainer> updateTraineeTrainers(String traineeUsername, List<String> trainerUsernames) {
         Trainee trainee = getByUsername(traineeUsername);
 
@@ -250,6 +242,7 @@ public class TraineeServiceImpl implements TraineeService {
         return traineeDAO.getTrainersByTraineeUsername(trainee.getUsername());
     }
 
+    @Transactional
     @Override
     public Trainee getByUserNameWithTrainers(String traineeUsername) {
         Trainee trainee = getByUsername(traineeUsername);
@@ -259,11 +252,12 @@ public class TraineeServiceImpl implements TraineeService {
         return trainee;
     }
 
+    @Transactional
     @Override
     public void activateDeactivateTrainee(String traineeUsername, boolean isActive) {
         Trainee trainee = getByUsername(traineeUsername);
 
-        if(isActive){
+        if(!isActive){
             deactivateTrainee(trainee.getId());
         } else {
             activateTrainee(trainee.getId());

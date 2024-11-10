@@ -67,7 +67,7 @@ class TrainingControllerTest {
         when(trainingTypeService.getAll()).thenReturn(new ArrayList<>());
         when(trainingTypeMapper.trainingTypeListToTrainingTypeResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/training/types"))
+        mockMvc.perform(get("/api/v1/training/types"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -87,7 +87,7 @@ class TrainingControllerTest {
         when(trainingService.getTrainingsByCriteria(any(TraineeTrainingsRequest.class))).thenReturn(new ArrayList<>());
         when(trainingMapper.trainingListToTrainingFullResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/training/trainee")
+        mockMvc.perform(post("/api/v1/training/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ class TrainingControllerTest {
         when(trainingService.getTrainingsByCriteria(any(TrainerTrainingRequest.class))).thenReturn(new ArrayList<>());
         when(trainingMapper.trainingListToTrainingFullResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/training/trainer")
+        mockMvc.perform(post("/api/v1/training/trainer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -131,7 +131,7 @@ class TrainingControllerTest {
         when(trainingMapper.createTrainingRequestToTraining(any())).thenReturn(new Training());
         when(trainingService.create(any())).thenReturn(new Training());
 
-        mockMvc.perform(post("/training")
+        mockMvc.perform(post("/api/v1/training")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

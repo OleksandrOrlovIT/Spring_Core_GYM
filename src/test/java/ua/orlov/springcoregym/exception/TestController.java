@@ -1,19 +1,13 @@
 package ua.orlov.springcoregym.exception;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-import org.hibernate.TypeMismatchException;
 import org.springframework.http.HttpMethod;
-import org.springframework.util.ClassUtils;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import ua.orlov.springcoregym.dto.user.UsernameUser;
 
 import java.nio.file.AccessDeniedException;
 import java.util.NoSuchElementException;
@@ -57,9 +51,29 @@ public class TestController {
                 null, Integer.class, "id", null, new IllegalArgumentException("Type mismatch"));
     }
 
-    // Throws NoResourceFoundException
     @GetMapping("/no-resource-found")
     public void noResourceFound() throws NoResourceFoundException {
         throw new NoResourceFoundException(HttpMethod.GET, "/path");
+    }
+
+    @GetMapping("/too-many-attempts")
+    public void tooManyAttempts() {
+        throw new TooManyAttemptsException("Too many attempts, please try again later.");
+    }
+
+    @GetMapping("/authentication-exception")
+    public void authenticationException() {
+        throw new org.springframework.security.core
+                .AuthenticationException("Authentication failed, invalid credentials") {};
+    }
+
+    @GetMapping("/authorization-denied-exception")
+    public void authorizationDeniedException() {
+        throw new AuthorizationDeniedException("Authorization Denied", new AuthorizationResult() {
+            @Override
+            public boolean isGranted() {
+                return false;
+            }
+        });
     }
 }
