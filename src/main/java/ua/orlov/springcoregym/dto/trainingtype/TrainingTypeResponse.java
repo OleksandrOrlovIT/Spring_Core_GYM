@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TrainingTypeResponse {
+
     private Long id;
 
     private String trainingTypeName;

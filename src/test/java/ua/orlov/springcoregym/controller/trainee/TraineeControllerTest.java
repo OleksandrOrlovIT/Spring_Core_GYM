@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.orlov.springcoregym.dto.trainee.*;
 import ua.orlov.springcoregym.dto.user.UsernameIsActiveUser;
@@ -26,6 +25,7 @@ import ua.orlov.springcoregym.service.user.trainee.TraineeService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -83,7 +83,7 @@ class TraineeControllerTest {
         when(traineeService.create(any())).thenReturn(returnTrainee);
         when(traineeMapper.traineeToUsernamePasswordUser(any())).thenReturn(response);
 
-        mockMvc.perform(post("/trainee")
+        mockMvc.perform(post("/api/v1/trainee/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(traineeRegister)))
                 .andExpect(status().isOk())
@@ -101,7 +101,7 @@ class TraineeControllerTest {
         when(traineeService.getByUserNameWithTrainers(any())).thenReturn(new Trainee());
         when(traineeTrainerMapper.traineeToTraineeFullResponse(any())).thenReturn(new TraineeFullResponse());
 
-        mockMvc.perform(get("/trainee/username")
+        mockMvc.perform(post("/api/v1/trainee/username")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usernameUser)))
                 .andExpect(status().isOk())
@@ -125,7 +125,7 @@ class TraineeControllerTest {
         when(traineeService.update(any())).thenReturn(new Trainee());
         when(traineeTrainerMapper.traineeToTraineeFullUsernameResponse(any())).thenReturn(new TraineeFullUsernameResponse());
 
-        mockMvc.perform(put("/trainee")
+        mockMvc.perform(put("/api/v1/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -140,7 +140,7 @@ class TraineeControllerTest {
     void deleteTraineeByUsernameThenSuccess() throws Exception {
         UsernameUser usernameUser = new UsernameUser("username");
 
-        mockMvc.perform(delete("/trainee")
+        mockMvc.perform(delete("/api/v1/trainee")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usernameUser)))
                 .andExpect(status().isNoContent())
@@ -153,13 +153,13 @@ class TraineeControllerTest {
     void updateTraineeTrainersListThenSuccess() throws Exception {
         UpdateTraineeTrainersListRequest request = new UpdateTraineeTrainersListRequest();
         request.setUsername("userName");
-        request.setTrainers(new ArrayList<>());
+        request.setTrainers(List.of(new UsernameUser()));
 
         when(userMapper.mapUsernameUserListToStringList(anyList())).thenReturn(new ArrayList<>());
         when(traineeService.updateTraineeTrainers(any(String.class), anyList())).thenReturn(new ArrayList<>());
         when(trainerMapper.trainersListToTrainerResponseList(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(put("/trainee/trainers")
+        mockMvc.perform(put("/api/v1/trainee/trainers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -176,7 +176,7 @@ class TraineeControllerTest {
         request.setUsername("username");
         request.setIsActive(true);
 
-        mockMvc.perform(patch("/trainee/active")
+        mockMvc.perform(patch("/api/v1/trainee/active")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

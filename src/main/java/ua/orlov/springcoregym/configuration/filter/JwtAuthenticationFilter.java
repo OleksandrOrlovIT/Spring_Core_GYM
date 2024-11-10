@@ -23,8 +23,10 @@ import ua.orlov.springcoregym.service.user.UserService;
 @AllArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
+
     private final JwtService jwtService;
     private final UserService userService;
     private final GlobalExceptionHandler globalExceptionHandler;
