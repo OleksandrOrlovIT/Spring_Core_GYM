@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -35,6 +36,7 @@ public class GlobalExceptionHandlerTest {
         this.mockMvc = MockMvcBuilders
                 .standaloneSetup(new TestController())
                 .setControllerAdvice(new GlobalExceptionHandler())
+                .setMessageConverters(new MappingJackson2HttpMessageConverter())
                 .build();
     }
 
@@ -143,18 +145,6 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleAuthorizationDeniedExceptionTest() throws Exception {
-        MvcResult result = mockMvc.perform(get("/access-denied")
-                        .header("Authorization", "Bearer invalid-token")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden())
-                .andReturn();
-
-        String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Access denied Exception\",\"status\":\"FORBIDDEN\"}", content);
-    }
-
-    @Test
     void handleAuthenticationExceptionTest() throws Exception {
         MvcResult result = mockMvc.perform(get("/authentication-exception")
                         .header("Authorization", "Bearer expired-token")
@@ -176,17 +166,5 @@ public class GlobalExceptionHandlerTest {
 
         String content = result.getResponse().getContentAsString();
         assertEquals("{\"message\":\"Too many attempts, please try again later.\",\"status\":\"TOO_MANY_REQUESTS\"}", content);
-    }
-
-    @Test
-    void handleAuthorizationDeniedException() throws Exception {
-        MvcResult result = mockMvc.perform(get("/authorization-denied-exception")
-                        .header("Authorization", "Bearer retry-later-token")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden())
-                .andReturn();
-
-        String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Authorization Denied\",\"status\":\"FORBIDDEN\"}", content);
     }
 }

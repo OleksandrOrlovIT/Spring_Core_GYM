@@ -2,6 +2,7 @@ package ua.orlov.springcoregym.configuration.filter;
 
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -73,5 +74,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e){
             globalExceptionHandler.handleException(e);
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/eureka") || path.startsWith("/actuator") || path.startsWith("/swagger-ui");
     }
 }
