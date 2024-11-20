@@ -10,6 +10,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+        gym-network:
+          ipv4_address: 172.18.0.2
 
   prometheus:
     image: prom/prometheus:latest
@@ -18,15 +21,19 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      gym-network:
+        ipv4_address: 172.18.0.3
 
-  spring_boot_gym:
+  spring-boot-gym:
     image: spring-gym
-    container_name: spring_boot_gym
+    container_name: spring-boot-gym
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/GymDB
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: master
-      SPRING_PROFILES_ACTIVE: prod
+    - JAVA_OPTS="-Djavax.net.ssl.keyStore=/app/resources/myCertificate.jks -Djavax.net.ssl.keyStorePassword=rootroot -Djavax.net.ssl.trustStore=/app/resources/myCertificate.jks -Djavax.net.ssl.trustStorePassword=rootroot"
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/GymDB
+    - SPRING_DATASOURCE_USERNAME=postgres
+    - SPRING_DATASOURCE_PASSWORD=master
+    - SPRING_PROFILES_ACTIVE=prod
     ports:
       - "8443:8443"
     depends_on:
@@ -34,6 +41,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - ./src/main/resources/myCertificate.jks:/app/resources/myCertificate.jks
+    networks:
+      gym-network:
+        ipv4_address: 172.18.0.5
 
 volumes:
   postgres_data:
+
+networks:
+  gym-network:
+    external: true
