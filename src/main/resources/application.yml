@@ -12,6 +12,8 @@ spring:
   web:
     resources:
       add-mappings: true
+  application:
+    name: SPRING-CORE-GYM
 
 management:
   endpoints:
@@ -64,7 +66,7 @@ eureka:
   client:
     registry-fetch-interval-seconds: 10
     service-url:
-      defaultZone: http://172.18.0.10:8090/eureka/
+      defaultZone: https://172.18.0.10:8761/eureka/
     tls:
       enabled: true
       key-store: classpath:myCertificate.jks
@@ -74,3 +76,5 @@ eureka:
       trust-store: classpath:myCertificate.jks
       trust-store-type: PKCS12
       trust-store-password: rootroot
+  instance:
+    hostname: localhost

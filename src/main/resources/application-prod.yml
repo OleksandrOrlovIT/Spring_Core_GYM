@@ -12,6 +12,8 @@ spring:
   web:
     resources:
       add-mappings: true
+  application:
+    name: SPRING-CORE-GYM
 
 management:
   endpoints:
@@ -74,3 +76,5 @@ eureka:
       trust-store: classpath:myCertificate.jks
       trust-store-type: PKCS12
       trust-store-password: rootroot
+  instance:
+    hostname: localhost
