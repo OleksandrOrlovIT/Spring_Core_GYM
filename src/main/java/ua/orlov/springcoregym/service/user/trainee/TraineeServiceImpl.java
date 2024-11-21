@@ -75,9 +75,25 @@ public class TraineeServiceImpl implements TraineeService {
         trainee.setPassword(passwordEncoder.encode(trainee.getPassword()));
 
         Trainee createdTrainee = traineeDAO.create(trainee);
-        createdTrainee.setPassword(oldPassword);
 
-        return createdTrainee;
+        Trainee returnedTrainee = cloneTrainee(createdTrainee);
+        returnedTrainee.setPassword(oldPassword);
+
+        return returnedTrainee;
+    }
+
+    private Trainee cloneTrainee(Trainee trainee) {
+        Trainee clonedTrainee = new Trainee();
+        clonedTrainee.setId(trainee.getId());
+        clonedTrainee.setUsername(trainee.getUsername());
+        clonedTrainee.setPassword(trainee.getPassword());
+        clonedTrainee.setFirstName(trainee.getFirstName());
+        clonedTrainee.setLastName(trainee.getLastName());
+        clonedTrainee.setAddress(trainee.getAddress());
+        clonedTrainee.setDateOfBirth(trainee.getDateOfBirth());
+        clonedTrainee.setTrainings(trainee.getTrainings());
+        clonedTrainee.setTrainers(trainee.getTrainers());
+        return clonedTrainee;
     }
 
     @Override

@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import ua.orlov.springcoregym.dto.trainer.TrainerRegister;
 import ua.orlov.springcoregym.dto.trainer.TrainerResponse;
+import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
 import ua.orlov.springcoregym.dto.trainer.UpdateTrainerRequest;
 import ua.orlov.springcoregym.dto.user.UsernamePasswordUser;
 import ua.orlov.springcoregym.mapper.trainingtype.TrainingTypeMapper;
+import ua.orlov.springcoregym.model.ActionType;
+import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.user.Trainer;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
@@ -54,5 +57,17 @@ public class TrainerMapper {
         trainer.setSpecialization(trainingTypeService.select(request.getSpecializationId()));
         trainer.setActive(request.getIsActive());
         return trainer;
+    }
+
+    public TrainerWorkload trainerToTrainerWorkload(Trainer trainer, Training training, ActionType actionType){
+        TrainerWorkload trainerWorkload = new TrainerWorkload();
+        trainerWorkload.setUsername(trainer.getUsername());
+        trainerWorkload.setFirstName(trainer.getFirstName());
+        trainerWorkload.setLastName(trainer.getLastName());
+        trainerWorkload.setIsActive(trainer.isActive());
+        trainerWorkload.setTrainingDate(training.getTrainingDate());
+        trainerWorkload.setTrainingDuration(training.getTrainingDuration());
+        trainerWorkload.setActionType(actionType);
+        return trainerWorkload;
     }
 }

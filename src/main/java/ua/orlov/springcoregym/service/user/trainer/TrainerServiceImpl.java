@@ -67,9 +67,24 @@ public class TrainerServiceImpl implements TrainerService {
         trainer.setPassword(passwordEncoder.encode(trainer.getPassword()));
 
         Trainer savedTrainer = trainerDAO.create(trainer);
-        savedTrainer.setPassword(oldPassword);
 
-        return savedTrainer;
+        Trainer returnedTrainer = cloneTrainer(savedTrainer);
+        returnedTrainer.setPassword(oldPassword);
+
+        return returnedTrainer;
+    }
+
+    private Trainer cloneTrainer(Trainer trainer) {
+        Trainer clonedTrainer = new Trainer();
+        clonedTrainer.setId(trainer.getId());
+        clonedTrainer.setUsername(trainer.getUsername());
+        clonedTrainer.setPassword(trainer.getPassword());
+        clonedTrainer.setFirstName(trainer.getFirstName());
+        clonedTrainer.setLastName(trainer.getLastName());
+        clonedTrainer.setSpecialization(trainer.getSpecialization());
+        clonedTrainer.setTrainees(trainer.getTrainees());
+        clonedTrainer.setTrainings(trainer.getTrainings());
+        return clonedTrainer;
     }
 
     @Override

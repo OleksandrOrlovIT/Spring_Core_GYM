@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres_db
+    container_name: postgres-db
     environment:
       POSTGRES_DB: GymDB
       POSTGRES_USER: postgres
@@ -30,7 +30,7 @@ services:
     container_name: spring-boot-gym
     environment:
     - JAVA_OPTS="-Djavax.net.ssl.keyStore=/app/resources/myCertificate.jks -Djavax.net.ssl.keyStorePassword=rootroot -Djavax.net.ssl.trustStore=/app/resources/myCertificate.jks -Djavax.net.ssl.trustStorePassword=rootroot"
-    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/GymDB
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/GymDB
     - SPRING_DATASOURCE_USERNAME=postgres
     - SPRING_DATASOURCE_PASSWORD=master
     - SPRING_PROFILES_ACTIVE=prod
