@@ -41,7 +41,7 @@ class TrainerMapperTest {
         trainerRegister.setLastName("lastname");
         trainerRegister.setSpecializationId(1L);
 
-        when(trainingTypeService.select(anyLong())).thenReturn(new TrainingType());
+        when(trainingTypeService.getById(anyLong())).thenReturn(new TrainingType());
 
         Trainer trainer = trainerMapper.trainerRegisterToTrainer(trainerRegister);
 
@@ -50,7 +50,7 @@ class TrainerMapperTest {
         assertEquals(trainerRegister.getLastName(), trainer.getLastName());
         assertNotNull(trainer.getSpecialization());
 
-        verify(trainingTypeService, times(1)).select(any());
+        verify(trainingTypeService, times(1)).getById(any());
     }
 
     @Test
@@ -128,7 +128,7 @@ class TrainerMapperTest {
         request.setIsActive(true);
         request.setSpecializationId(1L);
 
-        when(trainingTypeService.select(anyLong())).thenReturn(new TrainingType());
+        when(trainingTypeService.getById(anyLong())).thenReturn(new TrainingType());
 
         Trainer trainer = trainerMapper.updateTrainerRequestToTrainer(request);
         assertNotNull(trainer);
@@ -138,6 +138,6 @@ class TrainerMapperTest {
         assertEquals(request.getIsActive(), trainer.isActive());
         assertNotNull(trainer.getSpecialization());
 
-        verify(trainingTypeService, times(1)).select(anyLong());
+        verify(trainingTypeService, times(1)).getById(anyLong());
     }
 }

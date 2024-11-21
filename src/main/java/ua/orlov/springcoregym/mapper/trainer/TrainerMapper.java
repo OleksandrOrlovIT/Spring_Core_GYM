@@ -26,7 +26,7 @@ public class TrainerMapper {
         Trainer trainer = new Trainer();
         trainer.setFirstName(trainerRegister.getFirstName());
         trainer.setLastName(trainerRegister.getLastName());
-        trainer.setSpecialization(trainingTypeService.select(trainerRegister.getSpecializationId()));
+        trainer.setSpecialization(trainingTypeService.getById(trainerRegister.getSpecializationId()));
         return trainer;
     }
 
@@ -54,7 +54,7 @@ public class TrainerMapper {
         trainer.setUsername(request.getUsername());
         trainer.setFirstName(request.getFirstName());
         trainer.setLastName(request.getLastName());
-        trainer.setSpecialization(trainingTypeService.select(request.getSpecializationId()));
+        trainer.setSpecialization(trainingTypeService.getById(request.getSpecializationId()));
         trainer.setActive(request.getIsActive());
         return trainer;
     }

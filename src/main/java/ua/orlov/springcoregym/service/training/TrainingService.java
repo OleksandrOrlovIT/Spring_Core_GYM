@@ -27,7 +27,7 @@ public interface TrainingService {
      * @return the found {@link Training} entity
      * @throws java.util.NoSuchElementException if no training is found with the provided ID
      */
-    Training select(Long id);
+    Training getById(Long id);
 
     /**
      * Retrieves all {@link Training} entities.
@@ -51,4 +51,6 @@ public interface TrainingService {
      * @return a list of trainings that match the specified criteria
      */
     List<Training> getTrainingsByCriteria(TrainerTrainingRequest request);
+
+    void deleteTrainingById(Long id);
 }

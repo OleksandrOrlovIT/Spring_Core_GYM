@@ -42,13 +42,14 @@ public class TrainingServiceImpl implements TrainingService {
                 createdTraining.getTrainer(), createdTraining, ActionType.ADD
         );
 
-        log.error("result of work = " + workloadService.changeWorkload(trainerWorkload));
+        String microserviceCallResult = workloadService.changeWorkload(trainerWorkload);
+        log.info("Result of calling workload microservice = " + microserviceCallResult);
 
         return createdTraining;
     }
 
     @Override
-    public Training select(Long id) {
+    public Training getById(Long id) {
         return trainingDAO.getById(id)
                 .orElseThrow(() -> new NoSuchElementException("Training not found with id = " + id));
     }
@@ -66,5 +67,18 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     public List<Training> getTrainingsByCriteria(TrainerTrainingRequest request) {
         return trainingDAO.getTrainingsByCriteria(request);
+    }
+
+    @Override
+    public void deleteTrainingById(Long id) {
+        Training foundTraining = getById(id);
+
+        trainingDAO.deleteById(id);
+
+        TrainerWorkload trainerWorkload = trainerMapper.trainerToTrainerWorkload(
+                foundTraining.getTrainer(), foundTraining, ActionType.DELETE
+        );
+        String microserviceCallResult = workloadService.changeWorkload(trainerWorkload);
+        log.info("Result of calling workload microservice = " + microserviceCallResult);
     }
 }

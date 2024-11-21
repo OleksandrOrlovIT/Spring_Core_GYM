@@ -44,7 +44,7 @@ public class TrainingMapper {
         training.setTrainingDuration(request.getTrainingDuration());
         training.setTrainee(traineeService.getByUsername(request.getTraineeUsername()));
         training.setTrainer(trainerService.getByUsername(request.getTrainerUsername()));
-        training.setTrainingType(trainingTypeService.select(request.getTrainingTypeId()));
+        training.setTrainingType(trainingTypeService.getById(request.getTrainingTypeId()));
         return training;
     }
 }

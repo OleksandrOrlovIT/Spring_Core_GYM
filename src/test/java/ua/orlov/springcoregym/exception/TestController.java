@@ -64,14 +64,4 @@ public class TestController {
         throw new org.springframework.security.core
                 .AuthenticationException("Authentication failed, invalid credentials") {};
     }
-
-//    @GetMapping("/authorization-denied-exception")
-//    public void authorizationDeniedException() {
-//        throw new AuthorizationDeniedException("Authorization Denied", new AuthorizationResult() {
-//            @Override
-//            public boolean isGranted() {
-//                return false;
-//            }
-//        });
-//    }
 }

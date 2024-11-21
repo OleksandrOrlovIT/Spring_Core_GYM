@@ -16,7 +16,7 @@ public interface TrainingTypeService {
      * @return the found {@link TrainingType} entity
      * @throws java.util.NoSuchElementException if no training type is found with the provided ID
      */
-    TrainingType select(Long id);
+    TrainingType getById(Long id);
 
     /**
      * Retrieves all {@link TrainingType} entities.

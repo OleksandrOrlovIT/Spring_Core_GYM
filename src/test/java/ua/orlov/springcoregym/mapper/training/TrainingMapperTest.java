@@ -117,7 +117,7 @@ class TrainingMapperTest {
                 .thenReturn(Trainee.builder().username(request.getTraineeUsername()).build());
         when(trainerService.getByUsername(any()))
                 .thenReturn(Trainer.builder().username(request.getTrainerUsername()).build());
-        when(trainingTypeService.select(any()))
+        when(trainingTypeService.getById(any()))
                 .thenReturn(TrainingType.builder().id(request.getTrainingTypeId()).build());
 
         Training training = trainingMapper.createTrainingRequestToTraining(request);
@@ -131,6 +131,6 @@ class TrainingMapperTest {
 
         verify(traineeService, times(1)).getByUsername(any());
         verify(trainerService, times(1)).getByUsername(any());
-        verify(trainingTypeService, times(1)).select(any());
+        verify(trainingTypeService, times(1)).getById(any());
     }
 }

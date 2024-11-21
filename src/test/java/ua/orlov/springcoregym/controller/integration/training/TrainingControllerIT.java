@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ua.orlov.springcoregym.controller.integration.config.LoginComponent;
@@ -20,14 +22,18 @@ import ua.orlov.springcoregym.dto.training.CreateTrainingRequest;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
 import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
+import ua.orlov.springcoregym.service.user.trainer.WorkloadService;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
+@DirtiesContext
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "/sql/training/populate_trainings_encrypted.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
@@ -43,6 +49,9 @@ public class TrainingControllerIT {
 
     @Autowired
     private TrainingTypeService trainingTypeService;
+
+    @MockBean
+    private WorkloadService workloadService;
 
     @BeforeEach
     void setUp() {
@@ -431,9 +440,13 @@ public class TrainingControllerIT {
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
+        when(workloadService.changeWorkload(any())).thenReturn("Everything is right");
+
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(200, response.getStatusLine().getStatusCode());
         }
+
+        verify(workloadService, times(1)).changeWorkload(any());
     }
 
     @Test
@@ -454,9 +467,13 @@ public class TrainingControllerIT {
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
+        when(workloadService.changeWorkload(any())).thenReturn("Everything is right");
+
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(200, response.getStatusLine().getStatusCode());
         }
+
+        verify(workloadService, times(1)).changeWorkload(any());
     }
 
     @Test

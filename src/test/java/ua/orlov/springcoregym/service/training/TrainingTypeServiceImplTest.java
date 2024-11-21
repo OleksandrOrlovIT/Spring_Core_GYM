@@ -26,17 +26,17 @@ class TrainingTypeServiceImplTest {
     private TrainingTypeServiceImpl trainingTypeService;
 
     @Test
-    void selectGivenNullIdThenException() {
-        var e = assertThrows(NullPointerException.class, () -> trainingTypeService.select(null));
+    void getByIdGivenNullIdThenException() {
+        var e = assertThrows(NullPointerException.class, () -> trainingTypeService.getById(null));
 
         assertEquals("TrainingType id must not be null", e.getMessage());
     }
 
     @Test
-    void selectGivenValidIdThenException() {
+    void getByIdGivenValidIdThenException() {
         when(trainingTypeDao.getById(any())).thenReturn(Optional.of(new TrainingType()));
 
-        TrainingType trainingType = trainingTypeService.select(1L);
+        TrainingType trainingType = trainingTypeService.getById(1L);
 
         assertNotNull(trainingType);
     }
@@ -52,12 +52,12 @@ class TrainingTypeServiceImplTest {
     }
 
     @Test
-    void selectGivenNotFoundThenException() {
+    void getByIdGivenNotFoundThenException() {
         long id = 1L;
 
         when(trainingTypeDao.getById(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(NoSuchElementException.class, () -> trainingTypeService.select(id));
+        var e = assertThrows(NoSuchElementException.class, () -> trainingTypeService.getById(id));
 
         assertEquals("TrainingType not found with id = " + id, e.getMessage());
     }

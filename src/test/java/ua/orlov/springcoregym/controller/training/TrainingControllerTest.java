@@ -2,6 +2,7 @@ package ua.orlov.springcoregym.controller.training;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,12 +19,16 @@ import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.mapper.training.TrainingMapper;
 import ua.orlov.springcoregym.mapper.trainingtype.TrainingTypeMapper;
 import ua.orlov.springcoregym.model.training.Training;
+import ua.orlov.springcoregym.model.user.Trainee;
+import ua.orlov.springcoregym.model.user.Trainer;
+import ua.orlov.springcoregym.security.training.TrainingSecurity;
 import ua.orlov.springcoregym.service.training.TrainingService;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -44,6 +49,9 @@ class TrainingControllerTest {
     @Mock
     private TrainingMapper trainingMapper;
 
+    @Mock
+    private TrainingSecurity trainingSecurity;
+
     @InjectMocks
     private TrainingController trainingController;
 
@@ -52,7 +60,7 @@ class TrainingControllerTest {
     private static ObjectMapper objectMapper;
 
     @BeforeAll
-    static void setObjectMapper(){
+    static void setObjectMapper() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -139,5 +147,42 @@ class TrainingControllerTest {
 
         verify(trainingMapper, times(1)).createTrainingRequestToTraining(any());
         verify(trainingService, times(1)).create(any());
+    }
+
+    @Test
+    void deleteTrainingByIdThenSuccess() throws Exception {
+        Training training = new Training();
+        training.setTrainer(new Trainer());
+        training.setTrainee(new Trainee());
+
+        when(trainingService.getById(any())).thenReturn(training);
+        when(trainingSecurity.trainingRequestHasLoggedUser(any(), any())).thenReturn(true);
+
+        mockMvc.perform(delete("/api/v1/training?trainingId=1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+        verify(trainingService, times(1)).getById(any());
+        verify(trainingSecurity, times(1)).trainingRequestHasLoggedUser(any(), any());
+        verify(trainingService, times(1)).deleteTrainingById(any());
+    }
+
+    @Test
+    void deleteTrainingByIdThenAccessDenied() throws Exception {
+        Training training = new Training();
+        training.setTrainer(new Trainer());
+        training.setTrainee(new Trainee());
+
+        when(trainingService.getById(any())).thenReturn(training);
+        when(trainingSecurity.trainingRequestHasLoggedUser(any(), any())).thenReturn(false);
+
+        assertThrows(ServletException.class, () -> mockMvc.perform(delete("/api/v1/training?trainingId=1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andReturn());
+
+        verify(trainingService, times(1)).getById(any());
+        verify(trainingSecurity, times(1)).trainingRequestHasLoggedUser(any(), any());
     }
 }

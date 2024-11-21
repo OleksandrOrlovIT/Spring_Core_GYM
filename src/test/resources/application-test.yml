@@ -44,11 +44,16 @@ expiration:
     milliseconds: 900000
 
 server:
+  ssl:
+    enabled: true
+    key-store: classpath:myCertificate.jks
+    key-store-type: PKCS12
+    key-store-password: rootroot
+    trust-store: classpath:myCertificate.jks
+    trust-store-type: PKCS12
+    trust-store-password: rootroot
   port: 8443
 
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
-  dashboard:
-    path: /dashboard
+    enabled: false

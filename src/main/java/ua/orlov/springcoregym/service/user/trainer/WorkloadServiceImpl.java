@@ -1,59 +1,60 @@
 package ua.orlov.springcoregym.service.user.trainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
+import ua.orlov.springcoregym.model.HttpRequest;
+import ua.orlov.springcoregym.service.http.CustomHttpSenderService;
 
 @Log4j2
 @Service
 @AllArgsConstructor
 public class WorkloadServiceImpl implements WorkloadService {
 
-    private final CloseableHttpClient httpClient;
+    private static final String INSTANCE_NAME = "GYM-TRAINER-WORKLOAD";
+    private static final String URL_START = "https://";
+    private static final String CHANGE_WORKLOAD_END_URL = "/api/v1/trainer/workload";
 
     private final DiscoveryClient discoveryClient;
-
     private final ObjectMapper objectMapper;
+    private final CustomHttpSenderService httpSenderService;
 
     @Override
     public String changeWorkload(TrainerWorkload trainerWorkload) {
-        var instances = discoveryClient.getInstances("GYM-TRAINER-WORKLOAD");
-
+        var instances = discoveryClient.getInstances(INSTANCE_NAME);
         if (instances.isEmpty()) {
-            throw new RuntimeException("No instance of GYM-TRAINER-WORKLOAD found in Eureka registry");
+            throw new RuntimeException("No instance of " + INSTANCE_NAME + " found in Eureka registry");
         }
 
-        var instance = instances.get(0);
+        String url = constructUrlFromInstance(instances.get(0));
+        String jsonPayload = "";
+
+        try {
+            jsonPayload = objectMapper.writeValueAsString(trainerWorkload);
+        } catch (Exception e){
+            log.error(e);
+        }
+
+        HttpRequest httpRequest = new HttpRequest(url, "POST");
+
+        return httpSenderService.executeRequestWithEntity(httpRequest, jsonPayload);
+    }
+
+    private String extractIpAddress(ServiceInstance instance) {
         String instanceInfo = instance.toString();
         String foundStringForIpAddr = "ipAddr = ";
         int ipAddrIndex = instanceInfo.indexOf(foundStringForIpAddr) + foundStringForIpAddr.length();
-        String ipAddr = instanceInfo.substring(ipAddrIndex, ipAddrIndex + 10);
+        return instanceInfo.substring(ipAddrIndex, ipAddrIndex + 10);
+    }
 
-        String url = String.format("https://%s:%d/api/v1/trainer/workload", ipAddr, instance.getPort());
-        log.info("Calling URL: " + url);
+    private String constructUrlFromInstance(ServiceInstance instance) {
+        String ipAddr = extractIpAddress(instance);
+        int port = instance.getPort();
 
-        try {
-            String json = objectMapper.writeValueAsString(trainerWorkload);
-            StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
-
-            HttpPost post = new HttpPost(url);
-            post.setEntity(entity);
-
-            try (CloseableHttpResponse response = httpClient.execute(post)) {
-                return EntityUtils.toString(response.getEntity());
-            }
-        } catch (Exception e) {
-            log.error(e);
-            return "Exception" + e.getMessage();
-        }
+        return URL_START + ipAddr + ":" + port + CHANGE_WORKLOAD_END_URL;
     }
 }
