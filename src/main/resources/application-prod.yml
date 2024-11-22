@@ -61,6 +61,8 @@ server:
 logging:
   level:
     root: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{X-Transaction-Id}] [%thread] %-5level %logger{36} - %msg%n"
 
 eureka:
   client:
@@ -78,3 +80,22 @@ eureka:
       trust-store-password: rootroot
   instance:
     hostname: localhost
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      changeWorkloadCircuitBreaker:
+        register-health-indicator: true
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+  retry:
+    instances:
+      changeWorkloadRetry:
+        max-attempts: 3
+        wait-duration: 2s
+        enable-randomized-wait: true

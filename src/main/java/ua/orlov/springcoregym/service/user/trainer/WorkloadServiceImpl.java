@@ -1,6 +1,8 @@
 package ua.orlov.springcoregym.service.user.trainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import lombok.AllArgsConstructor;
@@ -16,6 +18,7 @@ import ua.orlov.springcoregym.service.http.CustomHttpSenderService;
 public class WorkloadServiceImpl implements WorkloadService {
 
     private static final String INSTANCE_NAME = "GYM-TRAINER-WORKLOAD";
+    private static final String MICROSERVICE_UNAVAILABLE = INSTANCE_NAME + " microservice unavailable";
     private static final String URL_START = "https://";
     private static final String CHANGE_WORKLOAD_END_URL = "/api/v1/trainer/workload";
 
@@ -24,6 +27,8 @@ public class WorkloadServiceImpl implements WorkloadService {
     private final CustomHttpSenderService httpSenderService;
 
     @Override
+    @CircuitBreaker(name = "changeWorkloadCircuitBreaker", fallbackMethod = "logMicroserviceUnavailable")
+    @Retry(name = "changeWorkloadRetry")
     public String changeWorkload(TrainerWorkload trainerWorkload) {
         var instances = discoveryClient.getInstances(INSTANCE_NAME);
         if (instances.isEmpty()) {
@@ -37,11 +42,14 @@ public class WorkloadServiceImpl implements WorkloadService {
             jsonPayload = objectMapper.writeValueAsString(trainerWorkload);
         } catch (Exception e){
             log.error(e);
+            throw new IllegalArgumentException("Serialization error", e);
         }
 
         HttpRequest httpRequest = new HttpRequest(url, "POST");
 
-        return httpSenderService.executeRequestWithEntity(httpRequest, jsonPayload);
+        String result = httpSenderService.executeRequestWithEntity(httpRequest, jsonPayload);
+        log.info("Result of calling workload microservice = {}", result);
+        return result;
     }
 
     private String extractIpAddress(ServiceInstance instance) {
@@ -56,5 +64,11 @@ public class WorkloadServiceImpl implements WorkloadService {
         int port = instance.getPort();
 
         return URL_START + ipAddr + ":" + port + CHANGE_WORKLOAD_END_URL;
+    }
+
+    public String logMicroserviceUnavailable(TrainerWorkload trainerWorkload, Throwable throwable) {
+        String message = MICROSERVICE_UNAVAILABLE + " for workload: " + trainerWorkload;
+        log.error(message, throwable);
+        return message;
     }
 }
