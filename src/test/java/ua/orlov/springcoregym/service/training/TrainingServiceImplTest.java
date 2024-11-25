@@ -15,7 +15,6 @@ import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.service.user.trainer.WorkloadService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,9 +30,6 @@ class TrainingServiceImplTest {
 
     @Mock
     private TrainingDao trainingDao;
-
-    @Mock
-    private WorkloadService workloadService;
 
     @Mock
     private TrainerMapper trainerMapper;
@@ -130,12 +126,10 @@ class TrainingServiceImplTest {
 
         when(trainingDao.create(any())).thenReturn(training);
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
-        when(workloadService.changeWorkload(any())).thenReturn("");
 
         assertEquals(training, trainingServiceImpl.create(training));
         verify(trainingDao, times(1)).create(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
-        verify(workloadService, times(1)).changeWorkload(any());
     }
 
     @Test
@@ -191,12 +185,10 @@ class TrainingServiceImplTest {
     void deleteTrainingByIdThenSuccess() {
         when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
-        when(workloadService.changeWorkload(any())).thenReturn("");
 
         trainingServiceImpl.deleteTrainingById(1L);
 
         verify(trainingDao, times(1)).getById(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
-        verify(workloadService, times(1)).changeWorkload(any());
     }
 }

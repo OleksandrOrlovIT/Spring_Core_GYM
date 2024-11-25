@@ -1,17 +1,15 @@
 package ua.orlov.springcoregym.configuration;
 
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+@AllArgsConstructor
 @Configuration
 public class ThreadPoolConfig {
 
     private final MdcTaskDecorator mdcTaskDecorator;
-
-    public ThreadPoolConfig(MdcTaskDecorator mdcTaskDecorator) {
-        this.mdcTaskDecorator = mdcTaskDecorator;
-    }
 
     @Bean
     public ThreadPoolTaskExecutor taskExecutor() {

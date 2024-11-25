@@ -10,7 +10,7 @@ import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.mapper.trainer.TrainerMapper;
 import ua.orlov.springcoregym.model.ActionType;
 import ua.orlov.springcoregym.model.training.Training;
-import ua.orlov.springcoregym.service.user.trainer.WorkloadService;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -23,7 +23,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     private final TrainingDao trainingDAO;
 
-    private final WorkloadService workloadService;
+    private final MessageSender messageSender;
 
     private final TrainerMapper trainerMapper;
 
@@ -42,7 +42,7 @@ public class TrainingServiceImpl implements TrainingService {
                 createdTraining.getTrainer(), createdTraining, ActionType.ADD
         );
 
-        workloadService.changeWorkload(trainerWorkload);
+        messageSender.sendMessageToTrainerWorkload(trainerWorkload);
 
         return createdTraining;
     }
@@ -77,6 +77,6 @@ public class TrainingServiceImpl implements TrainingService {
         TrainerWorkload trainerWorkload = trainerMapper.trainerToTrainerWorkload(
                 foundTraining.getTrainer(), foundTraining, ActionType.DELETE
         );
-        workloadService.changeWorkload(trainerWorkload);
+        messageSender.sendMessageToTrainerWorkload(trainerWorkload);
     }
 }

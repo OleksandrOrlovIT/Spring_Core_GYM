@@ -22,7 +22,6 @@ import ua.orlov.springcoregym.dto.training.CreateTrainingRequest;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
 import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
-import ua.orlov.springcoregym.service.user.trainer.WorkloadService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -49,9 +48,6 @@ public class TrainingControllerIT {
 
     @Autowired
     private TrainingTypeService trainingTypeService;
-
-    @MockBean
-    private WorkloadService workloadService;
 
     @BeforeEach
     void setUp() {
@@ -440,13 +436,9 @@ public class TrainingControllerIT {
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
-        when(workloadService.changeWorkload(any())).thenReturn("Everything is right");
-
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(200, response.getStatusLine().getStatusCode());
         }
-
-        verify(workloadService, times(1)).changeWorkload(any());
     }
 
     @Test
@@ -467,13 +459,9 @@ public class TrainingControllerIT {
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
-        when(workloadService.changeWorkload(any())).thenReturn("Everything is right");
-
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(200, response.getStatusLine().getStatusCode());
         }
-
-        verify(workloadService, times(1)).changeWorkload(any());
     }
 
     @Test
