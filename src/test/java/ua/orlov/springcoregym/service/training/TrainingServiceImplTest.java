@@ -15,6 +15,7 @@ import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,6 +34,9 @@ class TrainingServiceImplTest {
 
     @Mock
     private TrainerMapper trainerMapper;
+
+    @Mock
+    private MessageSender messageSender;
 
     @InjectMocks
     private TrainingServiceImpl trainingServiceImpl;
@@ -130,6 +134,7 @@ class TrainingServiceImplTest {
         assertEquals(training, trainingServiceImpl.create(training));
         verify(trainingDao, times(1)).create(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 
     @Test
@@ -190,5 +195,6 @@ class TrainingServiceImplTest {
 
         verify(trainingDao, times(1)).getById(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 }
