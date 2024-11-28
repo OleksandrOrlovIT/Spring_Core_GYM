@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -118,7 +119,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void createGivenTrainingThenSuccess() {
+    void createGivenTrainingThenSuccess() throws JsonProcessingException {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
@@ -130,6 +131,7 @@ class TrainingServiceImplTest {
 
         when(trainingDao.create(any())).thenReturn(training);
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
 
         assertEquals(training, trainingServiceImpl.create(training));
         verify(trainingDao, times(1)).create(any());
@@ -187,9 +189,22 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void deleteTrainingByIdThenSuccess() {
+    void deleteTrainingByIdThenSuccess() throws JsonProcessingException {
         when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+
+        trainingServiceImpl.deleteTrainingById(1L);
+
+        verify(trainingDao, times(1)).getById(any());
+        verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
+    }
+
+    @Test
+    void deleteTrainingByIdThenSuccessAndJsonProcessingExceptionThrownInMessageSender() throws JsonProcessingException {
+        when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
+        when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
 
         trainingServiceImpl.deleteTrainingById(1L);
 

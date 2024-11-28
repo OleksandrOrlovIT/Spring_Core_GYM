@@ -19,6 +19,7 @@ import ua.orlov.springcoregym.controller.integration.config.LoginComponent;
 import ua.orlov.springcoregym.dto.training.CreateTrainingRequest;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
 import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
 import java.io.IOException;
@@ -40,6 +41,9 @@ public class TrainingControllerIT {
     private ObjectMapper objectMapper;
 
     private LoginComponent loginComponent;
+
+    @MockBean
+    private MessageSender messageSender;
 
     @Autowired
     private TrainingTypeService trainingTypeService;
