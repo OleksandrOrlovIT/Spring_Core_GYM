@@ -46,8 +46,19 @@ class RabbitMQMessageSenderTest {
     void sendMessageToTrainerWorkloadThenException() throws Exception {
         when(objectMapper.writeValueAsString(any())).thenThrow(JsonParseException.class);
 
-        assertDoesNotThrow(() -> rabbitMQMessageSender.sendMessageToTrainerWorkload(new TrainerWorkload()));
+        assertThrows(JsonParseException.class, () -> rabbitMQMessageSender.sendMessageToTrainerWorkload(null));
 
         verify(objectMapper, times(1)).writeValueAsString(any());
+        verifyNoInteractions(rabbitTemplate);
+    }
+
+    @Test
+    void sendMessageToTrainerWorkload() throws Exception {
+        when(objectMapper.writeValueAsString(any())).thenReturn("asd");
+
+        rabbitMQMessageSender.sendMessageToTrainerWorkload(new TrainerWorkload());
+
+        verify(objectMapper, times(2)).writeValueAsString(any());
+        verify(rabbitTemplate, times(1)).convertAndSend(any(String.class), any(Object.class));
     }
 }
