@@ -21,6 +21,7 @@ import ua.orlov.springcoregym.controller.integration.config.LoginComponent;
 import ua.orlov.springcoregym.dto.training.CreateTrainingRequest;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
 import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
 import java.io.IOException;
@@ -28,8 +29,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @DirtiesContext
@@ -45,6 +44,9 @@ public class TrainingControllerIT {
     private ObjectMapper objectMapper;
 
     private LoginComponent loginComponent;
+
+    @MockBean
+    private MessageSender messageSender;
 
     @Autowired
     private TrainingTypeService trainingTypeService;

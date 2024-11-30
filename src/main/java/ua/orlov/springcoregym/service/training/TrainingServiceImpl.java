@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,11 @@ public class TrainingServiceImpl implements TrainingService {
                 createdTraining.getTrainer(), createdTraining, ActionType.ADD
         );
 
-        messageSender.sendMessageToTrainerWorkload(trainerWorkload);
+        try {
+            messageSender.sendMessageToTrainerWorkload(trainerWorkload);
+        } catch (JsonProcessingException e) {
+            log.error(e);
+        }
 
         return createdTraining;
     }
@@ -77,6 +82,11 @@ public class TrainingServiceImpl implements TrainingService {
         TrainerWorkload trainerWorkload = trainerMapper.trainerToTrainerWorkload(
                 foundTraining.getTrainer(), foundTraining, ActionType.DELETE
         );
-        messageSender.sendMessageToTrainerWorkload(trainerWorkload);
+
+        try {
+            messageSender.sendMessageToTrainerWorkload(trainerWorkload);
+        } catch (JsonProcessingException e) {
+            log.error(e);
+        }
     }
 }
