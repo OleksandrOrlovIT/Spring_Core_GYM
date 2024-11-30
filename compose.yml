@@ -29,7 +29,7 @@ services:
     image: spring-gym
     container_name: spring-boot-gym
     environment:
-    - JAVA_OPTS="-Djavax.net.ssl.keyStore=/app/resources/myCertificate.jks -Djavax.net.ssl.keyStorePassword=rootroot -Djavax.net.ssl.trustStore=/app/resources/myCertificate.jks -Djavax.net.ssl.trustStorePassword=rootroot"
+    - JAVA_OPTS="-Djavax.net.ssl.keyStore=/app/resources/myCertificate.jks -Djavax.net.ssl.keyStorePassword=${KEY_STORE_PASSWORD} -Djavax.net.ssl.trustStore=/app/resources/myCertificate.jks -Djavax.net.ssl.trustStorePassword=${TRUST_STORE_PASSWORD}"
     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/GymDB
     - SPRING_DATASOURCE_USERNAME=postgres
     - SPRING_DATASOURCE_PASSWORD=master

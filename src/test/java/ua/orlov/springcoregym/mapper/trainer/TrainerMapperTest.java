@@ -125,7 +125,7 @@ class TrainerMapperTest {
         request.setUsername("userName");
         request.setFirstName("firstName");
         request.setLastName("lastName");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setSpecializationId(1L);
 
         when(trainingTypeService.getById(anyLong())).thenReturn(new TrainingType());
@@ -135,7 +135,7 @@ class TrainerMapperTest {
         assertEquals(request.getUsername(), trainer.getUsername());
         assertEquals(request.getFirstName(), trainer.getFirstName());
         assertEquals(request.getLastName(), trainer.getLastName());
-        assertEquals(request.getIsActive(), trainer.isActive());
+        assertEquals(request.isActive(), trainer.isActive());
         assertNotNull(trainer.getSpecialization());
 
         verify(trainingTypeService, times(1)).getById(anyLong());

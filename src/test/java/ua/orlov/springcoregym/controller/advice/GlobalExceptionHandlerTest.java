@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.exception;
+package ua.orlov.springcoregym.controller.advice;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -166,5 +166,16 @@ public class GlobalExceptionHandlerTest {
 
         String content = result.getResponse().getContentAsString();
         assertEquals("{\"message\":\"Too many attempts, please try again later.\",\"status\":\"TOO_MANY_REQUESTS\"}", content);
+    }
+
+    @Test
+    void handleBusinessLogicException() throws Exception {
+        MvcResult result = mockMvc.perform(get("/business-logic-exception")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertEquals("{\"message\":\"Business Logic\",\"status\":\"LOGIC_ERROR\"}", content);
     }
 }

@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +46,7 @@ class TrainingServiceImplTest {
     void createGivenTrainingNullThenException() {
         Training training = null;
 
-        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training can't be null", e.getMessage());
     }
 
@@ -53,7 +54,7 @@ class TrainingServiceImplTest {
     void createGivenTrainingTraineeNullThenException() {
         Training training = Training.builder().build();
 
-        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainee can't be null", e.getMessage());
     }
 
@@ -63,7 +64,7 @@ class TrainingServiceImplTest {
                 .trainee(new Trainee())
                 .build();
 
-        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainer can't be null", e.getMessage());
     }
 
@@ -74,7 +75,7 @@ class TrainingServiceImplTest {
                 .trainer(new Trainer())
                 .build();
 
-        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingName can't be null", e.getMessage());
     }
 
@@ -86,7 +87,7 @@ class TrainingServiceImplTest {
                 .trainingName("TRAINING NAME")
                 .build();
 
-        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingType can't be null", e.getMessage());
     }
 
@@ -99,7 +100,7 @@ class TrainingServiceImplTest {
                 .trainingType(new TrainingType())
                 .build();
 
-        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingDate can't be null", e.getMessage());
     }
 
@@ -113,7 +114,7 @@ class TrainingServiceImplTest {
                 .trainingDate(LocalDate.MIN)
                 .build();
 
-        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingDuration can't be null", e.getMessage());
     }
 
@@ -154,7 +155,7 @@ class TrainingServiceImplTest {
 
         when(trainingDao.getById(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.getById(training.getId()));
+        NoSuchElementException e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.getById(training.getId()));
 
         assertEquals("Training not found with id = " + training.getId(), e.getMessage());
         verify(trainingDao, times(1)).getById(any());

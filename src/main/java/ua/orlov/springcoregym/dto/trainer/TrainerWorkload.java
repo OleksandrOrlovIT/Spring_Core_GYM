@@ -18,7 +18,7 @@ public class TrainerWorkload {
 
     private String lastName;
 
-    private Boolean isActive;
+    private boolean isActive;
 
     private LocalDate trainingDate;
 

@@ -55,7 +55,7 @@ public class TrainerMapper {
         trainer.setFirstName(request.getFirstName());
         trainer.setLastName(request.getLastName());
         trainer.setSpecialization(trainingTypeService.getById(request.getSpecializationId()));
-        trainer.setActive(request.getIsActive());
+        trainer.setActive(request.isActive());
         return trainer;
     }
 
@@ -64,7 +64,7 @@ public class TrainerMapper {
         trainerWorkload.setUsername(trainer.getUsername());
         trainerWorkload.setFirstName(trainer.getFirstName());
         trainerWorkload.setLastName(trainer.getLastName());
-        trainerWorkload.setIsActive(trainer.isActive());
+        trainerWorkload.setActive(trainer.isActive());
         trainerWorkload.setTrainingDate(training.getTrainingDate());
         trainerWorkload.setTrainingDuration(training.getTrainingDuration());
         trainerWorkload.setActionType(actionType);

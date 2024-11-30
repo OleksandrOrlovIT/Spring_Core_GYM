@@ -195,7 +195,7 @@ public class TrainerControllerIT {
             assertEquals("Test1", trainer.getFirstName());
             assertEquals("Trainer1", trainer.getLastName());
             assertNotNull(trainer.getSpecialization());
-            assertTrue(trainer.getIsActive());
+            assertTrue(trainer.isActive());
 
             assertNotNull(trainer.getTrainees());
             assertEquals(1, trainer.getTrainees().size());
@@ -245,7 +245,7 @@ public class TrainerControllerIT {
 
         UpdateTrainerRequest request = new UpdateTrainerRequest();
         request.setUsername("testtrainer1");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
         request.setSpecializationId(trainingTypeService.getAll().get(0).getId());
@@ -270,7 +270,7 @@ public class TrainerControllerIT {
 
         UpdateTrainerRequest request = new UpdateTrainerRequest();
         request.setUsername("asdasdasd");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
         request.setSpecializationId(trainingTypeService.getAll().get(0).getId());
@@ -295,7 +295,7 @@ public class TrainerControllerIT {
 
         UpdateTrainerRequest request = new UpdateTrainerRequest();
         request.setUsername("updateTrainer");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
         request.setSpecializationId(trainingTypeService.getAll().get(0).getId());
@@ -320,7 +320,7 @@ public class TrainerControllerIT {
             assertEquals("updateTrainer", trainer.getUsername());
             assertEquals(updatedString, trainer.getFirstName());
             assertEquals(updatedString, trainer.getLastName());
-            assertTrue(trainer.getIsActive());
+            assertTrue(trainer.isActive());
             assertNotNull(trainer.getSpecialization());
 
             assertNotNull(trainer.getTrainees());
@@ -466,7 +466,7 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("activatedTrainer");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
@@ -487,7 +487,7 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("asd");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
@@ -508,7 +508,7 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("deactivatedTrainer");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
@@ -528,7 +528,7 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("activatedTrainer");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 

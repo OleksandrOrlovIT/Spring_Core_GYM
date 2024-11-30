@@ -9,8 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
+import ua.orlov.springcoregym.exception.BusinessLogicException;
 import ua.orlov.springcoregym.model.HttpRequest;
 import ua.orlov.springcoregym.service.http.CustomHttpSenderService;
+
+import java.util.List;
 
 @Log4j2
 @Service
@@ -30,7 +33,7 @@ public class WorkloadServiceImpl implements WorkloadService {
     @CircuitBreaker(name = "changeWorkloadCircuitBreaker", fallbackMethod = "logMicroserviceUnavailable")
     @Retry(name = "changeWorkloadRetry")
     public String changeWorkload(TrainerWorkload trainerWorkload) {
-        var instances = discoveryClient.getInstances(INSTANCE_NAME);
+        List<ServiceInstance> instances = discoveryClient.getInstances(INSTANCE_NAME);
         if (instances.isEmpty()) {
             throw new RuntimeException("No instance of " + INSTANCE_NAME + " found in Eureka registry");
         }
@@ -42,13 +45,13 @@ public class WorkloadServiceImpl implements WorkloadService {
             jsonPayload = objectMapper.writeValueAsString(trainerWorkload);
         } catch (Exception e){
             log.error(e);
-            throw new IllegalArgumentException("Serialization error", e);
+            throw new BusinessLogicException("Serialization error", e);
         }
 
         HttpRequest httpRequest = new HttpRequest(url, "POST");
 
         String result = httpSenderService.executeRequestWithEntity(httpRequest, jsonPayload);
-        log.info("Result of calling workload microservice = {}", result);
+        log.debug("Result of calling workload microservice = {}", result);
         return result;
     }
 

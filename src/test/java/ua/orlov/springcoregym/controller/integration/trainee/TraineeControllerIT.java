@@ -245,7 +245,7 @@ public class TraineeControllerIT {
 
         UpdateTraineeRequest request = new UpdateTraineeRequest();
         request.setUsername("testtrainee");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setAddress(updatedString);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
@@ -272,7 +272,7 @@ public class TraineeControllerIT {
 
         UpdateTraineeRequest request = new UpdateTraineeRequest();
         request.setUsername("asdasdasd");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setAddress(updatedString);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
@@ -299,7 +299,7 @@ public class TraineeControllerIT {
 
         UpdateTraineeRequest request = new UpdateTraineeRequest();
         request.setUsername("updateTrainee");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setAddress(updatedString);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
@@ -573,7 +573,7 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("testtrainee");
-        request.setIsActive(true);
+        request.setActive(true);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
@@ -594,7 +594,7 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("asd");
-        request.setIsActive(true);
+        request.setActive(true);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
@@ -615,7 +615,7 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("deactivatedTrainee");
-        request.setIsActive(true);
+        request.setActive(true);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
@@ -635,7 +635,7 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("activatedTrainee");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 

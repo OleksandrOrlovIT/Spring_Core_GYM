@@ -46,7 +46,7 @@ class WorkloadServiceImplTest {
 
         when(discoveryClient.getInstances(any())).thenReturn(new ArrayList<>());
 
-        var e = assertThrows(RuntimeException.class, () -> workloadService.changeWorkload(trainerWorkload));
+        RuntimeException e = assertThrows(RuntimeException.class, () -> workloadService.changeWorkload(trainerWorkload));
 
         assertEquals("No instance of " + INSTANCE_NAME + " found in Eureka registry", e.getMessage());
 
@@ -141,7 +141,7 @@ class WorkloadServiceImplTest {
         when(discoveryClient.getInstances(any())).thenReturn(List.of(serviceInstance));
         when(objectMapper.writeValueAsString(any())).thenThrow(new RuntimeException(""));
 
-        var e = assertThrows(RuntimeException.class, () ->  workloadService.changeWorkload(trainerWorkload));
+        RuntimeException e = assertThrows(RuntimeException.class, () ->  workloadService.changeWorkload(trainerWorkload));
 
         assertEquals("Serialization error", e.getMessage());
 
