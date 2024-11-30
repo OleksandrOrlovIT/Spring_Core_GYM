@@ -134,7 +134,7 @@ class TrainingControllerTest {
         request.setTrainingTypeId(1L);
         request.setTrainerUsername("TrainerUsername");
         request.setTraineeUsername("TraineeUsername");
-        request.setTrainingDuration(50L);
+        request.setTrainingDurationMinutes(50);
 
         when(trainingMapper.createTrainingRequestToTraining(any())).thenReturn(new Training());
         when(trainingService.create(any())).thenReturn(new Training());

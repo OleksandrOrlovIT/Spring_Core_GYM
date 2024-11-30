@@ -81,7 +81,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Illegal argument Exception\",\"status\":\"BAD_REQUEST\"}", content);
+        assertEquals("{\"message\":\"An unexpected illegal argument was provided\",\"status\":\"BAD_REQUEST\"}", content);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Runtime Exception\",\"status\":\"INTERNAL_SERVER_ERROR\"}", content);
+        assertEquals("{\"message\":\"An unexpected runtime error occurred.\",\"status\":\"INTERNAL_ERROR\"}", content);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Exception\",\"status\":\"INTERNAL_SERVER_ERROR\"}", content);
+        assertEquals("{\"message\":\"An unexpected error occurred.\",\"status\":\"GENERAL_ERROR\"}", content);
     }
 
     @Test

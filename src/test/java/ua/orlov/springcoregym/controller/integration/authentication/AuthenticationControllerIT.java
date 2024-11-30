@@ -12,6 +12,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -23,11 +24,13 @@ import ua.orlov.springcoregym.service.security.LoginAttemptService;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@DirtiesContext
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "/sql/user/populate_encrypted_users.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class AuthenticationControllerIT {
+
+    @LocalServerPort
+    int randomServerPort;
 
     @Autowired
     private CloseableHttpClient httpClient;
@@ -42,7 +45,7 @@ public class AuthenticationControllerIT {
 
     @BeforeEach
     void setUp() {
-        loginComponent = new LoginComponent(httpClient, objectMapper);
+        loginComponent = new LoginComponent(httpClient, objectMapper, randomServerPort);
     }
 
     @AfterEach
@@ -59,7 +62,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(usernamePasswordUser);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/session");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/session");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -77,7 +80,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(usernamePasswordUser);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/session");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/session");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -95,7 +98,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(usernamePasswordUser);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/session");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/session");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -117,7 +120,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(changeLoginDto);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/password");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/password");
         put.setEntity(entity);
 
         put.setHeader("Authorization", "Bearer " + token);
@@ -141,7 +144,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(changeLoginDto);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/password");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/password");
         put.setEntity(entity);
 
         put.setHeader("Authorization", "Bearer " + token);
@@ -166,7 +169,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(changeLoginDto);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/password");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/password");
         put.setEntity(entity);
 
         put.setHeader("Authorization", "Bearer " + token);
@@ -191,7 +194,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(changeLoginDto);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/password");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/password");
         put.setEntity(entity);
 
         put.setHeader("Authorization", "Bearer " + token);
@@ -208,7 +211,7 @@ public class AuthenticationControllerIT {
     void logoutThenSuccess() throws Exception {
         String token = loginComponent.loginAsUser("testUser", "password");
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/logout");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/logout");
         post.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -228,7 +231,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(usernamePasswordUser);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/session");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/session");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -243,7 +246,7 @@ public class AuthenticationControllerIT {
     void changeLoginWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("testUser", "password");
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/password");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/password");
         put.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(put)) {
@@ -260,7 +263,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(changeLoginDto);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/password");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/password");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -286,7 +289,7 @@ public class AuthenticationControllerIT {
         String json = objectMapper.writeValueAsString(usernamePasswordUser);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/session");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/session");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {

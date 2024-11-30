@@ -1,6 +1,5 @@
 package ua.orlov.springcoregym.service.user.trainer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.cloud.client.ServiceInstance;
@@ -10,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
 import ua.orlov.springcoregym.exception.BusinessLogicException;
+import ua.orlov.springcoregym.mapper.trainer.TrainerMapper;
 import ua.orlov.springcoregym.model.HttpRequest;
 import ua.orlov.springcoregym.service.http.CustomHttpSenderService;
 
@@ -26,33 +26,24 @@ public class WorkloadServiceImpl implements WorkloadService {
     private static final String CHANGE_WORKLOAD_END_URL = "/api/v1/trainer/workload";
 
     private final DiscoveryClient discoveryClient;
-    private final ObjectMapper objectMapper;
+    private final TrainerMapper trainerMapper;
     private final CustomHttpSenderService httpSenderService;
 
     @Override
     @CircuitBreaker(name = "changeWorkloadCircuitBreaker", fallbackMethod = "logMicroserviceUnavailable")
     @Retry(name = "changeWorkloadRetry")
-    public String changeWorkload(TrainerWorkload trainerWorkload) {
+    public void changeWorkload(TrainerWorkload trainerWorkload) {
         List<ServiceInstance> instances = discoveryClient.getInstances(INSTANCE_NAME);
         if (instances.isEmpty()) {
-            throw new RuntimeException("No instance of " + INSTANCE_NAME + " found in Eureka registry");
+            throw new BusinessLogicException("No instance of " + INSTANCE_NAME + " found in Eureka registry");
         }
 
         String url = constructUrlFromInstance(instances.get(0));
-        String jsonPayload = "";
-
-        try {
-            jsonPayload = objectMapper.writeValueAsString(trainerWorkload);
-        } catch (Exception e){
-            log.error(e);
-            throw new BusinessLogicException("Serialization error", e);
-        }
+        String jsonPayload = trainerMapper.trainerWorkloadToJson(trainerWorkload);
 
         HttpRequest httpRequest = new HttpRequest(url, "POST");
 
-        String result = httpSenderService.executeRequestWithEntity(httpRequest, jsonPayload);
-        log.debug("Result of calling workload microservice = {}", result);
-        return result;
+        httpSenderService.executeRequestWithEntity(httpRequest, jsonPayload);
     }
 
     private String extractIpAddress(ServiceInstance instance) {

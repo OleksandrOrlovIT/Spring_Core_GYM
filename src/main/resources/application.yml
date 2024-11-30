@@ -99,3 +99,8 @@ resilience4j:
         max-attempts: 3
         wait-duration: 2s
         enable-randomized-wait: true
+
+thread-pool:
+  size: 10
+  max-pool-size: 20
+  queue-capacity: 50

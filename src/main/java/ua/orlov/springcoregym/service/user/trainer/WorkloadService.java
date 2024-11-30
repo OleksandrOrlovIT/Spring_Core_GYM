@@ -4,6 +4,6 @@ import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
 
 public interface WorkloadService {
 
-    String changeWorkload(TrainerWorkload trainerWorkload);
+    void changeWorkload(TrainerWorkload trainerWorkload);
 
 }

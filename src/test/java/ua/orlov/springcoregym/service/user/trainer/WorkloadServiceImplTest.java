@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
+import ua.orlov.springcoregym.mapper.trainer.TrainerMapper;
 import ua.orlov.springcoregym.model.HttpRequest;
 import ua.orlov.springcoregym.service.http.CustomHttpSenderService;
 
@@ -32,10 +33,10 @@ class WorkloadServiceImplTest {
     private DiscoveryClient discoveryClient;
 
     @Mock
-    private ObjectMapper objectMapper;
+    private CustomHttpSenderService httpSenderService;
 
     @Mock
-    private CustomHttpSenderService httpSenderService;
+    private TrainerMapper trainerMapper;
 
     @InjectMocks
     private WorkloadServiceImpl workloadService;
@@ -90,63 +91,14 @@ class WorkloadServiceImplTest {
 
 
         when(discoveryClient.getInstances(any())).thenReturn(List.of(serviceInstance));
-        when(objectMapper.writeValueAsString(any())).thenReturn("val");
-        when(httpSenderService.executeRequestWithEntity(any(HttpRequest.class), any())).thenReturn("result");
+        when(trainerMapper.trainerWorkloadToJson(any())).thenReturn("");
+        when(httpSenderService.executeRequestWithEntity(any(HttpRequest.class), any())).thenReturn(true);
 
-        String result = workloadService.changeWorkload(trainerWorkload);
-
-        assertEquals("result", result);
+        assertDoesNotThrow(() -> workloadService.changeWorkload(trainerWorkload));
 
         verify(discoveryClient, times(1)).getInstances(any());
-        verify(objectMapper, times(1)).writeValueAsString(any());
+        verify(trainerMapper, times(1)).trainerWorkloadToJson(any());
         verify(httpSenderService, times(1)).executeRequestWithEntity(any(HttpRequest.class), any());
-    }
-
-    @Test
-    void changeWorkloadThenExceptionWhileWritingValueAsString() throws JsonProcessingException {
-        TrainerWorkload trainerWorkload = new TrainerWorkload();
-        ServiceInstance serviceInstance = new ServiceInstance() {
-            @Override
-            public String getServiceId() {
-                return "";
-            }
-
-            @Override
-            public String getHost() {
-                return "";
-            }
-
-            @Override
-            public int getPort() {
-                return 0;
-            }
-
-            @Override
-            public boolean isSecure() {
-                return false;
-            }
-
-            @Override
-            public URI getUri() {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> getMetadata() {
-                return Map.of();
-            }
-        };
-
-
-        when(discoveryClient.getInstances(any())).thenReturn(List.of(serviceInstance));
-        when(objectMapper.writeValueAsString(any())).thenThrow(new RuntimeException(""));
-
-        RuntimeException e = assertThrows(RuntimeException.class, () ->  workloadService.changeWorkload(trainerWorkload));
-
-        assertEquals("Serialization error", e.getMessage());
-
-        verify(discoveryClient, times(1)).getInstances(any());
-        verify(objectMapper, times(1)).writeValueAsString(any());
     }
 
     @Test

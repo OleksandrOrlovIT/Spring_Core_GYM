@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainerMapper trainerMapper;
 
     @Override
+    @Transactional
     public Training create(Training training) {
         Objects.requireNonNull(training, "Training can't be null");
         Objects.requireNonNull(training.getTrainee(), "Training.trainee can't be null");
@@ -35,7 +37,7 @@ public class TrainingServiceImpl implements TrainingService {
         Objects.requireNonNull(training.getTrainingName(), "Training.trainingName can't be null");
         Objects.requireNonNull(training.getTrainingType(), "Training.trainingType can't be null");
         Objects.requireNonNull(training.getTrainingDate(), "Training.trainingDate can't be null");
-        Objects.requireNonNull(training.getTrainingDuration(), "Training.trainingDuration can't be null");
+        Objects.requireNonNull(training.getTrainingDurationMinutes(), "Training.trainingDuration can't be null");
 
         Training createdTraining = trainingDAO.create(training);
         TrainerWorkload trainerWorkload = trainerMapper.trainerToTrainerWorkload(
@@ -69,6 +71,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    @Transactional
     public void deleteTrainingById(Long id) {
         Training foundTraining = getById(id);
 

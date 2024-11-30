@@ -1,6 +1,5 @@
 package ua.orlov.springcoregym.service.training;
 
-import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -126,12 +125,11 @@ class TrainingServiceImplTest {
                 .trainingName("TRAINING NAME")
                 .trainingType(new TrainingType())
                 .trainingDate(LocalDate.MIN)
-                .trainingDuration(10L)
+                .trainingDurationMinutes(10)
                 .build();
 
         when(trainingDao.create(any())).thenReturn(training);
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
-        when(workloadService.changeWorkload(any())).thenReturn("");
 
         assertEquals(training, trainingServiceImpl.create(training));
         verify(trainingDao, times(1)).create(any());
@@ -192,7 +190,6 @@ class TrainingServiceImplTest {
     void deleteTrainingByIdThenSuccess() {
         when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
-        when(workloadService.changeWorkload(any())).thenReturn("");
 
         trainingServiceImpl.deleteTrainingById(1L);
 

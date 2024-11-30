@@ -10,6 +10,8 @@ spring:
       ddl-auto: create-drop
   liquibase:
     change-log: classpath:db/changelog/db.changelog-test.xml
+  autoconfigure:
+    exclude: org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
 
 management:
   endpoints:
@@ -48,12 +50,22 @@ server:
     enabled: true
     key-store: classpath:myCertificate.jks
     key-store-type: PKCS12
-    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-password: rootroot
     trust-store: classpath:myCertificate.jks
     trust-store-type: PKCS12
-    trust-store-password: ${TRUST_STORE_PASSWORD}
-  port: 8443
+    trust-store-password: rootroot
+  port: 0
+
 
 eureka:
   client:
     enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+    tls:
+      enabled: false
+
+thread-pool:
+  size: 10
+  max-pool-size: 20
+  queue-capacity: 50
