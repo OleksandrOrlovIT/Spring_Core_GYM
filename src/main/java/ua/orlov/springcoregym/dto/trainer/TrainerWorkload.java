@@ -1,15 +1,13 @@
 package ua.orlov.springcoregym.dto.trainer;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ua.orlov.springcoregym.model.ActionType;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrainerWorkload {

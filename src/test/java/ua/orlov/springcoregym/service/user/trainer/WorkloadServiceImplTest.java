@@ -25,6 +25,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class WorkloadServiceImplTest {
 
+    private static final String INSTANCE_NAME = "GYM-TRAINER-WORKLOAD";
+    private static final String MICROSERVICE_UNAVAILABLE = INSTANCE_NAME + " microservice unavailable";
+
     @Mock
     private DiscoveryClient discoveryClient;
 
@@ -36,10 +39,6 @@ class WorkloadServiceImplTest {
 
     @InjectMocks
     private WorkloadServiceImpl workloadService;
-
-    private static final String INSTANCE_NAME = "GYM-TRAINER-WORKLOAD";
-    private static final String URL_START = "https://";
-    private static final String CHANGE_WORKLOAD_END_URL = "/api/v1/trainer/workload";
 
     @Test
     void changeWorkloadThenException() {
@@ -97,6 +96,10 @@ class WorkloadServiceImplTest {
         String result = workloadService.changeWorkload(trainerWorkload);
 
         assertEquals("result", result);
+
+        verify(discoveryClient, times(1)).getInstances(any());
+        verify(objectMapper, times(1)).writeValueAsString(any());
+        verify(httpSenderService, times(1)).executeRequestWithEntity(any(HttpRequest.class), any());
     }
 
     @Test
@@ -137,10 +140,21 @@ class WorkloadServiceImplTest {
 
         when(discoveryClient.getInstances(any())).thenReturn(List.of(serviceInstance));
         when(objectMapper.writeValueAsString(any())).thenThrow(new RuntimeException(""));
-        when(httpSenderService.executeRequestWithEntity(any(HttpRequest.class), any())).thenReturn("result");
 
-        String result = workloadService.changeWorkload(trainerWorkload);
+        var e = assertThrows(RuntimeException.class, () ->  workloadService.changeWorkload(trainerWorkload));
 
-        assertEquals("result", result);
+        assertEquals("Serialization error", e.getMessage());
+
+        verify(discoveryClient, times(1)).getInstances(any());
+        verify(objectMapper, times(1)).writeValueAsString(any());
+    }
+
+    @Test
+    void logMicroserviceUnavailableThenSuccess() {
+        TrainerWorkload trainerWorkload = new TrainerWorkload();
+
+        String message = MICROSERVICE_UNAVAILABLE + " for workload: " + trainerWorkload;
+
+        assertEquals(message, workloadService.logMicroserviceUnavailable(trainerWorkload, new RuntimeException()));
     }
 }

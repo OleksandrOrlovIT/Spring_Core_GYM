@@ -7,6 +7,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.model.HttpRequest;
 
@@ -15,11 +16,21 @@ import ua.orlov.springcoregym.model.HttpRequest;
 @AllArgsConstructor
 public class CustomHttpSenderServiceImpl implements CustomHttpSenderService {
 
+    private static final String TRANSACTION_ID_HEADER = "X-Transaction-Id";
+
     private final CloseableHttpClient httpClient;
 
     @Override
     public String executeRequestWithEntity(HttpRequest request, String entity) {
         try {
+            String transactionId = MDC.get(TRANSACTION_ID_HEADER);
+            if (transactionId != null) {
+                request.addHeader(TRANSACTION_ID_HEADER, transactionId);
+            }
+
+            request.addHeader("Connection", "close");
+            log.info("Executing request with transactionId: " + transactionId);
+
             request.setEntity(new StringEntity(entity, ContentType.APPLICATION_JSON));
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {

@@ -42,8 +42,7 @@ public class TrainingServiceImpl implements TrainingService {
                 createdTraining.getTrainer(), createdTraining, ActionType.ADD
         );
 
-        String microserviceCallResult = workloadService.changeWorkload(trainerWorkload);
-        log.info("Result of calling workload microservice = " + microserviceCallResult);
+        workloadService.changeWorkload(trainerWorkload);
 
         return createdTraining;
     }
@@ -78,7 +77,6 @@ public class TrainingServiceImpl implements TrainingService {
         TrainerWorkload trainerWorkload = trainerMapper.trainerToTrainerWorkload(
                 foundTraining.getTrainer(), foundTraining, ActionType.DELETE
         );
-        String microserviceCallResult = workloadService.changeWorkload(trainerWorkload);
-        log.info("Result of calling workload microservice = " + microserviceCallResult);
+        workloadService.changeWorkload(trainerWorkload);
     }
 }
