@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ua.orlov.springcoregym.dao.impl.user.UserDao;
 import ua.orlov.springcoregym.dao.impl.user.trainee.TraineeDao;
 import ua.orlov.springcoregym.dao.impl.user.trainer.TrainerDao;
+import ua.orlov.springcoregym.exception.BusinessLogicException;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
@@ -42,7 +43,7 @@ public class TrainerServiceImpl implements TrainerService {
         trainer.setPassword(foundTrainer.getPassword());
 
         if (foundTrainer.isActive() != trainer.isActive()) {
-            throw new IllegalArgumentException("IsActive field can't be changed in update");
+            throw new BusinessLogicException("IsActive field can't be changed in update");
         }
 
         trainer = trainerDAO.update(trainer);
@@ -67,9 +68,8 @@ public class TrainerServiceImpl implements TrainerService {
         trainer.setPassword(passwordEncoder.encode(trainer.getPassword()));
 
         Trainer savedTrainer = trainerDAO.create(trainer);
-        savedTrainer.setPassword(oldPassword);
 
-        return savedTrainer;
+        return savedTrainer.toBuilder().password(oldPassword).build();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public boolean isUserNameMatchPassword(String username, String password) {
         Trainer foundTrainer = trainerDAO.getByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Trainer not found " + username));
+                .orElseThrow(() -> new BusinessLogicException("Trainer not found " + username));
 
         return password != null && password.equals(foundTrainer.getPassword());
     }
@@ -116,7 +116,7 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer foundTrainer = select(trainer.getId());
 
         if (!foundTrainer.getPassword().equals(trainer.getPassword())) {
-            throw new IllegalArgumentException("Wrong password for trainer " + trainer.getUsername());
+            throw new BusinessLogicException("Wrong password for trainer " + trainer.getUsername());
         }
 
         foundTrainer.setPassword(newPassword);
@@ -130,7 +130,7 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer foundTrainer = select(trainerId);
 
         if (foundTrainer.isActive()) {
-            throw new IllegalArgumentException("Trainer is already active " + foundTrainer);
+            throw new BusinessLogicException("Trainer is already active " + foundTrainer);
         }
 
         foundTrainer.setActive(true);
@@ -144,7 +144,7 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer foundTrainer = select(trainerId);
 
         if (!foundTrainer.isActive()) {
-            throw new IllegalArgumentException("Trainer is already deactivated " + foundTrainer);
+            throw new BusinessLogicException("Trainer is already deactivated " + foundTrainer);
         }
 
         foundTrainer.setActive(false);
@@ -161,7 +161,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public List<Trainer> getTrainersWithoutPassedTrainee(String traineeUsername, Pageable pageable) {
         Trainee trainee = traineeDAO.getByUsername(traineeUsername)
-                .orElseThrow(() -> new IllegalArgumentException("Trainee not found " + traineeUsername));
+                .orElseThrow(() -> new BusinessLogicException("Trainee not found " + traineeUsername));
 
         return trainerDAO.getTrainersWithoutPassedTrainee(trainee, pageable);
     }
@@ -174,10 +174,10 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public Trainer authenticateTrainer(String userName, String password) {
         Trainer foundTrainer = trainerDAO.getByUsername(userName)
-                .orElseThrow(() -> new IllegalArgumentException("Trainer not found " + userName));
+                .orElseThrow(() -> new BusinessLogicException("Trainer not found " + userName));
 
         if (!foundTrainer.getPassword().equals(password)) {
-            throw new IllegalArgumentException("Wrong password for trainer " + userName);
+            throw new BusinessLogicException("Wrong password for trainer " + userName);
         }
 
         return foundTrainer;

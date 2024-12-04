@@ -45,7 +45,7 @@ public class SecurityConfig {
                     httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable);
                 })
                 .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfiguration = new CorsConfiguration();
+                    CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
                     corsConfiguration.setAllowedHeaders(List.of("*"));
                     corsConfiguration.setAllowCredentials(true);
@@ -54,7 +54,8 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**", "/swagger-ui/**",
-                                "/v3/api-docs/swagger-config", "/v3/api-docs").permitAll()
+                                "/v3/api-docs/swagger-config", "/v3/api-docs", "/dashboard", "/dashboard/**",
+                                "/eureka/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/trainee/create", "/api/v1/trainer",
                                 "/api/v1/session").permitAll()
                         .anyRequest().authenticated()

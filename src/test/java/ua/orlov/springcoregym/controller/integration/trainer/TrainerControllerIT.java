@@ -1,6 +1,7 @@
 package ua.orlov.springcoregym.controller.integration.trainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -13,13 +14,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import ua.orlov.springcoregym.controller.integration.config.HttpRequest;
 import ua.orlov.springcoregym.controller.integration.config.LoginComponent;
 import ua.orlov.springcoregym.dto.trainer.*;
 import ua.orlov.springcoregym.dto.user.UsernameIsActiveUser;
 import ua.orlov.springcoregym.dto.user.UsernameUser;
+import ua.orlov.springcoregym.model.HttpRequest;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
 
@@ -33,6 +36,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Sql(scripts = "/sql/trainer/populate_encrypted_trainer.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class TrainerControllerIT {
+
+    @LocalServerPort
+    int randomServerPort;
+
     @Autowired
     private CloseableHttpClient httpClient;
 
@@ -46,12 +53,12 @@ public class TrainerControllerIT {
 
     @BeforeEach
     void setUp() {
-        loginComponent = new LoginComponent(httpClient, objectMapper);
+        loginComponent = new LoginComponent(httpClient, objectMapper, randomServerPort);
     }
 
     @Test
     void registerTrainerWithoutBody() throws Exception {
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainer");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainer");
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(400, response.getStatusLine().getStatusCode());
@@ -65,7 +72,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainer");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainer");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -86,7 +93,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainer");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainer");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -99,7 +106,7 @@ public class TrainerControllerIT {
     void getTrainerByUsernameWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("testtrainer1", "password");
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer", "GET");
         get.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(get)) {
@@ -117,7 +124,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -137,7 +144,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -157,7 +164,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -177,7 +184,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -193,7 +200,7 @@ public class TrainerControllerIT {
             assertEquals("Test1", trainer.getFirstName());
             assertEquals("Trainer1", trainer.getLastName());
             assertNotNull(trainer.getSpecialization());
-            assertTrue(trainer.getIsActive());
+            assertTrue(trainer.isActive());
 
             assertNotNull(trainer.getTrainees());
             assertEquals(1, trainer.getTrainees().size());
@@ -204,7 +211,7 @@ public class TrainerControllerIT {
     void updateTrainerWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("updateTrainer", "password");
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainer");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainer");
         put.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(put)) {
@@ -222,7 +229,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainer");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainer");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -232,7 +239,6 @@ public class TrainerControllerIT {
             assertTrue(stringResponse.contains("firstName is required"));
             assertTrue(stringResponse.contains("lastName is required"));
             assertTrue(stringResponse.contains("username is required"));
-            assertTrue(stringResponse.contains("isActive is required"));
         }
     }
 
@@ -243,7 +249,7 @@ public class TrainerControllerIT {
 
         UpdateTrainerRequest request = new UpdateTrainerRequest();
         request.setUsername("testtrainer1");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
         request.setSpecializationId(trainingTypeService.getAll().get(0).getId());
@@ -251,7 +257,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainer");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainer");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -268,7 +274,7 @@ public class TrainerControllerIT {
 
         UpdateTrainerRequest request = new UpdateTrainerRequest();
         request.setUsername("asdasdasd");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
         request.setSpecializationId(trainingTypeService.getAll().get(0).getId());
@@ -276,7 +282,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainer");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainer");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -293,7 +299,7 @@ public class TrainerControllerIT {
 
         UpdateTrainerRequest request = new UpdateTrainerRequest();
         request.setUsername("updateTrainer");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
         request.setSpecializationId(trainingTypeService.getAll().get(0).getId());
@@ -301,7 +307,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainer");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainer");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -318,7 +324,7 @@ public class TrainerControllerIT {
             assertEquals("updateTrainer", trainer.getUsername());
             assertEquals(updatedString, trainer.getFirstName());
             assertEquals(updatedString, trainer.getLastName());
-            assertTrue(trainer.getIsActive());
+            assertTrue(trainer.isActive());
             assertNotNull(trainer.getSpecialization());
 
             assertNotNull(trainer.getTrainees());
@@ -330,7 +336,7 @@ public class TrainerControllerIT {
     void getTrainersWithoutTraineeWithoutRequestBody() throws Exception {
         String token = loginComponent.loginAsUser("testtrainee1", "password");
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer/without-trainee", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer/without-trainee", "GET");
         get.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(get)) {
@@ -348,7 +354,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer/without-trainee", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer/without-trainee", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -368,7 +374,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer/without-trainee", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer/without-trainee", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -388,7 +394,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer/without-trainee", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer/without-trainee", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -408,7 +414,7 @@ public class TrainerControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest get = new HttpRequest("https://localhost:8443/api/v1/trainer/without-trainee", "GET");
+        HttpRequest get = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainer/without-trainee", "GET");
         get.setHeader("Authorization", "Bearer " + token);
         get.setEntity(entity);
 
@@ -429,7 +435,7 @@ public class TrainerControllerIT {
     void activateDeactivateTrainerWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("deactivatedTrainer", "password");
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainer/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainer/active");
         patch.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(patch)) {
@@ -446,7 +452,7 @@ public class TrainerControllerIT {
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainer/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainer/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -454,7 +460,6 @@ public class TrainerControllerIT {
             assertEquals(400, response.getStatusLine().getStatusCode());
             String responseString = EntityUtils.toString(response.getEntity());
             assertTrue(responseString.contains("username is required"));
-            assertTrue(responseString.contains("isActive is required"));
         }
     }
 
@@ -464,11 +469,11 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("activatedTrainer");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainer/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainer/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -485,11 +490,11 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("asd");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainer/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainer/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -506,11 +511,11 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("deactivatedTrainer");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainer/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainer/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -526,11 +531,11 @@ public class TrainerControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("activatedTrainer");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainer/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainer/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 

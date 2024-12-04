@@ -2,6 +2,7 @@ package ua.orlov.springcoregym.configuration.filter;
 
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ua.orlov.springcoregym.exception.GlobalExceptionHandler;
+import ua.orlov.springcoregym.controller.advice.GlobalExceptionHandler;
 import ua.orlov.springcoregym.service.security.JwtService;
 import ua.orlov.springcoregym.service.user.UserService;
 
@@ -38,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) {
 
-        var authHeader = request.getHeader(HEADER_NAME);
+        String authHeader = request.getHeader(HEADER_NAME);
         if (StringUtils.isEmpty(authHeader) || !authHeader.startsWith(BEARER_PREFIX)) {
             try {
                 filterChain.doFilter(request, response);
@@ -48,8 +49,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        var jwt = authHeader.substring(BEARER_PREFIX.length());
-        var userName = jwtService.extractUserName(jwt);
+        String jwt = authHeader.substring(BEARER_PREFIX.length());
+        String userName = jwtService.extractUserName(jwt);
 
         if (StringUtils.isNotEmpty(userName) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.getByUsername(userName);
@@ -73,5 +74,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e){
             globalExceptionHandler.handleException(e);
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/eureka") || path.startsWith("/actuator") || path.startsWith("/swagger-ui");
     }
 }

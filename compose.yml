@@ -1,15 +1,23 @@
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres_db
-    environment:
-      POSTGRES_DB: GymDB
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: master
+    container_name: postgres-db
+    env_file:
+      - .env
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+        gym-network:
+          ipv4_address: 172.18.0.2
+    mem_limit: 1g
 
   prometheus:
     image: prom/prometheus:latest
@@ -18,22 +26,61 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      gym-network:
+        ipv4_address: 172.18.0.3
+    mem_limit: 1g
 
-  spring_boot_gym:
+  spring-boot-gym:
     image: spring-gym
-    container_name: spring_boot_gym
+    container_name: spring-boot-gym
+    env_file:
+      - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/GymDB
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: master
-      SPRING_PROFILES_ACTIVE: prod
+    - JAVA_OPTS="-Djavax.net.ssl.keyStore=/app/resources/myCertificate.jks -Djavax.net.ssl.keyStorePassword=${KEY_STORE_PASSWORD} -Djavax.net.ssl.trustStore=/app/resources/myCertificate.jks -Djavax.net.ssl.trustStorePassword=${TRUST_STORE_PASSWORD}"
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/${POSTGRES_DB}
+    - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+    - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    - SPRING_PROFILES_ACTIVE=prod
     ports:
       - "8443:8443"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - ./src/main/resources/myCertificate.jks:/app/resources/myCertificate.jks
+    networks:
+      gym-network:
+        ipv4_address: 172.18.0.5
+    mem_limit: 1g
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    networks:
+      gym-network:
+        ipv4_address: 172.18.0.10
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    mem_limit: 1g
 
 volumes:
   postgres_data:
+
+networks:
+  gym-network:
+    external: true

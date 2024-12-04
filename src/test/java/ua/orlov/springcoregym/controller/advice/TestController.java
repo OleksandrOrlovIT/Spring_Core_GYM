@@ -1,15 +1,15 @@
-package ua.orlov.springcoregym.exception;
+package ua.orlov.springcoregym.controller.advice;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import ua.orlov.springcoregym.exception.BusinessLogicException;
+import ua.orlov.springcoregym.exception.TooManyAttemptsException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -67,13 +67,8 @@ public class TestController {
                 .AuthenticationException("Authentication failed, invalid credentials") {};
     }
 
-    @GetMapping("/authorization-denied-exception")
-    public void authorizationDeniedException() {
-        throw new AuthorizationDeniedException("Authorization Denied", new AuthorizationResult() {
-            @Override
-            public boolean isGranted() {
-                return false;
-            }
-        });
+    @GetMapping("/business-logic-exception")
+    public void businessLogicException() {
+        throw new BusinessLogicException("Business Logic");
     }
 }

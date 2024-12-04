@@ -68,7 +68,7 @@ class TrainingDaoImplIT {
                 .trainingName(TRAINING_NAME)
                 .trainingType(testTrainingType)
                 .trainingDate(LocalDate.MIN)
-                .trainingDuration(10L)
+                .trainingDurationMinutes(10)
                 .build();
     }
 
@@ -144,7 +144,7 @@ class TrainingDaoImplIT {
                 .trainingName(TRAINING_NAME + delim)
                 .trainingType(testTrainingTypeForUpdate)
                 .trainingDate(LocalDate.MIN.plusDays(1))
-                .trainingDuration(10L)
+                .trainingDurationMinutes(10)
                 .build();
 
         Training updated = trainingDao.update(diffTraining);
@@ -154,7 +154,7 @@ class TrainingDaoImplIT {
         assertEquals(testTrainingTypeForUpdate, updated.getTrainingType());
         assertEquals(TRAINING_NAME + delim, updated.getTrainingName());
         assertEquals(LocalDate.MIN.plusDays(1), updated.getTrainingDate());
-        assertEquals(10L, updated.getTrainingDuration());
+        assertEquals(10, updated.getTrainingDurationMinutes());
     }
 
     @Test

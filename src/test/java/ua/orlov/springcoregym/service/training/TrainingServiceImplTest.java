@@ -126,7 +126,7 @@ class TrainingServiceImplTest {
                 .trainingName("TRAINING NAME")
                 .trainingType(new TrainingType())
                 .trainingDate(LocalDate.MIN)
-                .trainingDuration(10L)
+                .trainingDurationMinutes(10)
                 .build();
 
         when(trainingDao.create(any())).thenReturn(training);
