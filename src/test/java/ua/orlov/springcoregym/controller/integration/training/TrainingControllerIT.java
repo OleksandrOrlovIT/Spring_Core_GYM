@@ -15,14 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ua.orlov.springcoregym.controller.integration.config.LoginComponent;
 import ua.orlov.springcoregym.dto.training.CreateTrainingRequest;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
 import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
-import ua.orlov.springcoregym.service.messages.MessageSender;
+import ua.orlov.springcoregym.service.message.MessageSender;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
 import java.io.IOException;
@@ -31,7 +30,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -52,9 +50,6 @@ public class TrainingControllerIT {
     private ObjectMapper objectMapper;
 
     private LoginComponent loginComponent;
-
-    @MockBean
-    private MessageSender messageSender;
 
     @Autowired
     private TrainingTypeService trainingTypeService;

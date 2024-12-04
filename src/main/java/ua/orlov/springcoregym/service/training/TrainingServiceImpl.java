@@ -12,7 +12,7 @@ import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
 import ua.orlov.springcoregym.mapper.trainer.TrainerMapper;
 import ua.orlov.springcoregym.model.ActionType;
 import ua.orlov.springcoregym.model.training.Training;
-import ua.orlov.springcoregym.service.messages.MessageSender;
+import ua.orlov.springcoregym.service.message.MessageSender;
 
 import java.util.List;
 import java.util.NoSuchElementException;

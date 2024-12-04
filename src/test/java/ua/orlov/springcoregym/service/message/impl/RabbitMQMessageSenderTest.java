@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
-import ua.orlov.springcoregym.service.messages.impl.RabbitMQMessageSender;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

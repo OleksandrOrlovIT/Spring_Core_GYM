@@ -16,7 +16,7 @@ import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.service.messages.MessageSender;
+import ua.orlov.springcoregym.service.message.MessageSender;
 
 import java.time.LocalDate;
 import java.util.List;

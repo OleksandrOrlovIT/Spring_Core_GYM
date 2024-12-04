@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,7 +22,6 @@ import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
 import ua.orlov.springcoregym.security.training.TrainingSecurity;
-import ua.orlov.springcoregym.service.messages.MessageSender;
 import ua.orlov.springcoregym.service.training.TrainingService;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
 
