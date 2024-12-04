@@ -13,13 +13,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ua.orlov.springcoregym.controller.integration.config.LoginComponent;
-import ua.orlov.springcoregym.controller.integration.config.HttpRequest;
 import ua.orlov.springcoregym.dto.trainee.*;
 import ua.orlov.springcoregym.dto.user.UsernameIsActiveUser;
 import ua.orlov.springcoregym.dto.user.UsernameUser;
+import ua.orlov.springcoregym.model.HttpRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,10 +29,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "/sql/trainee/populate_encrypted_trainee.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @Sql(scripts = "/sql/prune_tables.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 public class TraineeControllerIT {
+
+    @LocalServerPort
+    int randomServerPort;
 
     @Autowired
     private CloseableHttpClient httpClient;
@@ -42,12 +47,12 @@ public class TraineeControllerIT {
 
     @BeforeEach
     void setUp() {
-        loginComponent = new LoginComponent(httpClient, objectMapper);
+        loginComponent = new LoginComponent(httpClient, objectMapper, randomServerPort);
     }
 
     @Test
     void registerTraineeWithoutBody() throws Exception {
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/create");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/create");
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(400, response.getStatusLine().getStatusCode());
@@ -61,7 +66,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/create");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/create");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -83,7 +88,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/create");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/create");
         post.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -96,7 +101,7 @@ public class TraineeControllerIT {
     void getTraineeByUsernameWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("testtrainee", "password");
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/username");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/username");
         post.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
@@ -114,7 +119,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/username");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/username");
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
@@ -134,7 +139,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/username");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/username");
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
@@ -154,7 +159,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/username");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/username");
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
@@ -174,7 +179,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPost post = new HttpPost("https://localhost:8443/api/v1/trainee/username");
+        HttpPost post = new HttpPost("https://localhost:" + randomServerPort + "/api/v1/trainee/username");
         post.setHeader("Authorization", "Bearer " + token);
         post.setEntity(entity);
 
@@ -203,7 +208,7 @@ public class TraineeControllerIT {
     void updateTraineeWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("updateTrainee", "password");
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee");
         put.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(put)) {
@@ -221,7 +226,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -231,7 +236,6 @@ public class TraineeControllerIT {
             assertTrue(stringResponse.contains("firstName is required"));
             assertTrue(stringResponse.contains("lastName is required"));
             assertTrue(stringResponse.contains("username is required"));
-            assertTrue(stringResponse.contains("isActive is required"));
         }
     }
 
@@ -243,7 +247,7 @@ public class TraineeControllerIT {
 
         UpdateTraineeRequest request = new UpdateTraineeRequest();
         request.setUsername("testtrainee");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setAddress(updatedString);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
@@ -252,7 +256,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -270,7 +274,7 @@ public class TraineeControllerIT {
 
         UpdateTraineeRequest request = new UpdateTraineeRequest();
         request.setUsername("asdasdasd");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setAddress(updatedString);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
@@ -279,7 +283,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -297,7 +301,7 @@ public class TraineeControllerIT {
 
         UpdateTraineeRequest request = new UpdateTraineeRequest();
         request.setUsername("updateTrainee");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setAddress(updatedString);
         request.setFirstName(updatedString);
         request.setLastName(updatedString);
@@ -306,7 +310,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -336,7 +340,7 @@ public class TraineeControllerIT {
     void deleteTraineeByUsernameWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("testtrainee", "password");
 
-        HttpRequest delete = new HttpRequest("https://localhost:8443/api/v1/trainee", "DELETE");
+        HttpRequest delete = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainee", "DELETE");
         delete.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(delete)) {
@@ -355,7 +359,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest delete = new HttpRequest("https://localhost:8443/api/v1/trainee", "DELETE");
+        HttpRequest delete = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainee", "DELETE");
         delete.setHeader("Authorization", "Bearer " + token);
         delete.setEntity(entity);
 
@@ -375,7 +379,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest delete = new HttpRequest("https://localhost:8443/api/v1/trainee", "DELETE");
+        HttpRequest delete = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainee", "DELETE");
         delete.setHeader("Authorization", "Bearer " + token);
         delete.setEntity(entity);
 
@@ -395,7 +399,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest delete = new HttpRequest("https://localhost:8443/api/v1/trainee", "DELETE");
+        HttpRequest delete = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainee", "DELETE");
         delete.setHeader("Authorization", "Bearer " + token);
         delete.setEntity(entity);
 
@@ -415,7 +419,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpRequest delete = new HttpRequest("https://localhost:8443/api/v1/trainee", "DELETE");
+        HttpRequest delete = new HttpRequest("https://localhost:" + randomServerPort + "/api/v1/trainee", "DELETE");
         delete.setHeader("Authorization", "Bearer " + token);
         delete.setEntity(entity);
 
@@ -428,7 +432,7 @@ public class TraineeControllerIT {
     void updateTraineeTrainersListWithoutBody() throws Exception {
         String token = loginComponent.loginAsUser("updateTraineeTrainersUser", "password");
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee/trainers");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee/trainers");
         put.setHeader("Authorization", "Bearer " + token);
 
         try (CloseableHttpResponse response = httpClient.execute(put)) {
@@ -446,7 +450,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee/trainers");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee/trainers");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -470,7 +474,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee/trainers");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee/trainers");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -492,7 +496,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee/trainers");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee/trainers");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -514,7 +518,7 @@ public class TraineeControllerIT {
         String json = objectMapper.writeValueAsString(request);
         StringEntity entity = new StringEntity(json, ContentType.APPLICATION_JSON);
 
-        HttpPut put = new HttpPut("https://localhost:8443/api/v1/trainee/trainers");
+        HttpPut put = new HttpPut("https://localhost:" + randomServerPort + "/api/v1/trainee/trainers");
         put.setHeader("Authorization", "Bearer " + token);
         put.setEntity(entity);
 
@@ -535,7 +539,7 @@ public class TraineeControllerIT {
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainee/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainee/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -553,14 +557,13 @@ public class TraineeControllerIT {
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainee/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainee/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
         try (CloseableHttpResponse response = httpClient.execute(patch)) {
             assertEquals(400, response.getStatusLine().getStatusCode());
             String responseString = EntityUtils.toString(response.getEntity());
-            assertTrue(responseString.contains("isActive is required"));
             assertTrue(responseString.contains("username is required"));
         }
     }
@@ -571,11 +574,11 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("testtrainee");
-        request.setIsActive(true);
+        request.setActive(true);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainee/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainee/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -592,11 +595,11 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("asd");
-        request.setIsActive(true);
+        request.setActive(true);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainee/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainee/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -613,11 +616,11 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("deactivatedTrainee");
-        request.setIsActive(true);
+        request.setActive(true);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainee/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainee/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 
@@ -633,11 +636,11 @@ public class TraineeControllerIT {
 
         UsernameIsActiveUser request = new UsernameIsActiveUser();
         request.setUsername("activatedTrainee");
-        request.setIsActive(false);
+        request.setActive(false);
 
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(request), ContentType.APPLICATION_JSON);
 
-        HttpPatch patch = new HttpPatch("https://localhost:8443/api/v1/trainee/active");
+        HttpPatch patch = new HttpPatch("https://localhost:" + randomServerPort + "/api/v1/trainee/active");
         patch.setHeader("Authorization", "Bearer " + token);
         patch.setEntity(entity);
 

@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.controller.integration.config;
+package ua.orlov.springcoregym.model;
 
 import org.apache.http.client.methods.HttpPost;
 

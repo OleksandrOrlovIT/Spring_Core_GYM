@@ -1,5 +1,7 @@
 package ua.orlov.springcoregym.mapper.trainer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -7,9 +9,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ua.orlov.springcoregym.dto.trainer.TrainerRegister;
 import ua.orlov.springcoregym.dto.trainer.TrainerResponse;
+import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
 import ua.orlov.springcoregym.dto.trainer.UpdateTrainerRequest;
 import ua.orlov.springcoregym.dto.trainingtype.TrainingTypeResponse;
 import ua.orlov.springcoregym.dto.user.UsernamePasswordUser;
+import ua.orlov.springcoregym.exception.BusinessLogicException;
 import ua.orlov.springcoregym.mapper.trainingtype.TrainingTypeMapper;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainer;
@@ -31,6 +35,9 @@ class TrainerMapperTest {
     @Mock
     private TrainingTypeMapper trainingTypeMapper;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
     @InjectMocks
     private TrainerMapper trainerMapper;
 
@@ -41,7 +48,7 @@ class TrainerMapperTest {
         trainerRegister.setLastName("lastname");
         trainerRegister.setSpecializationId(1L);
 
-        when(trainingTypeService.select(anyLong())).thenReturn(new TrainingType());
+        when(trainingTypeService.getById(anyLong())).thenReturn(new TrainingType());
 
         Trainer trainer = trainerMapper.trainerRegisterToTrainer(trainerRegister);
 
@@ -50,7 +57,7 @@ class TrainerMapperTest {
         assertEquals(trainerRegister.getLastName(), trainer.getLastName());
         assertNotNull(trainer.getSpecialization());
 
-        verify(trainingTypeService, times(1)).select(any());
+        verify(trainingTypeService, times(1)).getById(any());
     }
 
     @Test
@@ -125,19 +132,39 @@ class TrainerMapperTest {
         request.setUsername("userName");
         request.setFirstName("firstName");
         request.setLastName("lastName");
-        request.setIsActive(true);
+        request.setActive(true);
         request.setSpecializationId(1L);
 
-        when(trainingTypeService.select(anyLong())).thenReturn(new TrainingType());
+        when(trainingTypeService.getById(anyLong())).thenReturn(new TrainingType());
 
         Trainer trainer = trainerMapper.updateTrainerRequestToTrainer(request);
         assertNotNull(trainer);
         assertEquals(request.getUsername(), trainer.getUsername());
         assertEquals(request.getFirstName(), trainer.getFirstName());
         assertEquals(request.getLastName(), trainer.getLastName());
-        assertEquals(request.getIsActive(), trainer.isActive());
+        assertEquals(request.isActive(), trainer.isActive());
         assertNotNull(trainer.getSpecialization());
 
-        verify(trainingTypeService, times(1)).select(anyLong());
+        verify(trainingTypeService, times(1)).getById(anyLong());
+    }
+
+    @Test
+    void trainerWorkloadToJsonThenSuccess() throws JsonProcessingException {
+        when(objectMapper.writeValueAsString(any())).thenReturn("");
+
+        assertNotNull(trainerMapper.trainerWorkloadToJson(new TrainerWorkload()));
+
+        verify(objectMapper).writeValueAsString(any());
+    }
+
+    @Test
+    void trainerWorkloadToJsonThenException() throws JsonProcessingException {
+        when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException(""){});
+
+        BusinessLogicException e = assertThrows(BusinessLogicException.class,
+                () -> trainerMapper.trainerWorkloadToJson(new TrainerWorkload()));
+
+        assertEquals("Serialization error", e.getMessage());
+        verify(objectMapper).writeValueAsString(any());
     }
 }

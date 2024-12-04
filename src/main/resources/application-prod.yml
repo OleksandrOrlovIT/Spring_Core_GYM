@@ -1,0 +1,78 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  web:
+    resources:
+      add-mappings: true
+  application:
+    name: SPRING-CORE-GYM
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    enable:
+      hikari: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+token:
+  signing:
+    key: ${TOKEN_SIGNING_KEY}
+
+max:
+  login:
+    attempt: 3
+
+logout:
+  duration:
+    minutes: 5
+
+expiration:
+  date:
+    milliseconds: 900000
+
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:myCertificate.jks
+    key-store-type: PKCS12
+    key-store-password: ${KEY_STORE_PASSWORD}
+    trust-store: classpath:myCertificate.jks
+    trust-store-type: PKCS12
+    trust-store-password: ${TRUST_STORE_PASSWORD}
+  port: 8443
+
+logging:
+  level:
+    root: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{X-Transaction-Id}] [%thread] %-5level %logger{36} - %msg%n"
+
+rabbitmq:
+  host: rabbitmq
+  port: 5672
+  username: ${RABBITMQ_USER}
+  password: ${RABBITMQ_PASSWORD}
+  trainer-workload-queue-name: trainerWorkloadQueue
+  retry-time-ms: 5000
+
+thread-pool:
+  size: 10
+  max-pool-size: 20
+  queue-capacity: 50

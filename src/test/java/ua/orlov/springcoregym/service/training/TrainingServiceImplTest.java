@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,12 +8,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ua.orlov.springcoregym.dao.impl.training.TrainingDao;
+import ua.orlov.springcoregym.dto.trainer.TrainerWorkload;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
 import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
+import ua.orlov.springcoregym.mapper.trainer.TrainerMapper;
 import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,6 +32,12 @@ class TrainingServiceImplTest {
 
     @Mock
     private TrainingDao trainingDao;
+
+    @Mock
+    private TrainerMapper trainerMapper;
+
+    @Mock
+    private MessageSender messageSender;
 
     @InjectMocks
     private TrainingServiceImpl trainingServiceImpl;
@@ -109,39 +119,43 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void createGivenTrainingThenSuccess() {
+    void createGivenTrainingThenSuccess() throws JsonProcessingException {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
                 .trainingName("TRAINING NAME")
                 .trainingType(new TrainingType())
                 .trainingDate(LocalDate.MIN)
-                .trainingDuration(10L)
+                .trainingDurationMinutes(10)
                 .build();
 
         when(trainingDao.create(any())).thenReturn(training);
+        when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
 
         assertEquals(training, trainingServiceImpl.create(training));
         verify(trainingDao, times(1)).create(any());
+        verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 
     @Test
-    void selectGivenTrainingThenSuccess() {
+    void getByIdGivenTrainingThenSuccess() {
         Training training = new Training();
 
         when(trainingDao.getById(any())).thenReturn(Optional.of(training));
 
-        Assertions.assertEquals(training, trainingServiceImpl.select(1L));
+        Assertions.assertEquals(training, trainingServiceImpl.getById(1L));
         verify(trainingDao, times(1)).getById(any());
     }
 
     @Test
-    void selectGivenNotFoundTrainingThenFail() {
+    void getByIdGivenNotFoundTrainingThenFail() {
         Training training = new Training();
 
         when(trainingDao.getById(any())).thenReturn(Optional.empty());
 
-        var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.select(training.getId()));
+        var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.getById(training.getId()));
 
         assertEquals("Training not found with id = " + training.getId(), e.getMessage());
         verify(trainingDao, times(1)).getById(any());
@@ -172,5 +186,30 @@ class TrainingServiceImplTest {
                 .thenReturn(List.of(new Training(), new Training()));
 
         assertEquals(2, trainingServiceImpl.getTrainingsByCriteria(new TrainerTrainingRequest()).size());
+    }
+
+    @Test
+    void deleteTrainingByIdThenSuccess() throws JsonProcessingException {
+        when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
+        when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+
+        trainingServiceImpl.deleteTrainingById(1L);
+
+        verify(trainingDao, times(1)).getById(any());
+        verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
+    }
+
+    @Test
+    void deleteTrainingByIdThenSuccessAndJsonProcessingExceptionThrownInMessageSender() throws JsonProcessingException {
+        when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
+        when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
+
+        trainingServiceImpl.deleteTrainingById(1L);
+
+        verify(trainingDao, times(1)).getById(any());
+        verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 }

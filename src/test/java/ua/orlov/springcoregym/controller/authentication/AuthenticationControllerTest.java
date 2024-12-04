@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -35,7 +36,10 @@ class AuthenticationControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(authenticationController).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(authenticationController)
+                .setMessageConverters(new MappingJackson2HttpMessageConverter())
+                .build();
     }
 
     @Test
@@ -65,7 +69,7 @@ class AuthenticationControllerTest {
 
         String responseBody = result.getResponse().getContentAsString();
 
-        assertEquals("You successfully changed password", responseBody);
+        assertEquals("\"You successfully changed password\"", responseBody);
     }
 
 
@@ -81,7 +85,7 @@ class AuthenticationControllerTest {
 
         String responseBody = result.getResponse().getContentAsString();
 
-        assertEquals("Password hasn't been changed", responseBody);
+        assertEquals("\"Password hasn't been changed\"", responseBody);
     }
 
     @Test
@@ -96,7 +100,7 @@ class AuthenticationControllerTest {
 
         String responseBody = result.getResponse().getContentAsString();
 
-        assertEquals("Logged out successfully.", responseBody);
+        assertEquals("\"Logged out successfully.\"", responseBody);
         verify(authenticationService, times(1)).logout(any());
     }
 

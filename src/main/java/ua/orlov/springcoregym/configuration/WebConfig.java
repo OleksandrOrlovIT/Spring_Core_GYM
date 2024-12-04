@@ -1,6 +1,5 @@
-package ua.orlov.springcoregym.controller.integration.config;
+package ua.orlov.springcoregym.configuration;
 
-import lombok.extern.log4j.Log4j2;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -8,19 +7,27 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
-@ActiveProfiles("test")
 @Configuration
-@Log4j2
-public class HttpClientConfiguration {
+public class WebConfig {
 
-    @Primary
+    @Bean
+    public WebMvcConfigurer customConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+                configurer.defaultContentType(MediaType.APPLICATION_JSON);
+            }
+        };
+    }
+
     @Bean
     public CloseableHttpClient httpClient() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         try {
@@ -31,8 +38,8 @@ public class HttpClientConfiguration {
                     .build();
 
         } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
-            log.error(e.getMessage());
             throw e;
         }
     }
+
 }
