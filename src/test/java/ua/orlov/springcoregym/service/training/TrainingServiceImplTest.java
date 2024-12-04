@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,7 @@ import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.service.user.trainer.WorkloadService;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,10 +34,10 @@ class TrainingServiceImplTest {
     private TrainingDao trainingDao;
 
     @Mock
-    private WorkloadService workloadService;
+    private TrainerMapper trainerMapper;
 
     @Mock
-    private TrainerMapper trainerMapper;
+    private MessageSender messageSender;
 
     @InjectMocks
     private TrainingServiceImpl trainingServiceImpl;
@@ -118,24 +119,24 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void createGivenTrainingThenSuccess() {
+    void createGivenTrainingThenSuccess() throws JsonProcessingException {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
                 .trainingName("TRAINING NAME")
                 .trainingType(new TrainingType())
                 .trainingDate(LocalDate.MIN)
-                .trainingDuration(10L)
+                .trainingDurationMinutes(10)
                 .build();
 
         when(trainingDao.create(any())).thenReturn(training);
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
-        when(workloadService.changeWorkload(any())).thenReturn("");
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
 
         assertEquals(training, trainingServiceImpl.create(training));
         verify(trainingDao, times(1)).create(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
-        verify(workloadService, times(1)).changeWorkload(any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 
     @Test
@@ -188,15 +189,27 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void deleteTrainingByIdThenSuccess() {
+    void deleteTrainingByIdThenSuccess() throws JsonProcessingException {
         when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
-        when(workloadService.changeWorkload(any())).thenReturn("");
 
         trainingServiceImpl.deleteTrainingById(1L);
 
         verify(trainingDao, times(1)).getById(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
-        verify(workloadService, times(1)).changeWorkload(any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
+    }
+
+    @Test
+    void deleteTrainingByIdThenSuccessAndJsonProcessingExceptionThrownInMessageSender() throws JsonProcessingException {
+        when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
+        when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
+
+        trainingServiceImpl.deleteTrainingById(1L);
+
+        verify(trainingDao, times(1)).getById(any());
+        verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 }

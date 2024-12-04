@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.exception;
+package ua.orlov.springcoregym.controller.advice;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpMethod;
@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import ua.orlov.springcoregym.exception.BusinessLogicException;
+import ua.orlov.springcoregym.exception.TooManyAttemptsException;
 
 import java.util.NoSuchElementException;
 
@@ -63,5 +65,10 @@ public class TestController {
     public void authenticationException() {
         throw new org.springframework.security.core
                 .AuthenticationException("Authentication failed, invalid credentials") {};
+    }
+
+    @GetMapping("/business-logic-exception")
+    public void businessLogicException() {
+        throw new BusinessLogicException("Business Logic");
     }
 }

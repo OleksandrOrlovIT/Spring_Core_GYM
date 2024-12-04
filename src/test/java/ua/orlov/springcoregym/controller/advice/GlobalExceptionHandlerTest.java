@@ -1,4 +1,4 @@
-package ua.orlov.springcoregym.exception;
+package ua.orlov.springcoregym.controller.advice;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,7 +81,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Illegal argument Exception\",\"status\":\"BAD_REQUEST\"}", content);
+        assertEquals("{\"message\":\"An unexpected illegal argument was provided\",\"status\":\"BAD_REQUEST\"}", content);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Runtime Exception\",\"status\":\"INTERNAL_SERVER_ERROR\"}", content);
+        assertEquals("{\"message\":\"An unexpected runtime error occurred.\",\"status\":\"INTERNAL_ERROR\"}", content);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class GlobalExceptionHandlerTest {
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertEquals("{\"message\":\"Exception\",\"status\":\"INTERNAL_SERVER_ERROR\"}", content);
+        assertEquals("{\"message\":\"An unexpected error occurred.\",\"status\":\"GENERAL_ERROR\"}", content);
     }
 
     @Test
@@ -166,5 +166,16 @@ public class GlobalExceptionHandlerTest {
 
         String content = result.getResponse().getContentAsString();
         assertEquals("{\"message\":\"Too many attempts, please try again later.\",\"status\":\"TOO_MANY_REQUESTS\"}", content);
+    }
+
+    @Test
+    void handleBusinessLogicException() throws Exception {
+        MvcResult result = mockMvc.perform(get("/business-logic-exception")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertEquals("{\"message\":\"Business Logic\",\"status\":\"LOGIC_ERROR\"}", content);
     }
 }
