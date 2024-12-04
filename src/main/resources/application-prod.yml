@@ -33,7 +33,7 @@ management:
 
 token:
   signing:
-    key: 63B74F4E1D5F0B2C4A3F2E685F7A1C534D7E357E1D7F5C3B495C734B64327844
+    key: ${TOKEN_SIGNING_KEY}
 
 max:
   login:
@@ -67,8 +67,8 @@ logging:
 rabbitmq:
   host: rabbitmq
   port: 5672
-  username: guest
-  password: guest
+  username: ${RABBITMQ_USER}
+  password: ${RABBITMQ_PASSWORD}
   trainer-workload-queue-name: trainerWorkloadQueue
   retry-time-ms: 5000
 
