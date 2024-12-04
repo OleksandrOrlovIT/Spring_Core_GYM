@@ -22,8 +22,8 @@ import ua.orlov.springcoregym.controller.integration.config.LoginComponent;
 import ua.orlov.springcoregym.dto.training.CreateTrainingRequest;
 import ua.orlov.springcoregym.dto.training.TraineeTrainingsRequest;
 import ua.orlov.springcoregym.dto.training.TrainerTrainingRequest;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 import ua.orlov.springcoregym.service.training.TrainingTypeService;
-import ua.orlov.springcoregym.service.user.trainer.WorkloadService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -42,6 +42,9 @@ public class TrainingControllerIT {
     @LocalServerPort
     int randomServerPort;
 
+    @MockBean
+    private MessageSender messageSender;
+
     @Autowired
     private CloseableHttpClient httpClient;
 
@@ -52,9 +55,6 @@ public class TrainingControllerIT {
 
     @Autowired
     private TrainingTypeService trainingTypeService;
-
-    @MockBean
-    private WorkloadService workloadService;
 
     @BeforeEach
     void setUp() {
@@ -446,8 +446,6 @@ public class TrainingControllerIT {
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(200, response.getStatusLine().getStatusCode());
         }
-
-        verify(workloadService, times(1)).changeWorkload(any());
     }
 
     @Test
@@ -471,8 +469,6 @@ public class TrainingControllerIT {
         try (CloseableHttpResponse response = httpClient.execute(post)) {
             assertEquals(200, response.getStatusLine().getStatusCode());
         }
-
-        verify(workloadService, times(1)).changeWorkload(any());
     }
 
     @Test

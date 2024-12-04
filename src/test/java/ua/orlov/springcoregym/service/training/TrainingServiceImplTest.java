@@ -1,5 +1,6 @@
 package ua.orlov.springcoregym.service.training;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,7 @@ import ua.orlov.springcoregym.model.training.Training;
 import ua.orlov.springcoregym.model.training.TrainingType;
 import ua.orlov.springcoregym.model.user.Trainee;
 import ua.orlov.springcoregym.model.user.Trainer;
-import ua.orlov.springcoregym.service.user.trainer.WorkloadService;
+import ua.orlov.springcoregym.service.messages.MessageSender;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,10 +34,10 @@ class TrainingServiceImplTest {
     private TrainingDao trainingDao;
 
     @Mock
-    private WorkloadService workloadService;
+    private TrainerMapper trainerMapper;
 
     @Mock
-    private TrainerMapper trainerMapper;
+    private MessageSender messageSender;
 
     @InjectMocks
     private TrainingServiceImpl trainingServiceImpl;
@@ -45,7 +46,7 @@ class TrainingServiceImplTest {
     void createGivenTrainingNullThenException() {
         Training training = null;
 
-        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training can't be null", e.getMessage());
     }
 
@@ -53,7 +54,7 @@ class TrainingServiceImplTest {
     void createGivenTrainingTraineeNullThenException() {
         Training training = Training.builder().build();
 
-        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainee can't be null", e.getMessage());
     }
 
@@ -63,7 +64,7 @@ class TrainingServiceImplTest {
                 .trainee(new Trainee())
                 .build();
 
-        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainer can't be null", e.getMessage());
     }
 
@@ -74,7 +75,7 @@ class TrainingServiceImplTest {
                 .trainer(new Trainer())
                 .build();
 
-        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingName can't be null", e.getMessage());
     }
 
@@ -86,7 +87,7 @@ class TrainingServiceImplTest {
                 .trainingName("TRAINING NAME")
                 .build();
 
-        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingType can't be null", e.getMessage());
     }
 
@@ -99,7 +100,7 @@ class TrainingServiceImplTest {
                 .trainingType(new TrainingType())
                 .build();
 
-        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingDate can't be null", e.getMessage());
     }
 
@@ -113,12 +114,12 @@ class TrainingServiceImplTest {
                 .trainingDate(LocalDate.MIN)
                 .build();
 
-        NullPointerException e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
+        var e = assertThrows(NullPointerException.class, () -> trainingServiceImpl.create(training));
         assertEquals("Training.trainingDuration can't be null", e.getMessage());
     }
 
     @Test
-    void createGivenTrainingThenSuccess() {
+    void createGivenTrainingThenSuccess() throws JsonProcessingException {
         Training training = Training.builder()
                 .trainee(new Trainee())
                 .trainer(new Trainer())
@@ -130,11 +131,12 @@ class TrainingServiceImplTest {
 
         when(trainingDao.create(any())).thenReturn(training);
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
 
         assertEquals(training, trainingServiceImpl.create(training));
         verify(trainingDao, times(1)).create(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
-        verify(workloadService, times(1)).changeWorkload(any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 
     @Test
@@ -153,7 +155,7 @@ class TrainingServiceImplTest {
 
         when(trainingDao.getById(any())).thenReturn(Optional.empty());
 
-        NoSuchElementException e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.getById(training.getId()));
+        var e = assertThrows(NoSuchElementException.class, () -> trainingServiceImpl.getById(training.getId()));
 
         assertEquals("Training not found with id = " + training.getId(), e.getMessage());
         verify(trainingDao, times(1)).getById(any());
@@ -187,7 +189,7 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void deleteTrainingByIdThenSuccess() {
+    void deleteTrainingByIdThenSuccess() throws JsonProcessingException {
         when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
         when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
 
@@ -195,6 +197,19 @@ class TrainingServiceImplTest {
 
         verify(trainingDao, times(1)).getById(any());
         verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
-        verify(workloadService, times(1)).changeWorkload(any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
+    }
+
+    @Test
+    void deleteTrainingByIdThenSuccessAndJsonProcessingExceptionThrownInMessageSender() throws JsonProcessingException {
+        when(trainingDao.getById(any())).thenReturn(Optional.of(new Training()));
+        when(trainerMapper.trainerToTrainerWorkload(any(), any(), any())).thenReturn(new TrainerWorkload());
+        doThrow(JsonProcessingException.class).when(messageSender).sendMessageToTrainerWorkload(any());
+
+        trainingServiceImpl.deleteTrainingById(1L);
+
+        verify(trainingDao, times(1)).getById(any());
+        verify(trainerMapper, times(1)).trainerToTrainerWorkload(any(), any(), any());
+        verify(messageSender, times(1)).sendMessageToTrainerWorkload(any());
     }
 }
